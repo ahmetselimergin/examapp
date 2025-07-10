@@ -1,0 +1,78 @@
+{
+  "common": {
+    "welcome": "Welcome",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Submit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "unspecified": "Unspecified",
+    "tr": "Turkish",
+    "en": "English"
+  },
+  "exam": {
+    "title": "Exams",
+    "start": "Start Exam",
+    "finish": "Finish Exam",
+    "questions": "Questions",
+    "time": "Time",
+    "score": "Score",
+    "noExams": "No exams available.",
+    "createExam": "Create Exam"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "passwordLength": "Password must be at least 6 characters"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language Options",
+    "profile": "Profile Information"
+  },
+  "questionBank": {
+    "title": "Question Bank",
+    "addQuestion": "Add Question",
+    "editQuestion": "Edit Question",
+    "deleteQuestion": "Delete Question",
+    "description": "Use the tool below to manage the question bank.",
+    "search": "Search Questions",
+    "questionType": "Question Type",
+    "difficulty": "Difficulty Level",
+    "noQuestions": "No questions available.",
+    "true": "True",
+    "false": "False",
+    "allQuestions": "All Questions",
+    "singleChoice": "Single Choice",
+    "multipleSelect": "Multiple Select",
+    "trueFalse": "True/False",
+    "openEnded": "Open Ended",
+    "allDifficulties": "All Difficulty Levels",
+    "easy": "Easy",
+    "medium": "Medium",
+    "hard": "Hard",
+    "unspecified": "Unspecified",
+    "addOption": "Add Option",
+    "option": "Option",
+    "correctAnswer": "Correct Answer",
+    "questionText": "Question Text"
+  },
+  "navbar": {
+    "home": "Home",
+    "exam": "Exam",
+    "questionBank": "Question Bank",
+    "settings": "Settings",
+    "login": "Login",
+    "register": "Register",
+    "createExam": "Create Exam",
+    "exams": "Exams",
+    "users": "Users",
+    "students": "Students",
+    "admin": "Admin",
+    "quickActions": "Quick Actions"
+  }
+} 

@@ -1,0 +1,265 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined");
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Roboto", sans-serif;
+}
+
+$primary: #001a41;
+$secondary: #c6c6c6;
+$white: #fff;
+$darkgrey: #333;
+$lightgrey: #e7e7e7;
+$primary-blue: #5680e9;
+$light-blue: #84ceeb;
+$sky-blue: #5ab9ea;
+$light-purple: #c1c8e4;
+$purple: #8860d0;
+$dark-blue: #002e73;
+$darker-blue: #001a41;
+$red: #af0202;
+
+.w-full {
+  width: 100%;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.center {
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.space-around {
+  justify-content: space-around;
+}
+
+.space-evenly {
+  justify-content: space-evenly;
+}
+
+.space-start {
+  justify-content: flex-start;
+}
+
+.space-end {
+  justify-content: flex-end;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+// Grid System
+.container {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+
+  @media (min-width: 576px) {
+    max-width: 540px;
+  }
+
+  @media (min-width: 768px) {
+    max-width: 720px;
+  }
+
+  @media (min-width: 992px) {
+    max-width: 960px;
+  }
+
+  @media (min-width: 1200px) {
+    max-width: 1140px;
+  }
+}
+
+.container-fluid {
+  width: 100%;
+  padding-right: 15px;
+  padding-left: 15px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+
+// Column classes
+@for $i from 1 through 12 {
+  .col-#{$i} {
+    flex: 0 0 auto;
+    width: percentage($i / 12);
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+}
+
+// Responsive column classes
+@each $breakpoint,
+$width in (sm: 576px, md: 768px, lg: 992px, xl: 1200px) {
+  @media (min-width: $width) {
+    @for $i from 1 through 12 {
+      .col-#{$breakpoint}-#{$i} {
+        flex: 0 0 auto;
+        width: percentage($i / 12);
+      }
+    }
+  }
+}
+
+// Utility classes for grid
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+
+  >.col,
+  >[class*="col-"] {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+// Margin and Padding Utility Classes
+@for $i from 0 through 10 {
+  $value: $i * 0.5;
+
+  // Margin
+  .m-#{$i} {
+    margin: #{$value}em !important;
+  }
+
+  .mt-#{$i} {
+    margin-top: #{$value}em !important;
+  }
+
+  .me-#{$i} {
+    margin-inline-end: #{$value}em !important;
+  }
+
+  .mb-#{$i} {
+    margin-bottom: #{$value}em !important;
+  }
+
+  .ms-#{$i} {
+    margin-inline-start: #{$value}em !important;
+  }
+
+  .mx-#{$i} {
+    margin-inline-start: #{$value}em !important;
+    margin-inline-end: #{$value}em !important;
+  }
+
+  .my-#{$i} {
+    margin-top: #{$value}em !important;
+    margin-bottom: #{$value}em !important;
+  }
+
+  // Padding
+  .p-#{$i} {
+    padding: #{$value}em !important;
+  }
+
+  .pt-#{$i} {
+    padding-top: #{$value}em !important;
+  }
+
+  .pe-#{$i} {
+    padding-inline-end: #{$value}em !important;
+  }
+
+  .pb-#{$i} {
+    padding-bottom: #{$value}em !important;
+  }
+
+  .ps-#{$i} {
+    padding-inline-start: #{$value}em !important;
+  }
+
+  .px-#{$i} {
+    padding-inline-start: #{$value}em !important;
+    padding-inline-end: #{$value}em !important;
+  }
+
+  .py-#{$i} {
+    padding-top: #{$value}em !important;
+    padding-bottom: #{$value}em !important;
+  }
+
+  .gap-#{$i} {
+    gap: #{$value}em !important;
+  }
+}
+
+.exam-fullscreen {
+  background: #fff !important;
+  overflow: hidden;
+}
+
+.exam-fullscreen .navbar,
+.exam-fullscreen .sidebar {
+  display: none !important;
+}
+
+.exam-fullscreen .exam-student-container {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #fff !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.exam-fullscreen .exam-questions-fullscreen {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+  background: #fff;
+  width: 100vw;
+  height: 100vh;
+  max-width: none;
+  max-height: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}

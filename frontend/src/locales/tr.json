@@ -1,0 +1,80 @@
+{
+  "common": {
+    "welcome": "Hoş Geldiniz",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "logout": "Çıkış Yap",
+    "email": "E-posta",
+    "password": "Şifre",
+    "submit": "Gönder",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "close": "Kapat",
+    "unspecified": "Belirtilmemiş",
+    "tr": "Türkçe",
+    "en": "İngilizce",
+    "add": "Ekle",
+    "edit": "Düzenle",
+    "delete": "Sil"
+  },
+  "exam": {
+    "title": "Sınavlar",
+    "start": "Sınava Başla",
+    "finish": "Sınavı Bitir",
+    "questions": "Sorular",
+    "time": "Süre",
+    "score": "Puan",
+    "noExams": "Sınav yok",
+    "createExam": "Sınav Oluştur"
+  },
+  "validation": {
+    "required": "Bu alan zorunludur",
+    "invalidEmail": "Geçersiz e-posta adresi",
+    "passwordLength": "Şifre en az 6 karakter olmalıdır"
+  },
+  "questionBank": {
+    "title": "Soru Bankası",
+    "addQuestion": "Soru Ekle",
+    "editQuestion": "Soru Düzenle",
+    "deleteQuestion": "Soru Sil",
+    "description": "Soru bankasını yönetmek için aşağıdaki aracı kullanın.",
+    "search": "Soru Ara",
+    "questionType": "Soru Tipi",
+    "difficulty": "Zorluk Seviyesi",
+    "noQuestions": "Kayıtlı soru yok.",
+    "true": "Doğru",
+    "false": "Yanlış",
+    "allQuestions": "Tüm Sorular",
+    "singleChoice": "Çoktan Tek Seçmeli",
+    "multipleSelect": "Çoktan Çok Seçmeli",
+    "trueFalse": "Doğru/Yanlış",
+    "openEnded": "Kısa Cevap",
+    "allDifficulties": "Tüm Zorluk Seviyeleri",
+    "easy": "Kolay",
+    "medium": "Orta",
+    "hard": "Zor",
+    "addOption": "Şık Ekle",
+    "option": "Şık",
+    "correctAnswer": "Doğru Cevap",
+    "questionText": "Soru Metni"
+  },
+  "settings": {
+    "title": "Ayarlar",
+    "language": "Dil Seçenekleri",
+    "profile": "Profil Bilgileri"
+  },
+  "navbar": {
+    "home": "Anasayfa",
+    "exam": "Sınav",
+    "questionBank": "Soru Bankası",
+    "settings": "Ayarlar",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "createExam": "Sınav Oluştur",
+    "exams": "Sınavlar",
+    "users": "Kullanıcılar",
+    "students": "Öğrenciler",
+    "admin": "Yönetici",
+    "quickActions": "Hızlı İşlemler"
+  }
+} 
