@@ -15,33 +15,7 @@
       </div>
     </div>
 
-     <!--
-    <div class="quick-actions">
-      <h2>Hızlı İşlemler</h2>
-      <div class="actions-grid">
-        <router-link to="/exams/create" class="action-card">
-          <div class="action-icon">➕</div>
-          <h3>Yeni Sınav Oluştur</h3>
-          <p>Yeni bir sınav oluşturmak için tıklayın</p>
-        </router-link>
-        <router-link to="/students" class="action-card">
-          <div class="action-icon">👥</div>
-          <h3>Öğrenci Yönetimi</h3>
-          <p>Öğrenci listesini görüntüleyin ve yönetin</p>
-        </router-link>
-        <router-link to="/exams" class="action-card">
-          <div class="action-icon">📚</div>
-          <h3>Sınavları Görüntüle</h3>
-          <p>Tüm sınavları görüntüleyin ve yönetin</p>
-        </router-link>
-        <router-link v-if="authStore.user?.role === 'admin'" to="/admin/users" class="action-card">
-          <div class="action-icon">👤</div>
-          <h3>Kullanıcı Yönetimi</h3>
-          <p>Kullanıcıları görüntüleyin ve yönetin</p>
-        </router-link>
-      </div>
-    </div>
-    -->
+   
 
     <!--
     <div class="recent-exams">
