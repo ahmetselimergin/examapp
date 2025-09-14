@@ -9,7 +9,7 @@
    <script setup lang="ts">
    defineProps<{
      rounded?: boolean
-     styleType?: 'primary' | 'secondary' | 'white' | 'darkgrey' | 'lightgrey'
+     styleType?: 'primary' | 'secondary' | 'white' | 'darkgrey' | 'lightgrey' | 'danger'
      nativeType?: 'button' | 'submit' | 'reset'
      size?: 'small' | 'medium' | 'large'|'icon'
      icon?: string
@@ -48,7 +48,6 @@
        color: $white;
        &:hover { background: $red; }
      }
-     
      &.secondary {
        background: $secondary;
        color: $darkgrey;
