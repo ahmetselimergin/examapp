@@ -1,109 +1,252 @@
 <template>
-  <div>
-    <h1>Öğrenci Listesi</h1>
-    <div class="search-filter-row">
-      <Input v-model="search" label="" placeholder="Ara... (isim/email)" size="medium" />
+  <div class="students-container">
+    <div class="page-header">
+      <div class="header-content">
+        <h2>Öğrenci Listesi</h2>
+        <p>Öğrencileri yönetin ve düzenleyin</p>
+      </div>
+      <div class="header-actions">
+        <Button 
+          type="button" 
+          styleType="primary" 
+          size="medium" 
+          @click="handleAddStudent" 
+          icon="add" 
+          text="Yeni Öğrenci" 
+        />
+      </div>
     </div>
-    <table class="modern-table">
-      <thead>
-        <tr>
-          <th><input type="checkbox" @change="toggleAll" :checked="allSelected" /></th>
-          <th>Ad</th>
-          <th>Email</th>
-          <th>Eğitmen(ler)</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="student in filteredStudents" :key="student._id">
-          <td>
-            <input type="checkbox" :value="student._id" v-model="selectedStudents" />
-          </td>
-          <td>{{ student.name }}</td>
-          <td>{{ student.email }}</td>
-          <td>
-            <span v-if="studentTeachers[student._id] && studentTeachers[student._id].length">
-              {{ studentTeachers[student._id].map((t: any) => t.name).join(', ') }}
-            </span>
-            <span v-else>-</span>
-          </td>
-          <td>
-            <Button styleType="danger" size="small" @click="deleteStudent(student._id)">Sil</Button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <Button v-if="selectedStudents.length" styleType="primary" class="assign-btn" @click="showAssignModal = true">Eğitmene Ata</Button>
+    
+    <DataTable
+      :data="students"
+      :columns="[
+        { key: 'name', label: 'Name', sortable: true },
+        { key: 'email', label: 'Email', sortable: true },
+        { key: 'teachers', label: 'Instructors' }
+      ]"
+      title="Students"
+      :selectable="true"
+      :actions="true"
+      :show-export="true"
+      @selection-change="handleSelectionChange"
+      @export="handleExport"
+      @row-double-click="openStudentDetailModal"
+    >
+      <template #cell-name="{ item }">
+        <div class="student-name">
+          <div class="name-text">{{ item.name }}</div>
+        </div>
+      </template>
+      
+      <template #cell-email="{ item }">
+        <div class="student-email">{{ item.email }}</div>
+      </template>
+      
+      <template #cell-teachers="{ item }">
+        <div class="teacher-badges">
+          <span v-if="studentTeachers[item._id] && studentTeachers[item._id].length" class="teacher-count">
+            {{ studentTeachers[item._id].length }} instructor(s)
+          </span>
+          <span v-else class="no-teacher">No instructor</span>
+        </div>
+      </template>
+      
+      <template #actions="{ item, closeMenu }">
+        <button @click="editStudent(item); closeMenu()" class="action-btn">
+          <span class="material-symbols-outlined">edit</span>
+          Edit
+        </button>
+        <button @click="deleteStudent(item); closeMenu()" class="action-btn">
+          <span class="material-symbols-outlined">delete</span>
+          Delete
+        </button>
+      </template>
+      
+      <template #empty>
+        <Empty 
+          icon="person_off"
+          title="Öğrenci bulunamadı"
+          description="Gösterilecek öğrenci bulunmuyor."
+          :show-action="false"
+        />
+      </template>
+    </DataTable>
+    
+    <Button 
+      v-if="selectedStudents.length" 
+      styleType="primary" 
+      class="assign-btn" 
+      @click="showAssignModal = true"
+    >
+      Eğitmene Ata
+    </Button>
 
-    <!-- Eğitmene atama modalı -->
-    <Modal v-model="showAssignModal" title="Eğitmen Seç" :showCloseButton="true">
-      <template #default>
-        <div class="teacher-selection">
-          <p class="modal-description">Seçilen öğrencileri aşağıdaki eğitmenlere atayabilirsiniz:</p>
-          <div class="teacher-list">
-            <div 
-              v-for="teacher in teachers" 
-              :key="teacher._id"
-              :class="['teacher-item', { 'selected': selectedTeacherIds.includes(teacher._id) }]"
-              @click="toggleTeacherSelection(teacher._id)"
-            >
-              <input 
-                type="checkbox" 
-                :checked="selectedTeacherIds.includes(teacher._id)"
-                @change="toggleTeacherSelection(teacher._id)"
-              />
-              <span class="teacher-name">{{ teacher.name }} ({{ teacher.email }})</span>
+    <TeacherAssignmentModal
+      :isOpen="showAssignModal"
+      @update:isOpen="showAssignModal = $event"
+      :teachers="teachers"
+      :selected-students="selectedStudents"
+      :loading="assigning"
+      @assign="handleAssignStudents"
+    />
+
+    <!-- Student Detail Modal -->
+    <Modal 
+      :modelValue="showStudentDetailModal" 
+      @update:modelValue="handleStudentDetailModalUpdate"
+      title="Öğrenci Detayları"
+    >
+      <div v-if="selectedStudentDetail" class="student-detail-content">
+        <div class="student-info">
+          <div class="info-section">
+            <h3>Kişisel Bilgiler</h3>
+            <div class="info-grid">
+              <div class="info-item">
+                <label>Ad Soyad:</label>
+                <span>{{ selectedStudentDetail.name }}</span>
+              </div>
+              <div class="info-item">
+                <label>E-posta:</label>
+                <span>{{ selectedStudentDetail.email }}</span>
+              </div>
+              <div class="info-item">
+                <label>Rol:</label>
+                <span class="role-badge">Öğrenci</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="info-section">
+            <h3>Atanmış Eğitmenler</h3>
+            <div v-if="selectedStudentTeachers.length > 0" class="teachers-list">
+              <div 
+                v-for="teacher in selectedStudentTeachers" 
+                :key="teacher._id"
+                class="teacher-item"
+              >
+                <div class="teacher-info">
+                  <span class="teacher-name">{{ teacher.name }}</span>
+                  <span class="teacher-email">{{ teacher.email }}</span>
+                </div>
+              </div>
+            </div>
+            <div v-else class="no-teachers">
+              <span class="material-symbols-outlined">person_off</span>
+              <p>Bu öğrenciye henüz eğitmen atanmamış</p>
             </div>
           </div>
         </div>
-        <div v-if="teachers.length === 0" class="no-teacher-msg">Sistemde eğitmen bulunamadı.</div>
-      </template>
+      </div>
       <template #footer>
-        <Button styleType="primary" :disabled="!selectedTeacherIds.length" @click="assignStudentsToTeachers">Ata</Button>
-        <Button styleType="danger" @click="showAssignModal = false">İptal</Button>
+        <div class="modal-footer">
+          <Button @click="closeStudentDetailModal" variant="secondary">Kapat</Button>
+        </div>
       </template>
     </Modal>
+
+    <!-- Create Student Modal -->
+    <Modal 
+      :modelValue="showCreateStudentModal" 
+      @update:modelValue="handleCreateStudentModalUpdate"
+      title="Yeni Öğrenci Ekle"
+    >
+      <div class="create-student-form">
+        <div class="form-group">
+          <label>Ad Soyad</label>
+          <Input v-model="newStudent.name" placeholder="Ad Soyad" />
+        </div>
+        <div class="form-group">
+          <label>E-posta</label>
+          <Input v-model="newStudent.email" type="email" placeholder="E-posta" />
+        </div>
+        <div class="form-group">
+          <label>Şifre</label>
+          <Input v-model="newStudent.password" type="password" placeholder="Şifre" />
+        </div>
+      </div>
+      <template #footer>
+        <div class="modal-footer">
+          <Button @click="closeCreateStudentModal" variant="secondary">İptal</Button>
+          <Button @click="createStudent" variant="primary">Oluştur</Button>
+        </div>
+      </template>
+    </Modal>
+
+    <!-- Confirmation Modal -->
+    <ConfirmationModal
+      :isOpen="showDeleteModal"
+      @update:isOpen="showDeleteModal = $event"
+      title="Öğrenciyi Sil"
+      :message="`${studentToDelete?.name} adlı öğrenciyi silmek istediğinizden emin misiniz?`"
+      :details="`E-posta: ${studentToDelete?.email}`"
+      confirmText="Evet, Sil"
+      cancelText="İptal"
+      confirmStyle="danger"
+      iconName="delete_forever"
+      :loading="deleting"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
-import { useAuthStore } from '../stores/auth';
+import { ref, onMounted } from 'vue';
 import api from '../services/api';
-import Input from '../components/ui/Input.vue';
-import Select from '../components/ui/Select.vue';
-import Button from '../components/ui/Button.vue';
+import DataTable from '../components/ui/DataTable.vue';
+import Empty from '../components/ui/Empty.vue';
+import TeacherAssignmentModal from '../components/student/TeacherAssignmentModal.vue';
+import ConfirmationModal from '../components/ui/ConfirmationModal.vue';
 import Modal from '../components/ui/Modal.vue';
+import Input from '../components/ui/Input.vue';
+import Button from '../components/ui/Button.vue';
+import { useToast } from '../composables/useToast';
 
-const authStore = useAuthStore();
-const isAdmin = computed(() => authStore.user?.role === 'admin');
+const { showSuccess, showError, showInfo } = useToast();
 
+// Data refs
 const students = ref<any[]>([]);
 const teachers = ref<any[]>([]);
 const studentTeachers = ref<{[key: string]: any[]}>({});
-const selectedStudents = ref<string[]>([]);
-const selectedTeacherIds = ref<string[]>([]);
 const showAssignModal = ref(false);
-const search = ref('');
+const showCreateStudentModal = ref(false);
+const showStudentDetailModal = ref(false);
+const showDeleteModal = ref(false);
+const studentToDelete = ref<any>(null);
+const selectedStudentDetail = ref<any>(null);
+const selectedStudentTeachers = ref<any[]>([]);
+const deleting = ref(false);
+const assigning = ref(false);
 
-const loadStudents = async () => {
+// New student form data
+const newStudent = ref({
+  name: '',
+  email: '',
+  password: ''
+});
+
+// Selected students for assignment
+const selectedStudents = ref<string[]>([]);
+
+const loadStudentsData = async () => {
   try {
+    console.log('Loading students...');
     const response = await api.get('/auth/admin/users');
-    students.value = response.data.filter((user: any) => user.role === 'student');
-    console.log('Öğrenciler yüklendi:', students.value);
+    const studentUsers = response.data.filter((user: any) => user.role === 'student');
+    students.value = studentUsers;
   } catch (error) {
     console.error('Öğrenci yükleme hatası:', error);
   }
 };
 
-const loadTeachers = async () => {
+const loadTeachersData = async () => {
   try {
     const response = await api.get('/teachers');
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      teachers.value = response.data;
-    } else {
+    if (!Array.isArray(response.data) || response.data.length === 0) {
       const fallback = await api.get('/auth/admin/users');
       teachers.value = fallback.data.filter((u: any) => u.role === 'teacher');
+    } else {
+      teachers.value = response.data;
     }
   } catch (e) {
     const fallback = await api.get('/auth/admin/users');
@@ -111,52 +254,68 @@ const loadTeachers = async () => {
   }
 };
 
-const deleteStudent = async (id: string) => {
-  if (confirm('Bu öğrenciyi silmek istediğinizden emin misiniz?')) {
-    await api.delete(`/auth/admin/users/${id}`);
-    await loadStudents();
+const loadStudentTeachersData = async () => {
+  try {
+    // Load teacher assignments for all students
+    const promises = students.value.map(async (student) => {
+      try {
+        const response = await api.get(`/teachers/student/${student._id}/teachers`);
+        studentTeachers.value[student._id] = response.data || [];
+      } catch (error) {
+        console.error(`Error loading teachers for student ${student._id}:`, error);
+        studentTeachers.value[student._id] = [];
+      }
+    });
+    
+    await Promise.all(promises);
+  } catch (error) {
+    console.error('Error loading student teachers data:', error);
   }
 };
 
-const filteredStudents = computed(() => {
-  let filtered = students.value;
-  if (search.value) {
-    const s = search.value.toLowerCase();
-    filtered = filtered.filter((stu: any) =>
-      stu.name.toLowerCase().includes(s) || stu.email.toLowerCase().includes(s)
-    );
-  }
-  return filtered;
-});
+const editStudent = (student: any) => {
+  // TODO: Implement edit student functionality
+  console.log('Edit student:', student);
+  showInfo('Öğrenci düzenleme özelliği yakında eklenecek!');
+};
 
-const allSelected = computed(() => selectedStudents.value.length === filteredStudents.value.length && filteredStudents.value.length > 0);
+const deleteStudent = (student: any) => {
+  studentToDelete.value = student;
+  showDeleteModal.value = true;
+};
 
-function toggleAll(e: Event) {
-  const checked = (e.target as HTMLInputElement).checked;
-  if (checked) {
-    selectedStudents.value = filteredStudents.value.map((s: any) => s._id);
-  } else {
-    selectedStudents.value = [];
-  }
-}
+const confirmDelete = async () => {
+  if (!studentToDelete.value) return;
 
-function toggleTeacherSelection(teacherId: string) {
-  const index = selectedTeacherIds.value.indexOf(teacherId);
-  if (index > -1) {
-    selectedTeacherIds.value.splice(index, 1);
-  } else {
-    selectedTeacherIds.value.push(teacherId);
-  }
-}
-
-async function assignStudentsToTeachers() {
-  if (!selectedTeacherIds.value.length || !selectedStudents.value.length) return;
-  
+  deleting.value = true;
   try {
-    // Her öğrenci için seçilen tüm öğretmenlere atama yap
+    await api.delete(`/auth/admin/users/${studentToDelete.value._id}`);
+    showSuccess('Öğrenci başarıyla silindi!');
+    await loadStudentsData();
+    showDeleteModal.value = false;
+    studentToDelete.value = null;
+  } catch (error) {
+    showError('Silme işlemi başarısız oldu!');
+  } finally {
+    deleting.value = false;
+  }
+};
+
+const cancelDelete = () => {
+  studentToDelete.value = null;
+  showDeleteModal.value = false;
+};
+
+const handleSelectionChange = (selected: string[]) => {
+  selectedStudents.value = selected;
+};
+
+const handleAssignStudents = async (studentIds: string[], teacherIds: string[]) => {
+  assigning.value = true;
+  try {
     const assignments = [];
-    for (const studentId of selectedStudents.value) {
-      for (const teacherId of selectedTeacherIds.value) {
+    for (const studentId of studentIds) {
+      for (const teacherId of teacherIds) {
         assignments.push(
           api.post(`/teachers/${teacherId}/students`, { studentId })
         );
@@ -164,103 +323,337 @@ async function assignStudentsToTeachers() {
     }
     
     await Promise.all(assignments);
-    
     showAssignModal.value = false;
     selectedStudents.value = [];
-    selectedTeacherIds.value = [];
-    await loadStudents();
-    alert('Öğrenciler eğitmenlere atandı!');
+    await loadStudentsData();
+    await loadStudentTeachersData();
+    showSuccess('Öğrenciler eğitmenlere atandı!');
   } catch (error: any) {
-    alert(error.response?.data?.message || 'Atama işlemi başarısız oldu!');
+    showError(error.response?.data?.message || 'Atama işlemi başarısız oldu!');
+  } finally {
+    assigning.value = false;
   }
-}
+};
+
+const handleExport = () => {
+  console.log('Export students');
+  // Export functionality
+};
+
+const handleAddStudent = () => {
+  showCreateStudentModal.value = true;
+  newStudent.value = {
+    name: '',
+    email: '',
+    password: ''
+  };
+};
+
+
+const closeCreateStudentModal = () => {
+  showCreateStudentModal.value = false;
+  newStudent.value = {
+    name: '',
+    email: '',
+    password: ''
+  };
+};
+
+const handleCreateStudentModalUpdate = (value: boolean) => {
+  showCreateStudentModal.value = value;
+};
+
+const createStudent = async () => {
+  try {
+    const studentData = {
+      ...newStudent.value,
+      role: 'student'
+    };
+    
+    const res = await api.post('/auth/admin/users', studentData);
+    students.value.push({ ...res.data, password: '' });
+    closeCreateStudentModal();
+    showSuccess('Öğrenci başarıyla oluşturuldu!');
+  } catch (e: any) {
+    showError(e.response?.data?.message || 'Öğrenci oluşturma işlemi başarısız');
+  }
+};
+
+const openStudentDetailModal = async (student: any) => {
+  selectedStudentDetail.value = student;
+  
+  // Load fresh teacher assignment data for this student
+  try {
+    const response = await api.get(`/teachers/student/${student._id}/teachers`);
+    selectedStudentTeachers.value = response.data || [];
+  } catch (error) {
+    console.error(`Error loading teachers for student ${student._id}:`, error);
+    selectedStudentTeachers.value = [];
+  }
+  
+  showStudentDetailModal.value = true;
+};
+
+const closeStudentDetailModal = () => {
+  showStudentDetailModal.value = false;
+  selectedStudentDetail.value = null;
+  selectedStudentTeachers.value = [];
+};
+
+const handleStudentDetailModalUpdate = (value: boolean) => {
+  showStudentDetailModal.value = value;
+};
 
 onMounted(async () => {
-  await loadStudents();
-  await loadTeachers();
+  await Promise.all([loadStudentsData(), loadTeachersData()]);
+  await loadStudentTeachersData();
 });
 </script>
 
-<style scoped>
-.search-filter-row {
+<style scoped lang="scss">
+
+.page-header {
   display: flex;
-  gap: 1em;
-  margin-bottom: 1em;
-  align-items: flex-end;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
+
+.header-content {
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 6px 0;
+  }
+  
+  p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.create-student-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 500;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.student-detail-content {
+  .student-info {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  .info-section {
+    h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e5e7eb;
+    }
+  }
+  
+  .info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .info-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    
+    label {
+      font-weight: 500;
+      color: #6b7280;
+      min-width: 100px;
+    }
+    
+    span {
+      color: #1f2937;
+    }
+    
+    .role-badge {
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+  }
+  
+  .teachers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .teacher-item {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    
+    .teacher-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      
+      .teacher-name {
+        font-weight: 500;
+        color: #1f2937;
+      }
+      
+      .teacher-email {
+        font-size: 14px;
+        color: #6b7280;
+      }
+    }
+  }
+  
+  .no-teachers {
+    text-align: center;
+    padding: 32px 16px;
+    color: #9ca3af;
+    
+    .material-symbols-outlined {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: block;
+    }
+    
+    p {
+      margin: 0;
+      font-size: 14px;
+    }
+  }
+}
+
 .assign-btn {
   margin-top: 1em;
 }
-.no-teacher-msg {
-  color: #e74c3c;
-  margin-top: 1em;
-  font-size: 1em;
+
+.student-name {
+  .name-text {
+    font-weight: 600;
+    color: #1f2937;
+  }
 }
-.modal-description {
-  margin-bottom: 1em;
-  color: #666;
+
+.student-email {
+  color: #6b7280;
+  font-size: 14px;
 }
-.teacher-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid #e3e7ef;
-  border-radius: 8px;
-  padding: 0.5em;
+
+.teacher-badges {
+  .teacher-count {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+  
+  .no-teacher {
+    color: #9ca3af;
+    font-size: 12px;
+    font-style: italic;
+  }
 }
-.teacher-item {
+
+/* Action buttons styles */
+.action-btn {
   display: flex;
   align-items: center;
-  gap: 0.5em;
-  padding: 0.5em;
-  border-radius: 4px;
+  gap: 8px;
+  padding: 8px 16px;
+  border: none;
+  background: none;
   cursor: pointer;
-  transition: background-color 0.2s;
-}
-.teacher-item:hover {
-  background-color: #f0f4fa;
-}
-.teacher-item.selected {
-  background-color: #e3f2fd;
-}
-.teacher-name {
-  flex: 1;
-}
-.modern-table {
+  color: #374151;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
   width: 100%;
-  border-collapse: separate;
-  border-spacing: 0;
-  background: #fff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-}
-.modern-table th, .modern-table td {
-  padding: 14px 16px;
   text-align: left;
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+  
+  
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
 }
-.modern-table th {
-  background: #f7f8fa;
-  font-weight: 700;
-  color: #1976d2;
-  border-bottom: 2px solid #e3e7ef;
+
+/* Table row hover effect for double-click indication */
+:deep(.table-row) {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #f8fafc;
+  }
 }
-.modern-table tr {
-  transition: background 0.2s;
-}
-.modern-table tbody tr:hover {
-  background: #f0f4fa;
-}
-.modern-table td {
-  border-bottom: 1px solid #e3e7ef;
-  font-size: 1em;
-}
-.modern-table tr:last-child td {
-  border-bottom: none;
-}
-.modern-table th:first-child, .modern-table td:first-child {
-  border-top-left-radius: 12px;
-}
-.modern-table th:last-child, .modern-table td:last-child {
-  border-top-right-radius: 12px;
+
+.empty-students {
+  text-align: center;
+  padding: 40px 20px;
+  
+  .empty-icon {
+    margin-bottom: 16px;
+    
+    .material-symbols-outlined {
+      font-size: 48px;
+      color: #d1d5db;
+    }
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+  }
 }
 </style>

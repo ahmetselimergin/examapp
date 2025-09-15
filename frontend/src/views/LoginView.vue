@@ -1,13 +1,5 @@
 <script setup>
 import LoginForm from '../components/auth/LoginForm.vue';
-import RegisterForm from '../components/auth/RegisterForm.vue';
-import TabContainer from '../components/ui/TabContainer.vue';
-import TabSection from '../components/ui/TabSection.vue';
-
-const tabs = [
-     { name: 'login', label: 'Giriş Yap' },
-     { name: 'register', label: 'Kayıt Ol' }
-];
 </script>
 <template>
      <div class="login-container">
@@ -16,14 +8,9 @@ const tabs = [
                     <span class="title">Hoşgeldiniz</span>
                     <span class="subtitle">Sınav Yapmanın Yeni Nesil Hali</span>
                </div>
-               <TabContainer :tabs="tabs" v-slot="{ active }">
-                    <TabSection name="login" :active="active === 0">
-                         <LoginForm />
-                    </TabSection>
-                    <TabSection name="register" :active="active === 1">
-                         <RegisterForm />
-                    </TabSection>
-               </TabContainer>
+               <div class="login-form">
+                    <LoginForm />
+               </div>
                
           </div>
           <div class="login-right">
@@ -154,10 +141,6 @@ const tabs = [
                          background: #ff9900;
                     }
                }
-          }
-          .tab-container {
-               width: calc(50% + 2rem);
-          
           }
      }
 

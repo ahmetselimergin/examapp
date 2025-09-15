@@ -23,6 +23,7 @@ const userRole = computed(() => authStore.user?.role || '');
 const router = useRouter();
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
+const userDropdownRef = ref(null);
 
 const toggleMenu = () => {
      isMenuOpen.value = !isMenuOpen.value;
@@ -37,176 +38,397 @@ const handleLogout = () => {
      router.push('/login');
 };
 
+const openSettings = () => {
+     // UserDropdown bileşenindeki openSettings fonksiyonunu çağır
+     if (userDropdownRef.value) {
+          userDropdownRef.value.openSettings();
+     }
+};
+
 </script>
 
 <template>
-<nav class="sidebar" :class="{ 'is-active': isMenuOpen, 'is-collapsed': isCollapsed }">
-     <div :class="isCollapsed ? 'sidebar-header-collapsed' : 'sidebar-header'">
+<nav class="modern-sidebar" :class="{ 'is-active': isMenuOpen, 'is-collapsed': isCollapsed }">
+     <!-- Header Section -->
+     <div class="sidebar-header">
           <router-link to="/" class="sidebar-brand">
-               <span v-if="!isCollapsed">Exam App</span>
+               <div class="brand-icon">
+                    <span class="material-symbols-outlined">school</span>
+               </div>
+               <span v-if="!isCollapsed" class="brand-text">Exam App</span>
           </router-link>
-          <button class="toggle-btn"  @click="onToggleSidebar" :title="isCollapsed ? 'Genişlet' : 'Daralt'">
-               <span v-if="!isCollapsed" class="material-symbols-outlined">toggle_on</span>
-               <span v-else class="material-symbols-outlined">toggle_off</span>
+          <button class="toggle-btn" @click="onToggleSidebar" :title="isCollapsed ? 'Genişlet' : 'Daralt'">
+               <span class="material-symbols-outlined">{{ isCollapsed ? 'chevron_right' : 'chevron_left' }}</span>
           </button>
-
      </div>
-     <div class="sidebar-menu">
-          <template v-if="authStore.isAuthenticated">
-               <div>
-               <router-link to="/" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? t('navbar.home') : ''">
-                    <span class="material-symbols-outlined">home</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.home') }}</span>
-               </router-link>
-               
-               <router-link to="/exams/create" v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'teacher')" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? t('navbar.createExam') : ''">
-                    <span class="material-symbols-outlined">add</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.createExam') }}</span>
-               </router-link>
-               <router-link v-if="authStore.user && authStore.user.role === 'admin'" to="/admin/users" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? 'Kullanıcılar' : ''">
-                    <span class="material-symbols-outlined">group</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.users') }}</span>
-               </router-link>
-               <router-link to="/exams" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? t('navbar.exams') : ''">
-                    <span class="material-symbols-outlined">file_present</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.exams') }}</span>
-               </router-link>
-               <router-link  v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'teacher')"  to="/students" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? 'Öğrenciler' : ''">
-                    <span class="material-symbols-outlined">person</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.students') }}</span>
-               </router-link>
-               <router-link  v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'teacher')"  to="/question-bank" :class="isCollapsed ? 'sidebar-item center flex' : 'sidebar-item '" :title="isCollapsed ? 'Soru Bankası' : ''">
-                    <span class="material-symbols-outlined">rate_review</span>
-                    <span v-if="!isCollapsed">{{ t('navbar.questionBank') }}</span>
+
+     <!-- Navigation Menu -->
+     <div class="sidebar-content">
+          <div class="nav-section">
+               <div class="nav-group">
+                    <div class="nav-group-title" v-if="!isCollapsed">Main</div>
+                    
+                    <template v-if="authStore.isAuthenticated">
+                         <router-link to="/" class="nav-item" :class="{ 'active': $route.path === '/' }" :title="isCollapsed ? t('navbar.home') : ''">
+                              <div class="nav-icon">
+                                   <span class="material-symbols-outlined">dashboard</span>
+                              </div>
+                              <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.home') }}</span>
+                         </router-link>
+                         
+                         
+                         <router-link v-if="authStore.user && authStore.user.role === 'admin'" to="/admin/users" class="nav-item" :class="{ 'active': $route.path === '/admin/users' }" :title="isCollapsed ? 'Kullanıcılar' : ''">
+                              <div class="nav-icon">
+                                   <span class="material-symbols-outlined">group</span>
+                              </div>
+                              <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.users') }}</span>
+                         </router-link>
+                         
+                         <router-link to="/exams" class="nav-item" :class="{ 'active': $route.path.startsWith('/exams') }" :title="isCollapsed ? t('navbar.exams') : ''">
+                              <div class="nav-icon">
+                                   <span class="material-symbols-outlined">quiz</span>
+                              </div>
+                              <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.exams') }}</span>
+                         </router-link>
+                         
+                         <router-link v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'teacher')" to="/students" class="nav-item" :class="{ 'active': $route.path === '/students' }" :title="isCollapsed ? 'Öğrenciler' : ''">
+                              <div class="nav-icon">
+                                   <span class="material-symbols-outlined">school</span>
+                              </div>
+                              <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.students') }}</span>
+                         </router-link>
+                         
+                         <router-link v-if="authStore.user && (authStore.user.role === 'admin' || authStore.user.role === 'teacher')" to="/question-bank" class="nav-item" :class="{ 'active': $route.path === '/question-bank' }" :title="isCollapsed ? 'Soru Bankası' : ''">
+                              <div class="nav-icon">
+                                   <span class="material-symbols-outlined">library_books</span>
+                              </div>
+                              <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.questionBank') }}</span>
+                         </router-link>
+                    </template>
+               </div>
+
+               <!-- Help Section -->
+               <div class="nav-group" v-if="!isCollapsed">
+                    <div class="nav-group-title">Help</div>
+                    
+                    <div class="nav-item" @click="openSettings">
+                         <div class="nav-icon">
+                              <span class="material-symbols-outlined">settings</span>
+                         </div>
+                         <span class="nav-text">Settings</span>
+                    </div>
+                    
+                    
+               </div>
+          </div>
+
+          <!-- User Section -->
+          <div class="sidebar-footer">
+               <UserDropdown ref="userDropdownRef" :is-collapsed="isCollapsed" />
+          </div>
+     </div>
+
+     <!-- Login for non-authenticated users -->
+     <template v-if="!authStore.isAuthenticated">
+          <div class="auth-section">
+               <router-link to="/login" class="auth-item" :title="isCollapsed ? 'Giriş Yap' : ''">
+                    <div class="nav-icon">
+                         <span class="material-symbols-outlined">login</span>
+                    </div>
+                    <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.login') }}</span>
                </router-link>
           </div>
-               <UserDropdown :is-collapsed="isCollapsed" />
-          </template>
-
-          <template v-else>
-               <router-link to="/login" class="sidebar-item" :title="isCollapsed ? 'Giriş Yap' : ''">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span v-if="!isCollapsed">{{ t('navbar.login') }}</span>
-               </router-link>
-               <router-link to="/register" class="sidebar-item" :title="isCollapsed ? t('navbar.register') : ''">
-                    <i class="fas fa-user-plus"></i>
-                    <span v-if="!isCollapsed">{{ t('navbar.register') }}</span>
-               </router-link>
-          </template>
-     </div>
+     </template>
 </nav>
 </template>
 
 <style scoped lang="scss">
 @import "../../assets/styles/_framework.scss";
 
-.sidebar {
+.modern-sidebar {
      position: fixed;
      left: 0;
      top: 0;
      height: 100vh;
-     width: 250px;
-     background-color: $darker-blue;
-     color: white;
-     transition: all 0.3s ease;
+     width: 280px;
+     background: white;
+     border-right: 1px solid #f1f3f4;
+     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
      z-index: 1000;
+     display: flex;
+     flex-direction: column;
+     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
 }
 
-.sidebar.is-collapsed {
-     width: 60px;
+.modern-sidebar.is-collapsed {
+     width: 72px;
 }
 
+// Header Section
 .sidebar-header {
      display: flex;
      align-items: center;
      justify-content: space-between;
-     padding: 1rem;
-     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-.sidebar-header-collapsed {
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     padding: 1rem 0;
-     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+     padding: 24px 20px;
+     border-bottom: 1px solid #f1f3f4;
+     background: #fafbfc;
+     min-height: 80px;
 }
 
 .sidebar-brand {
-     color: white;
+     display: flex;
+     align-items: center;
+     gap: 12px;
      text-decoration: none;
-     font-size: 1.5rem;
-     font-weight: bold;
-     white-space: nowrap;
-     overflow: hidden;
+     color: #1f2937;
+     font-weight: 700;
+     font-size: 20px;
+     transition: all 0.2s ease;
+     
+     .brand-icon {
+          width: 40px;
+          height: 40px;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 12px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-size: 20px;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+     }
+     
+     .brand-text {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1f2937;
+          white-space: nowrap;
+          overflow: hidden;
+     }
 }
 
 .toggle-btn {
-  background: transparent;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  transition: background 0.3s;
-}
-.toggle-btn:hover {
-  background-color: rgba(255,255,255,0.1);
-  border-radius: 4px;
-}
-@media screen and (max-width: 768px) {
-  .toggle-btn {
-    display: none;
-  }
-}
-
-.sidebar-menu {
-     display: flex;
-     flex-direction: column;
-     padding: 1rem 0;
-     justify-content: space-between;
-     height: calc(100% - 75px);;
-}
-
-.sidebar-item {
-     color: white;
-     text-decoration: none;
-     padding: 0.75rem;
+     width: 36px;
+     height: 36px;
+     border: none;
+     background: #f3f4f6;
+     border-radius: 8px;
      display: flex;
      align-items: center;
-     gap: 0.75rem;
-     transition: background-color 0.3s ease;
-     white-space: nowrap;
-}
-
-.sidebar-item i {
-     width: 20px;
-     text-align: center;
-     font-size: 1.1rem;
-}
-
-.sidebar-item:hover {
-     background-color: rgba(255, 255, 255, 0.1);
-}
-
-@media screen and (max-width: 768px) {
-     .sidebar {
-          transform: translateX(-100%);
+     justify-content: center;
+     cursor: pointer;
+     transition: all 0.2s ease;
+     color: #6b7280;
+     
+     &:hover {
+          background: #e5e7eb;
+          color: #374151;
      }
-
-     .sidebar.is-collapsed {
-          transform: translateX(0);
-          width: 60px;
+     
+     .material-symbols-outlined {
+          font-size: 18px;
      }
+}
 
-     .hamburger {
+// Content Section
+.sidebar-content {
+     flex: 1;
+     display: flex;
+     flex-direction: column;
+     padding: 20px 0;
+     overflow-y: auto;
+}
+
+.nav-section {
+     flex: 1;
+     padding: 0 16px;
+}
+
+.nav-group {
+     margin-bottom: 32px;
+     
+     &:last-child {
+          margin-bottom: 0;
+     }
+}
+
+.nav-group-title {
+     font-size: 12px;
+     font-weight: 600;
+     color: #9ca3af;
+     text-transform: uppercase;
+     letter-spacing: 0.05em;
+     margin-bottom: 12px;
+     padding: 0 12px;
+}
+
+.nav-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 12px;
+     margin-bottom: 4px;
+     border-radius: 12px;
+     text-decoration: none;
+     color: #6b7280;
+     font-weight: 500;
+     font-size: 14px;
+     transition: all 0.2s ease;
+     position: relative;
+     cursor: pointer;
+     
+     &:hover {
+          background: #f8fafc;
+          color: #374151;
+          transform: translateX(2px);
+     }
+     
+     &.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+          
+          .nav-icon {
+               color: white;
+          }
+          
+          .nav-text {
+               color: white;
+               font-weight: 600;
+          }
+     }
+     
+     .nav-icon {
+          width: 20px;
+          height: 20px;
           display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #9ca3af;
+          transition: all 0.2s ease;
+          
+          .material-symbols-outlined {
+               font-size: 20px;
+          }
      }
+     
+     .nav-text {
+          color: #6b7280;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+          transition: all 0.2s ease;
+     }
+}
 
-     .toggle-btn {
+// Collapsed State
+.modern-sidebar.is-collapsed {
+     .sidebar-brand .brand-text {
           display: none;
      }
+     
+     .nav-group-title {
+          display: none;
+     }
+     
+     .nav-text {
+          display: none;
+     }
+     
+     .nav-item {
+          justify-content: center;
+          padding: 12px;
+     }
+     
+     .sidebar-header {
+          justify-content: center;
+          padding: 24px 16px;
+     }
+}
+
+// Footer Section
+.sidebar-footer {
+     padding: 20px 16px;
+     border-top: 1px solid #f1f3f4;
+     margin-top: auto;
+}
+
+// Auth Section
+.auth-section {
+     padding: 20px 16px;
+     border-top: 1px solid #f1f3f4;
+}
+
+.auth-item {
+     display: flex;
+     align-items: center;
+     gap: 12px;
+     padding: 12px;
+     margin-bottom: 8px;
+     border-radius: 12px;
+     text-decoration: none;
+     color: #6b7280;
+     font-weight: 500;
+     font-size: 14px;
+     transition: all 0.2s ease;
+     
+     &:hover {
+          background: #f8fafc;
+          color: #374151;
+     }
+     
+     .nav-icon {
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #9ca3af;
+          
+          .material-symbols-outlined {
+               font-size: 20px;
+          }
+     }
+     
+     .nav-text {
+          color: #6b7280;
+          font-weight: 500;
+          white-space: nowrap;
+          overflow: hidden;
+     }
+}
+
+// Mobile Responsive
+@media screen and (max-width: 768px) {
+     .modern-sidebar {
+          transform: translateX(-100%);
+          width: 280px;
+     }
+     
+     .modern-sidebar.is-active {
+          transform: translateX(0);
+     }
+     
+     .modern-sidebar.is-collapsed {
+          transform: translateX(-100%);
+     }
+}
+
+// Scrollbar Styling
+.sidebar-content::-webkit-scrollbar {
+     width: 4px;
+}
+
+.sidebar-content::-webkit-scrollbar-track {
+     background: transparent;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb {
+     background: #e5e7eb;
+     border-radius: 2px;
+}
+
+.sidebar-content::-webkit-scrollbar-thumb:hover {
+     background: #d1d5db;
 }
 </style>

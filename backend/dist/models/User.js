@@ -61,11 +61,6 @@ const userSchema = new mongoose_1.Schema({
         enum: ["admin", "teacher", "student"],
         default: "student",
     },
-    teacherId: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: "User",
-        required: false,
-    },
 }, {
     timestamps: true,
 });

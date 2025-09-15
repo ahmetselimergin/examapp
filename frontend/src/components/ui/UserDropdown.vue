@@ -13,10 +13,6 @@
      </div>
     </button>
     <div v-if="isOpen" class="user-dropdown-menu">
-      <button @click="openSettings" class="dropdown-item">
-        <span class="material-symbols-outlined"> tune </span>
-        <span class="dropdown-item-text">{{ t('navbar.settings') }}</span>
-      </button>
       <button @click="handleLogout" class="dropdown-item logout-button">
         <span class="material-symbols-outlined"> logout </span>
         <span class="dropdown-item-text">{{ t('common.logout') }}</span>
@@ -73,6 +69,11 @@ const handleLogout = () => {
   authStore.logout();
   router.push("/login");
 };
+
+// Expose functions to parent component
+defineExpose({
+  openSettings
+});
 </script>
 
 <style scoped lang="scss">

@@ -1,7 +1,11 @@
 <template>
 <form @submit.prevent="handleSubmit" class="question-form">
      <div class="form-row">
-          <Input :label="t('questionBank.questionText')" size="medium" v-model="question.text" :placeholder="t('questionBank.questionText')" />
+          <Input 
+               :label="t('questionBank.questionText')" 
+               v-model="question.text" 
+               :placeholder="t('questionBank.questionText')"
+          />
      </div>
      <div class="form-row">
           <Select size="medium" :label="t('questionBank.questionType')" v-model="question.type" :options="questionTypes" :placeholder="t('questionBank.questionType')"></Select>
@@ -26,27 +30,32 @@
                </span>
                <input v-model="question.options[idx]" :placeholder="t('questionBank.option')" class="option-input" />
                <button type="button" class="remove-option-btn" @click="removeOption(idx)">
-                    <span aria-hidden="true">✖</span>
+                   
+                    <span class="material-symbols-outlined">delete</span>
                </button>
           </div>
      </div>
 
      <!-- Doğru/Yanlış için -->
-     <div v-if="question.type === 'true_false'">
-          <label>{{ t('questionBank.trueFalse') }}</label>
-          <select v-model="question.correctAnswers">
-               <option value="true">{{ t('questionBank.true') }}</option>
-               <option value="false">{{ t('questionBank.false') }}</option>
-          </select>
+     <div v-if="question.type === 'true_false'" class="form-row">
+          <Select 
+               size="medium" 
+               :label="t('questionBank.correctAnswer')" 
+               v-model="question.correctAnswers" 
+               :options="trueFalseOptions" 
+               :placeholder="t('questionBank.correctAnswer')"
+          />
      </div>
 
      <!-- Açık Uçlu için sadece doğru cevap -->
-     <div v-if="['open_ended'].includes(question.type)">
-          <label>{{ t('questionBank.correctAnswer') }}</label>
-          <input v-model="question.correctAnswers" />
+     <div v-if="['open_ended'].includes(question.type)" class="form-row">
+          <Input 
+               :label="t('questionBank.correctAnswer')" 
+               v-model="question.correctAnswers" 
+               :placeholder="t('questionBank.correctAnswer')"
+          />
      </div>
 
-     <Button type="submit" styleType="primary" size="medium" :text="t('common.save')" />
 </form>
 </template>
 
@@ -60,8 +69,10 @@ import Input from '../ui/Input.vue';
 import Select from '../ui/Select.vue';
 import Button from '../ui/Button.vue';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../../composables/useToast';
 
 const { t } = useI18n();
+const { showError } = useToast();
 
 const props = defineProps({
      initialQuestion: {
@@ -102,7 +113,17 @@ const difficultyOptions = [{
      }
 ];
 
-const emit = defineEmits(['save']);
+const trueFalseOptions = [{
+          value: 'true',
+          label: t('questionBank.true')
+     },
+     {
+          value: 'false',
+          label: t('questionBank.false')
+     }
+];
+
+const emit = defineEmits(['save', 'cancel']);
 
 const defaultQuestion = {
      text: '',
@@ -140,10 +161,26 @@ watch(
                     }
                }
 
+               // Create editorData from plain text if not available
+               let editorData = val.editorData;
+               if (!editorData && val.text) {
+                    editorData = {
+                         blocks: [
+                              {
+                                   type: 'paragraph',
+                                   data: {
+                                        text: val.text
+                                   }
+                              }
+                         ]
+                    };
+               }
+
                question.value = {
                     ...defaultQuestion,
                     ...val,
-                    correctAnswers: correctAnswers
+                    correctAnswers: correctAnswers,
+                    editorData: editorData
                };
                
                // Ensure at least two empty options for multiple choice questions
@@ -160,6 +197,7 @@ watch(
           immediate: true
      }
 );
+
 
 const addOption = () => {
      question.value.options.push('');
@@ -179,6 +217,50 @@ const removeOption = (idx) => {
 };
 
 const handleSubmit = () => {
+     // Validation: Check if question text is provided
+     if (!question.value.text || question.value.text.trim() === '') {
+          showError('Lütfen soru metnini giriniz!');
+          return;
+     }
+     
+     // Validation: Check if correct answer is selected for choice questions
+     if (['single_choice', 'multiple_select'].includes(question.value.type)) {
+          if (question.value.type === 'single_choice') {
+               if (question.value.correctAnswers === '' || question.value.correctAnswers === null || question.value.correctAnswers === undefined) {
+                    showError('Lütfen doğru şıkkı seçiniz!');
+                    return;
+               }
+          } else if (question.value.type === 'multiple_select') {
+               if (!Array.isArray(question.value.correctAnswers) || question.value.correctAnswers.length === 0) {
+                    showError('Lütfen en az bir doğru şık seçiniz!');
+                    return;
+               }
+          }
+          
+          // Check if all options are filled
+          const emptyOptions = question.value.options.filter(opt => !opt || opt.trim() === '');
+          if (emptyOptions.length > 0) {
+               showError('Lütfen tüm şıkları doldurunuz!');
+               return;
+          }
+     }
+     
+     // Validation: Check if correct answer is provided for true/false questions
+     if (question.value.type === 'true_false') {
+          if (!question.value.correctAnswers || question.value.correctAnswers === '') {
+               showError('Lütfen doğru cevabı seçiniz!');
+               return;
+          }
+     }
+     
+     // Validation: Check if correct answer is provided for open-ended questions
+     if (question.value.type === 'open_ended') {
+          if (!question.value.correctAnswers || question.value.correctAnswers.trim() === '') {
+               showError('Lütfen doğru cevabı giriniz!');
+               return;
+          }
+     }
+     
      let correct = question.value.correctAnswers;
      if (['single_choice', 'multiple_select'].includes(question.value.type)) {
           // Convert indices to option texts
@@ -190,34 +272,53 @@ const handleSubmit = () => {
                correct = [];
           }
      }
+     
+     // Ensure editorData is included in the payload
      const { _id, ...rest } = question.value;
      const payload = JSON.parse(JSON.stringify({
           ...rest,
           correctAnswers: correct,
           _id
      }));
+     
      console.log("Kayıt edilecek soru:", payload);
      emit('save', payload);
+     
      if (!props.initialQuestion) {
           question.value = {
                ...defaultQuestion
           };
      }
 };
+
+// Expose methods to parent component
+defineExpose({
+     handleSubmit
+});
 </script>
 
 <style lang="scss" scoped>
 @import "../../assets/styles/_framework.scss";
 
 .question-form {
-     max-width: 100%;
+     max-width: 1200px;
      margin: 0 auto;
+     padding: 20px;
+     background: white;
+     border-radius: 8px;
+     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .form-row {
      display: flex;
      gap: 16px;
-     align-items: center;
+     align-items: flex-start;
+     margin-bottom: 24px;
+     
+     &:first-child {
+          flex-direction: column;
+          align-items: stretch;
+     }
 }
 
 .difficulty-select {
@@ -227,8 +328,12 @@ const handleSubmit = () => {
 }
 
 .options-section {
-     margin-bottom: 16px;
+     margin-bottom: 24px;
      position: relative;
+     background: #f9fafb;
+     padding: 20px;
+     border-radius: 8px;
+     border: 1px solid #e5e7eb;
 }
 
 .options-label {
@@ -256,8 +361,12 @@ const handleSubmit = () => {
 .option-row {
      display: flex;
      align-items: center;
-     gap: 8px;
-     margin-bottom: 8px;
+     gap: 12px;
+     margin-bottom: 12px;
+     padding: 12px;
+     background: white;
+     border-radius: 6px;
+     border: 1px solid #e5e7eb;
 }
 
 .option-input {
@@ -275,6 +384,7 @@ const handleSubmit = () => {
      cursor: pointer;
      margin-left: 4px;
 }
+
 
 .save-btn {
      background: #1976d2;

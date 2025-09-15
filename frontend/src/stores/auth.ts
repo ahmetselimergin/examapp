@@ -23,7 +23,7 @@ export const useAuthStore = defineStore("auth", {
     loading: false,
   }),
   getters: {
-    isAuthenticated: (state) => !!state.token,
+    isAuthenticated: (state) => !!state.token && !!state.user,
   },
   actions: {
     async login(email: string, password: string) {
@@ -82,6 +82,24 @@ export const useAuthStore = defineStore("auth", {
       this.token = null;
       this.user = null;
       localStorage.removeItem("token");
+    },
+    async validateToken() {
+      if (!this.token) {
+        return false;
+      }
+      try {
+        const res = await api.get("/auth/profile");
+        if (res.data) {
+          this.user = res.data;
+          return true;
+        }
+        return false;
+      } catch (err: any) {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+          this.logout();
+        }
+        return false;
+      }
     },
   },
 });

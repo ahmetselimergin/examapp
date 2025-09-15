@@ -30,7 +30,14 @@
                 </template>
               </td>
               <td>
-                <button class="puanla-btn" :disabled="!hasAnswers(student._id)" @click="openStudentModal(student)">Puanla</button>
+                <Button 
+                  type="button"
+                  styleType="primary"
+                  size="small"
+                  :disabled="!hasAnswers(student._id)" 
+                  @click="openStudentModal(student)"
+                  text="Puanla"
+                />
               </td>
             </tr>
           </tbody>
@@ -47,6 +54,7 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '../services/api';
 import StudentAnswerModal from '../components/StudentAnswerModal.vue';
+import Button from '../components/ui/Button.vue';
 
 const route = useRoute();
 const exam = ref({});

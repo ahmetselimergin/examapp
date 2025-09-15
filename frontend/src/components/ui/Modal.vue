@@ -2,12 +2,17 @@
 <Teleport to="body">
      <Transition name="modal">
           <div v-if="modelValue" class="modal-overlay" @click="closeOnOverlayClick && close()">
-               <div class="modal-container" @click.stop>
+               <div class="modal-container" :class="{ 'fullscreen': fullscreen }" @click.stop>
                     <div class="modal-header">
-                         <h3 class="modal-title">{{ title }}</h3>
-                         <button v-if="showCloseButton" class="modal-close" @click="close">
-                              <span>&times;</span>
-                         </button>
+                         <div v-if="$slots.header" class="modal-header-slot">
+                              <slot name="header"></slot>
+                         </div>
+                         <div v-else class="modal-header-default">
+                              <h3 class="modal-title">{{ title }}</h3>
+                              <button v-if="showCloseButton" class="modal-close" @click="close">
+                                   <span>&times;</span>
+                              </button>
+                         </div>
                     </div>
                     <div class="modal-content">
                          <slot></slot>
@@ -38,6 +43,10 @@ const props = defineProps({
      closeOnOverlayClick: {
           type: Boolean,
           default: true
+     },
+     fullscreen: {
+          type: Boolean,
+          default: false
      }
 })
 
@@ -75,11 +84,45 @@ const close = () => {
      margin: auto 0 auto auto;
 }
 
+.modal-container.fullscreen {
+     width: 100vw;
+     height: 100vh;
+     max-width: none;
+     min-width: none;
+     border-radius: 0;
+     padding: 0;
+     right: 0;
+     margin: 0;
+     display: flex;
+     flex-direction: column;
+}
+
 .modal-header {
      display: flex;
      justify-content: space-between;
      align-items: center;
      margin-bottom: 20px;
+}
+
+.modal-header-slot {
+     width: 100%;
+}
+
+.modal-header-default {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     width: 100%;
+}
+
+.modal-container.fullscreen .modal-header {
+     padding: 20px 24px;
+     border-bottom: 1px solid #e5e7eb;
+     background: white;
+     position: sticky;
+     top: 0;
+     z-index: 10;
+     margin-bottom: 0;
 }
 
 .modal-title {
@@ -105,10 +148,26 @@ const close = () => {
      margin-bottom: 20px;
 }
 
+.modal-container.fullscreen .modal-content {
+     flex: 1;
+     overflow-y: auto;
+     margin-bottom: 0;
+     padding: 0;
+}
+
 .modal-footer {
      display: flex;
      justify-content: flex-end;
      gap: 10px;
+}
+
+.modal-container.fullscreen .modal-footer {
+     padding: 20px 24px;
+     border-top: 1px solid #e5e7eb;
+     background: white;
+     position: sticky;
+     bottom: 0;
+     z-index: 10;
 }
 
 /* Transition animations */

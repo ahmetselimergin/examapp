@@ -53,6 +53,10 @@ const questionSchema = new mongoose_1.Schema({
             type: String,
         },
     ],
+    editorData: {
+        type: mongoose_1.Schema.Types.Mixed,
+        required: false,
+    },
     correctAnswers: [
         {
             type: String,

@@ -33,54 +33,26 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.StudentTeacher = void 0;
 const mongoose_1 = __importStar(require("mongoose"));
-const examSchema = new mongoose_1.Schema({
-    title: {
-        type: String,
-        required: true,
-    },
-    description: {
-        type: String,
-        required: true,
-    },
-    startTime: {
-        type: Date,
-        required: true,
-    },
-    endTime: {
-        type: Date,
-        required: true,
-    },
-    duration: {
-        type: Number,
-        required: true,
-        min: 1,
-    },
-    questionCount: {
-        type: Number,
-        required: true,
-        min: 1,
-        default: 0,
-    },
-    createdBy: {
+const studentTeacherSchema = new mongoose_1.Schema({
+    studentId: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "User",
         required: true,
     },
-    questions: [
-        {
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: "Question",
-        },
-    ],
-    assignedStudents: [
-        {
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: "User",
-        },
-    ],
-    isFinished: { type: Boolean, default: false },
+    teacherId: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
+    assignedAt: {
+        type: Date,
+        default: Date.now,
+    },
 }, {
     timestamps: true,
 });
-exports.default = mongoose_1.default.model("Exam", examSchema);
+// Aynı öğrenci-öğretmen kombinasyonunun tekrar oluşturulmasını engelle
+studentTeacherSchema.index({ studentId: 1, teacherId: 1 }, { unique: true });
+exports.StudentTeacher = mongoose_1.default.model("StudentTeacher", studentTeacherSchema);

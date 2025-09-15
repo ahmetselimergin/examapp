@@ -1,95 +1,132 @@
 <template>
   <div class="question-bank-container">
-    <h2>{{ t('questionBank.title') }}</h2>
-    <p>{{ t('questionBank.description') }}</p>
-    
-    <div class="filter-bar">
-
-      <Input size="medium" :label="t('questionBank.search')" v-model="search" :placeholder="t('questionBank.search')"></Input>
-
-      <Select size="medium" :label="t('questionBank.questionType')" v-model="questionType" :options="questionTypes" :placeholder="t('questionBank.questionType')"></Select>
-
-      <Select size="medium" :label="t('questionBank.difficulty')" v-model="difficulty" :options="difficultyOptions" :placeholder="t('questionBank.difficulty')"></Select>
-
-      <Button type="button"  styleType="primary" size="medium" @click="openAddModal" icon="add" :text="t('questionBank.addQuestion')" />
+    <div class="page-header">
+      <div class="header-content">
+        <h2>{{ t('questionBank.title') }}</h2>
+        <p>{{ t('questionBank.description') }}</p>
+      </div>
+      <div class="header-actions">
+        <Button type="button" styleType="primary" size="medium" @click="openAddModal" icon="add" :text="t('questionBank.addQuestion')" />
+      </div>
     </div>
+    
     <div v-if="loadingQuestions" class="loading">Sorular yükleniyor...</div>
     <div v-else-if="errorQuestions" class="error">{{ errorQuestions }}</div>
     <div v-else>
-      <div v-if="filteredQuestions.length === 0" class="no-questions">{{ t('questionBank.noQuestions') }}</div>
-      <div v-else class="question-list">
-        <div v-for="q in paginatedQuestions" :key="q._id" class="question-card">
-          <div class="question-header">
-               <div class="w-full flex space-between align-center">
-                    <div class="flex flex-row space-start align-center gap-1">
-                         <div :class="'question-type ' + q.type">{{ getQuestionTypeLabel(q.type) }}</div>
-                         <div :class="'difficulty-type ' + q.difficulty">{{ getDifficultyLabel(q.difficulty) }}</div>
-                         <!-- <div :class="'date-type '">{{ formatDate(q.createdAt) }}</div> -->
-                    </div>
-
-                    <div class="question-actions">
-                         <Button styleType="primary" rounded size="icon" @click="openEditModal(q)" icon="edit"  />
-                         <Button styleType="danger" rounded size="icon" @click="handleQuestionDelete(q._id)" icon="delete"  />
-                    </div>
-               </div>
-            <span class="question-text">{{ q.text }}</span>
-            
-          </div>
-          <div v-if="q.options && q.options.length > 0" class="question-options">
-            <!-- Tekli Seçim için -->
-            <div v-if="q.type === 'single_choice'" v-for="(opt, idx) in q.options" :key="idx" class="option-item">
-              <input type="radio" :checked="q.correctAnswers.includes(opt)" disabled />
-              <span>{{ opt }}</span>
-            </div>
-
-            <!-- Çoklu Seçim için -->
-            <div v-if="q.type === 'multiple_select'" v-for="(opt, idx) in q.options" :key="idx" class="option-item">
-              <input type="checkbox" :checked="q.correctAnswers.includes(opt)" disabled />
-              <span>{{ opt }}</span>
+      <DataTable
+        :data="filteredQuestions"
+        :columns="tableColumns"
+        :title="t('questionBank.title')"
+        :actions="true"
+        :selectable="false"
+        :pagination="true"
+        :page-size="itemsPerPage"
+      >
+        <template #cell-text="{ item }">
+          <div class="question-text-cell">
+            <div class="question-text">{{ item.text }}</div>
+            <div v-if="item.options && item.options.length > 0" class="question-preview">
+              <span class="options-count">{{ item.options.length }} {{ t('questionBank.options') }}</span>
             </div>
           </div>
+        </template>
 
-          <!-- True/False için -->
-          <div v-if="q.type === 'true_false'" class="question-options">
-            <div class="option-item">
-              <input type="radio" :checked="q.correctAnswers[0] === 'true'" disabled />
-              <span>{{ t('questionBank.true') }}</span>
-            </div>
-            <div class="option-item">
-              <input type="radio" :checked="q.correctAnswers[0] === 'false'" disabled />
-              <span>{{ t('questionBank.false') }}</span>
-            </div>
-          </div>
+        <template #cell-type="{ item }">
+          <span :class="'question-type-badge ' + item.type">
+            {{ getQuestionTypeLabel(item.type) }}
+          </span>
+        </template>
 
-          <!-- Açık Uçlu için -->
-          <div v-if="q.type === 'open_ended'" class="question-options">
-            <div class="option-item answer-text">
-              {{ q.correctAnswers[0] }}
-            </div>
-          </div>
-          
-        </div>
-        <Pagination
-          v-model="currentPage"
-          :total-items="filteredQuestions.length"
-          :per-page="itemsPerPage"
-        />
-      </div>
+        <template #cell-difficulty="{ item }">
+          <span :class="'difficulty-badge ' + item.difficulty">
+            {{ getDifficultyLabel(item.difficulty) }}
+          </span>
+        </template>
+
+        <template #cell-createdAt="{ item }">
+          <span class="date-text">{{ formatDate(item.createdAt) }}</span>
+        </template>
+
+        <template #actions="{ item, closeMenu }">
+          <button class="action-btn edit-btn" @click="openEditModal(item); closeMenu()">
+            <span class="material-symbols-outlined">edit</span>
+            {{ t('common.edit') }}
+          </button>
+          <button class="action-btn delete-btn" @click="handleQuestionDelete(item._id); closeMenu()">
+            <span class="material-symbols-outlined">delete</span>
+            {{ t('common.delete') }}
+          </button>
+        </template>
+
+        <template #empty>
+          <Empty 
+            icon="quiz"
+            :title="t('questionBank.noQuestions')"
+            :description="t('questionBank.noQuestionsDescription')"
+            :action-text="t('questionBank.addQuestion')"
+            action-variant="primary"
+            :show-action="true"
+            @action="openAddModal"
+          />
+        </template>
+      </DataTable>
     </div>
 
 
-    <Modal v-model="showAddModal" title="Add New Question">
-      <QuestionForm @save="handleQuestionSave" />
-      <template #footer>
-        <Button styleType="lightgrey" size="medium" @click="closeAddModal" :text="t('common.cancel')" />
+    <Modal 
+      :modelValue="showAddModal" 
+      @update:modelValue="handleAddModalUpdate" 
+      title="Yeni Soru Ekle"
+      :fullscreen="true"
+      class="fullscreen-modal"
+    >
+      <template #header>
+        <div class="modal-header-content">
+          <h3 class="modal-title">Yeni Soru Ekle</h3>
+          <div class="modal-header-actions">
+            <Button 
+              styleType="primary" 
+              size="medium" 
+              @click="saveQuestion" 
+              :text="t('common.save')" 
+            />
+            <button class="modal-close" @click="closeAddModal">
+              <span>&times;</span>
+            </button>
+          </div>
+        </div>
       </template>
+      <div class="fullscreen-content">
+        <QuestionForm ref="questionFormRef" @save="handleQuestionSave" />
+      </div>
     </Modal>
 
-    <Modal v-model="showEditModal" title="Edit Question">
-      <QuestionForm v-if="editingQuestion" :initial-question="editingQuestion" @save="handleQuestionUpdate" />
-      <template #footer>
-        <Button styleType="lightgrey" size="medium" @click="closeEditModal" :text="t('common.cancel')" />
+    <Modal 
+      :modelValue="showEditModal" 
+      @update:modelValue="handleEditModalUpdate" 
+      title="Soruyu Düzenle"
+      :fullscreen="true"
+      class="fullscreen-modal"
+    >
+      <template #header>
+        <div class="modal-header-content">
+          <h3 class="modal-title">Soruyu Düzenle</h3>
+          <div class="modal-header-actions">
+            <Button 
+              styleType="primary" 
+              size="medium" 
+              @click="updateQuestion" 
+              :text="t('common.save')" 
+            />
+            <button class="modal-close" @click="closeEditModal">
+              <span>&times;</span>
+            </button>
+          </div>
+        </div>
       </template>
+      <div class="fullscreen-content">
+        <QuestionForm v-if="editingQuestion" ref="editQuestionFormRef" :initial-question="editingQuestion" @save="handleQuestionUpdate" />
+      </div>
     </Modal>
   </div>
 </template>
@@ -100,20 +137,46 @@ import { useAuthStore } from '../stores/auth';
 import { useRouter } from 'vue-router';
 import Modal from '../components/ui/Modal.vue';
 import Button from '../components/ui/Button.vue';
-import Input from '../components/ui/Input.vue';
-import Select from '../components/ui/Select.vue';
-import Pagination from '../components/ui/Pagination.vue';
+import DataTable from '../components/ui/DataTable.vue';
+import Empty from '../components/ui/Empty.vue';
 import QuestionForm from '../components/exam/QuestionForm.vue';
 import api from '../services/api';
 import { useI18n } from 'vue-i18n';
+import { useToast } from '../composables/useToast';
+import type { DataTableColumn } from '../types';
 const authStore = useAuthStore();
 const router = useRouter();
-const { t, locale } = useI18n()
+const { t } = useI18n();
+const { showSuccess, showError } = useToast();
 
-// Dil değiştirmek için:
-const changeLanguage = (lang) => {
-  locale.value = lang
-}
+
+// Table columns configuration
+const tableColumns = ref<DataTableColumn[]>([
+  {
+    key: 'text',
+    label: t('questionBank.questionText'),
+    sortable: true,
+    filterable: true
+  },
+  {
+    key: 'type',
+    label: t('questionBank.type'),
+    sortable: true,
+    filterable: true
+  },
+  {
+    key: 'difficulty',
+    label: t('questionBank.difficulty'),
+    sortable: true,
+    filterable: true
+  },
+  {
+    key: 'createdAt',
+    label: t('questionBank.createdAt'),
+    sortable: true,
+    filterable: false
+  }
+]);
 
 const questionTypes = ref([
   { label: t('questionBank.allQuestions'), value: 'all' },
@@ -123,22 +186,12 @@ const questionTypes = ref([
   { label: t('questionBank.openEnded'), value: 'open_ended' },
 ]);
 
-const difficultyOptions = ref([
-  { label: t('questionBank.allDifficulties'), value: 'all' },
-  { label: t('questionBank.easy'), value: 'easy' },
-  { label: t('questionBank.medium'), value: 'medium' },
-  { label: t('questionBank.hard'), value: 'hard' },
-]);
 
 // Erişim kontrolü: sadece admin ve teacher
 if (!authStore.isAuthenticated || !['admin', 'teacher'].includes(authStore.user?.role || '')) {
   router.replace('/');
 }
 
-const search = ref('');
-const questionType = ref('');
-const difficulty = ref('');
-const currentPage = ref(1);
 const itemsPerPage = ref(10);
 
 const showAddModal = ref(false);
@@ -147,7 +200,11 @@ const closeAddModal = () => { showAddModal.value = false; };
 
 const showEditModal = ref(false);
 const editingQuestion = ref(null);
-const openEditModal = (question) => {
+
+// Form refs
+const questionFormRef = ref<any>(null);
+const editQuestionFormRef = ref<any>(null);
+const openEditModal = (question: any) => {
   editingQuestion.value = { ...question };
   showEditModal.value = true;
 };
@@ -156,7 +213,18 @@ const closeEditModal = () => {
   editingQuestion.value = null;
 };
 
-const questions = ref([]);
+const handleAddModalUpdate = (value: boolean) => {
+  showAddModal.value = value;
+};
+
+const handleEditModalUpdate = (value: boolean) => {
+  showEditModal.value = value;
+  if (!value) {
+    editingQuestion.value = null;
+  }
+};
+
+const questions = ref<any[]>([]);
 const loadingQuestions = ref(false);
 const errorQuestions = ref('');
 
@@ -164,8 +232,9 @@ const fetchQuestions = async () => {
   loadingQuestions.value = true;
   try {
     const res = await api.get('/questions');
-    questions.value = res.data; // Remove the mapping that sets default values
-  } catch (e) {
+    console.log('Questions response:', res.data); // Debug log
+    questions.value = res.data || []; // Ensure it's an array
+  } catch (e: any) {
     console.error('Error fetching questions:', e); // Debug log
     errorQuestions.value = e.response?.data?.message || 'Sorular alınamadı';
   } finally {
@@ -175,62 +244,75 @@ const fetchQuestions = async () => {
 
 onMounted(fetchQuestions);
 
-const handleQuestionSave = async (question) => {
+const saveQuestion = () => {
+  if (questionFormRef.value) {
+    // Try to find the form element more safely
+    const form = questionFormRef.value.$el?.querySelector('form');
+    if (form) {
+      form.requestSubmit();
+    } else {
+      // Fallback: trigger the submit event directly on the component
+      questionFormRef.value.handleSubmit();
+    }
+  }
+};
+
+const updateQuestion = () => {
+  if (editQuestionFormRef.value) {
+    // Try to find the form element more safely
+    const form = editQuestionFormRef.value.$el?.querySelector('form');
+    if (form) {
+      form.requestSubmit();
+    } else {
+      // Fallback: trigger the submit event directly on the component
+      editQuestionFormRef.value.handleSubmit();
+    }
+  }
+};
+
+const handleQuestionSave = async (question: any) => {
   try {
     await api.post('/questions', question);
+    showSuccess('Soru başarıyla eklendi!');
     closeAddModal();
     await fetchQuestions();
-  } catch (e) {
-    alert(e.response?.data?.message || 'Soru eklenirken bir hata oluştu');
+  } catch (e: any) {
+    showError(e.response?.data?.message || 'Soru eklenirken bir hata oluştu');
   }
 };
 
-const handleQuestionUpdate = async (question) => {
+const handleQuestionUpdate = async (question: any) => {
   try {
     await api.patch(`/questions/${question._id}`, question);
+    showSuccess('Soru başarıyla güncellendi!');
     closeEditModal();
     await fetchQuestions();
-  } catch (e) {
-    alert(e.response?.data?.message || 'Soru güncellenirken bir hata oluştu');
+  } catch (e: any) {
+    showError(e.response?.data?.message || 'Soru güncellenirken bir hata oluştu');
   }
 };
 
-const handleQuestionDelete = async (id) => {
+const handleQuestionDelete = async (id: string) => {
   if (!confirm('Bu soruyu silmek istediğinizden emin misiniz?')) return;
   try {
     await api.delete(`/questions/${id}`);
+    showSuccess('Soru başarıyla silindi!');
     await fetchQuestions();
-  } catch (e) {
-    alert(e.response?.data?.message || 'Soru silinirken bir hata oluştu');
+  } catch (e: any) {
+    showError(e.response?.data?.message || 'Soru silinirken bir hata oluştu');
   }
 };
 
 const filteredQuestions = computed(() => {
-  let filtered = questions.value;
-  if (questionType.value && questionType.value !== 'all') {
-    filtered = filtered.filter(q => q.type === questionType.value);
-  }
-  if (search.value) {
-    filtered = filtered.filter(q => q.text.toLowerCase().includes(search.value.toLowerCase()));
-  }
-  if (difficulty.value && difficulty.value !== 'all') {
-    filtered = filtered.filter(q => q.difficulty === difficulty.value);
-  }
-  return filtered;
+  return questions.value;
 });
 
-const paginatedQuestions = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredQuestions.value.slice(start, end);
-});
-
-const getQuestionTypeLabel = (type) => {
+const getQuestionTypeLabel = (type: string) => {
   const questionType = questionTypes.value.find(qt => qt.value === type);
   return questionType ? questionType.label : type;
 };
 
-const getDifficultyLabel = (difficulty) => {
+const getDifficultyLabel = (difficulty: string) => {
   console.log('Getting difficulty label for:', difficulty); // Debug log
   if (!difficulty) return t('questionBank.unspecified');
   
@@ -239,209 +321,235 @@ const getDifficultyLabel = (difficulty) => {
     'medium': t('questionBank.medium'),
     'hard': t('questionBank.hard')
   };
-  return difficultyMap[difficulty] || t('questionBank.unspecified');
+  return difficultyMap[difficulty as keyof typeof difficultyMap] || t('questionBank.unspecified');
 };
 
-const formatDate = (dateString) => {
-  console.log('Formatting date:', dateString); // Debug log
-  if (!dateString) return 'Tarih belirtilmemiş';
-  try {
-    const date = new Date(dateString);
-    if (isNaN(date.getTime())) {
-      console.error('Invalid date:', dateString);
-      return 'Geçersiz tarih';
-    }
-    return date.toLocaleDateString('tr-TR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  } catch (error) {
-    console.error('Error formatting date:', error);
-    return 'Tarih formatı hatası';
-  }
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('tr-TR', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  });
 };
+
 </script>
 
 <style scoped>
-.filter-bar {
-  display: grid;
-  gap: 12px;
-  align-items: center;
-  margin: 24px 0 16px 0;
-    grid-template-columns: 2fr 2fr 2fr 1fr;
 
-}
-.search-input {
-  flex: 1;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
-.filter-select {
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-}
-.import-btn {
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-.add-question-btn {
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  cursor: pointer;
-  font-weight: 600;
-}
-.question-list {
+.page-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 24px;
-}
-.question-card {
-  background:rgb(255, 255, 255);
-  border-radius: 8px;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
   padding: 16px 20px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
-.question-header {
-  flex-direction: column;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: start;
-  gap: 8px;
-  .question-text {
-    font-size: .875em;
-    font-weight:500;
+
+.header-content {
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 6px 0;
   }
-}
-.question-type {
-  color: #888;
-  font-size: 0.95em;
-}
-.question-options {
-  margin: 12px 0 0 0;
-}
-.option-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #333;
-  font-size: 0.98em;
-  border: 1px solid #e9e9e9;
-  padding: .75em .5em;
-  border-radius: 4px;
   
-&.answer-text {
-     color: #4b5563;
-     font-style: italic;
-     background: #e9e9e9;
-     font-weight: 600;
-}
-
-  input[type="radio"],
-  input[type="checkbox"] {
+  p {
+    color: #6b7280;
+    font-size: 14px;
     margin: 0;
-    cursor: not-allowed;
-  }
-
-  span {
-    margin-left: 4px;
   }
 }
 
-.question-meta {
-  margin-top: 8px;
-  color: #666;
-  font-size: 0.95em;
+.header-actions {
+  display: flex;
+  gap: 12px;
 }
+
 .loading {
   text-align: center;
-  padding: 24px;
-}
-.error {
-  color: red;
-  text-align: center;
-  padding: 24px;
-}
-.no-questions {
-  text-align: center;
-  color: #888;
-  padding: 24px;
-}
-.question-actions {
-  margin-top: 12px;
-  display: flex;
-  gap: 10px;
-}
-.edit-btn {
-  background: #fbbf24;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-weight: 500;
-}
-.delete-btn {
-  background: #ef4444;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 14px;
-  cursor: pointer;
-  font-weight: 500;
+  padding: 48px;
+  color: #6b7280;
+  font-size: 16px;
 }
 
-.question-type{
-     font-size: 12px;
-     padding: 4px 8px;
-     border-radius: 1em;
-     font-weight: 600;
-     &.multiple_select{
-          background-color: rgb(219 234 254);
-          color: rgb(30 64 175);
-     }
-     &.true_false{
-          background-color: rgb(220 252 231);
-          color: rgb(22 163 74);
-     }
-     &.open_ended{
-          background-color: rgb(253 230 138);
-          color: rgb(249 115 22);
-     }
-     &.single_choice{
-          background-color: rgb(219 209 243);
-          color: rgb(82 48 193);
-     }
-     
+.error {
+  color: #dc2626;
+  text-align: center;
+  padding: 48px;
+  background: #fee2e2;
+  border-radius: 8px;
+  margin: 24px 0;
 }
-.difficulty-type {
+
+/* Table cell styles */
+.question-text-cell {
+  .question-text {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 4px;
+    line-height: 1.5;
+  }
+  
+  .question-preview {
+    .options-count {
+      font-size: 12px;
+      color: #6b7280;
+      background: #f3f4f6;
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+  }
+}
+
+.question-type-badge {
   font-size: 12px;
-  padding: 4px 8px;
-  border-radius: 1em;
+  padding: 4px 12px;
+  border-radius: 16px;
   font-weight: 600;
+  display: inline-block;
+  
+  &.multiple_select {
+    background-color: #dbeafe;
+    color: #1e40af;
+  }
+  
+  &.true_false {
+    background-color: #dcfce7;
+    color: #16a34a;
+  }
+  
+  &.open_ended {
+    background-color: #fed7aa;
+    color: #ea580c;
+  }
+  
+  &.single_choice {
+    background-color: #e0e7ff;
+    color: #5b21b6;
+  }
 }
-.difficulty-type.easy {
-  background-color: #dcfce7;   /* Açık yeşil */
-  color: #15803d;              /* Koyu yeşil */
+
+.difficulty-badge {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-weight: 600;
+  display: inline-block;
+  
+  &.easy {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+  
+  &.medium {
+    background-color: #fef3c7;
+    color: #d97706;
+  }
+  
+  &.hard {
+    background-color: #fee2e2;
+    color: #dc2626;
+  }
 }
-.difficulty-type.medium {
-  background-color: #fef9c3;   /* Açık sarı */
-  color: #b45309;              /* Koyu turuncu */
+
+.date-text {
+  color: #6b7280;
+  font-size: 14px;
 }
-.difficulty-type.hard {
-  background-color: #fee2e2;   /* Açık kırmızı */
-  color: #b91c1c;              /* Koyu kırmızı */
+
+/* Action buttons in table */
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: none;
+  color: #374151;
+  
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+  
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  
+  .empty-icon {
+    margin-bottom: 16px;
+    
+    .material-symbols-outlined {
+      font-size: 48px;
+      color: #d1d5db;
+    }
+  }
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+    margin: 0 0 8px 0;
+  }
+  
+  p {
+    color: #6b7280;
+    margin: 0 0 24px 0;
+  }
+}
+
+.fullscreen-content {
+  height: 100%;
+  padding: 24px;
+  background: #f9fafb;
+  overflow-y: auto;
+}
+
+.modal-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+  color: #666;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.modal-close:hover {
+  color: #333;
+  background-color: #f5f5f5;
 }
 </style>
 

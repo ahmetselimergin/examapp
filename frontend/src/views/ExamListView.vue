@@ -1,56 +1,146 @@
 <template>
      <div class="exam-list">
-          <div class="header">
-               <h2>{{ $t('exam.title') }}</h2>
-               <router-link
+          <div class="page-header">
+            <div class="header-content">
+              <h2>{{ $t('exam.title') }}</h2>
+              <p>Sınavları yönetin ve düzenleyin</p>
+            </div>
+            <div class="header-actions">
+              <Button
                 v-if="authStore.user?.role === 'teacher' || authStore.user?.role === 'admin'"
-                to="/exams/create"
-                class="create-btn"
-              >
-                <span class="material-symbols-outlined">add</span>
-                {{ $t('exam.createExam') }}
-              </router-link>
+                type="button"
+                styleType="primary"
+                size="medium"
+                @click="$router.push('/exams/create')"
+                icon="add"
+                :text="$t('exam.createExam')"
+              />
+            </div>
           </div>
           
           <div v-if="loading" class="loading">Yükleniyor...</div>
           <div v-else-if="error" class="error">{{ error }}</div>
           <div v-else>
-            <div v-if="exams.length === 0" class="no-exams">{{ $t('exam.noExams') }}</div>
-            <div v-else class="exams-grid">
-               <div v-for="exam in exams" :key="exam._id" class="exam-card" :class="{ disabled: !isExamActive(exam) }" @click="handleExamClick(exam)">
-                    <div class="exam-header">
-                         <h3>{{ exam.title }}</h3>
-                         <div class="exam-status" :class="getExamStatus(exam)">
-                              {{ getExamStatusText(exam) }}
-                         </div>
-                    </div>
-                    <p class="description">{{ exam.description }}</p>
-                    <div class="exam-details">
-                         <div class="detail-item">
-                              <span class="material-symbols-outlined">schedule</span>
-                              <span>{{ formatDateTime(exam.startTime) }}</span>
-                         </div>
-                         <div class="detail-item">
-                              <span class="material-symbols-outlined">timer</span>
-                              <span>{{ exam.duration }} dakika</span>
-                         </div>
-                         <div class="detail-item">
-                              <span class="material-symbols-outlined">quiz</span>
-                              <span>{{ exam.questions?.length || 0 }} soru</span>
-                         </div>
-                         <div class="detail-item">
-                              <span class="material-symbols-outlined">group</span>
-                              <span>{{ exam.assignedStudents?.length || 0 }} öğrenci</span>
-                         </div>
-                    </div>
-                    <div class="meta">
-                         <span>Oluşturan: {{ exam.createdBy?.name }}</span>
-                         <span>Oluşturulma: {{ formatDate(exam.createdAt) }}</span>
-                    </div>
-               </div>
+            <div v-if="exams.length === 0" class="empty-exams">
+              <Empty 
+                icon="quiz"
+                title="Sınav bulunamadı"
+                description="Henüz oluşturulmuş sınav bulunmuyor."
+                :action-text="$t('exam.createExam')"
+                action-variant="primary"
+                :show-action="authStore.user?.role === 'teacher' || authStore.user?.role === 'admin'"
+                @action="$router.push('/exams/create')"
+              />
+            </div>
+            <div v-else>
+              <DataTable
+                :data="exams"
+                :columns="examColumns"
+                :loading="loading"
+                :empty-icon="'quiz'"
+                :empty-title="'Sınav bulunamadı'"
+                :empty-description="'Henüz oluşturulmuş sınav bulunmuyor.'"
+                :show-action="false"
+                @row-double-click="handleExamClick"
+              >
+                <template #cell-title="{ item }">
+                  <div class="exam-title">
+                    <h4>{{ item.title }}</h4>
+                    <p class="exam-description">{{ item.description }}</p>
+                  </div>
+                </template>
+                
+                <template #cell-status="{ item }">
+                  {{ console.log('Rendering status for item:', item) }}
+                  <div class="exam-status-cell">
+                    <span class="status-badge" :class="getExamStatus(item)">
+                      {{ getExamStatusText(item) }}
+                    </span>
+                  </div>
+                </template>
+                
+                <template #cell-startTime="{ item }">
+                  <div class="exam-time">
+                    <span class="material-symbols-outlined">schedule</span>
+                    <span>{{ formatDateTime(item.startTime) }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-endTime="{ item }">
+                  <div class="exam-time">
+                    <span class="material-symbols-outlined">event_available</span>
+                    <span>{{ formatDateTime(item.endTime) }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-duration="{ item }">
+                  <div class="exam-duration">
+                    <span class="material-symbols-outlined">timer</span>
+                    <span>{{ item.duration }} dk</span>
+                  </div>
+                </template>
+                
+                <template #cell-questions="{ item }">
+                  <div class="exam-questions">
+                    <span class="material-symbols-outlined">quiz</span>
+                    <span>{{ item.questions?.length || 0 }}/{{ item.questionCount || 0 }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-students="{ item }">
+                  <div class="exam-students">
+                    <span class="material-symbols-outlined">group</span>
+                    <span>{{ item.assignedStudents?.length || 0 }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-creator="{ item }">
+                  <div class="exam-creator">
+                    <span class="material-symbols-outlined">person</span>
+                    <span>{{ item.createdBy?.name || 'Bilinmiyor' }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-actions="{ item }">
+                  {{ console.log('Rendering actions for item:', item) }}
+                  {{ console.log('Can edit:', canEditExam(item)) }}
+                  {{ console.log('Can delete:', canDeleteExam(item)) }}
+                  <div class="exam-actions">
+                    <Button
+                      v-if="canEditExam(item)"
+                      @click="editExam(item)"
+                      styleType="secondary"
+                      size="small"
+                      icon="edit"
+                      text="Düzenle"
+                    />
+                    <Button
+                      v-if="canDeleteExam(item)"
+                      @click="deleteExam(item)"
+                      styleType="danger"
+                      size="small"
+                      icon="delete"
+                      text="Sil"
+                    />
+                  </div>
+                </template>
+              </DataTable>
             </div>
           </div>
      </div>
+     
+     <!-- Delete Confirmation Modal -->
+     <ConfirmationModal
+       v-if="showDeleteModal"
+       :show="showDeleteModal"
+       :title="'Sınavı Sil'"
+       :message="`${examToDelete?.title} sınavını silmek istediğinizden emin misiniz?`"
+       :confirm-text="'Sil'"
+       :cancel-text="'İptal'"
+       confirm-style="danger"
+       @confirm="confirmDelete"
+       @cancel="showDeleteModal = false"
+     />
 </template>
 
 <script setup>
@@ -58,34 +148,85 @@ import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
+import Button from '../components/ui/Button.vue';
+import Empty from '../components/ui/Empty.vue';
+import DataTable from '../components/ui/DataTable.vue';
+import ConfirmationModal from '../components/ui/ConfirmationModal.vue';
+import { useToast } from '../composables/useToast';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const { showSuccess, showError } = useToast();
 const exams = ref([]);
 const loading = ref(true);
 const error = ref('');
 
+// Table columns
+const examColumns = [
+  { key: 'title', label: 'Sınav Adı', sortable: true },
+  { key: 'status', label: 'Durum', sortable: true, width: '140px' },
+  { key: 'startTime', label: 'Başlangıç', sortable: true, width: '160px' },
+  { key: 'endTime', label: 'Bitiş', sortable: true, width: '160px' },
+  { key: 'duration', label: 'Süre', sortable: true, width: '100px' },
+  { key: 'questions', label: 'Soru', sortable: true, width: '80px' },
+  { key: 'students', label: 'Öğrenci', sortable: true, width: '100px' },
+  { key: 'creator', label: 'Oluşturan', sortable: true, width: '120px' },
+  { key: 'actions', label: 'İşlemler', sortable: false, width: '150px' }
+];
+
+// Modal states
+const showDeleteModal = ref(false);
+const examToDelete = ref(null);
+
 const formatDate = (date) => {
-     return new Date(date).toLocaleDateString('tr-TR');
+     if (!date) return '-';
+     const d = new Date(date);
+     return d.toLocaleDateString('tr-TR', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+     });
 };
 
 const formatDateTime = (date) => {
-     return new Date(date).toLocaleString('tr-TR', {
+     if (!date) return '-';
+     const d = new Date(date);
+     return d.toLocaleString('tr-TR', {
+          day: '2-digit',
+          month: '2-digit',
           year: 'numeric',
-          month: 'short',
-          day: 'numeric',
           hour: '2-digit',
           minute: '2-digit'
      });
 };
 
 const getExamStatus = (exam) => {
+     console.log('Getting exam status for:', exam);
+     console.log('Exam startTime:', exam?.startTime);
+     console.log('Exam endTime:', exam?.endTime);
+     
+     if (!exam || !exam.startTime || !exam.endTime) {
+          console.log('Missing time data, returning unknown');
+          return 'unknown';
+     }
+     
      const now = new Date();
      const startTime = new Date(exam.startTime);
      const endTime = new Date(exam.endTime);
      
-     if (now < startTime) return 'upcoming';
-     if (now >= startTime && now <= endTime) return 'active';
+     console.log('Now:', now);
+     console.log('Start time:', startTime);
+     console.log('End time:', endTime);
+     
+     if (now < startTime) {
+          console.log('Status: upcoming');
+          return 'upcoming';
+     }
+     if (now >= startTime && now <= endTime) {
+          console.log('Status: active');
+          return 'active';
+     }
+     console.log('Status: completed');
      return 'completed';
 };
 
@@ -94,9 +235,10 @@ const getExamStatusText = (exam) => {
      const statusMap = {
           upcoming: 'Yakında',
           active: 'Aktif',
-          completed: 'Tamamlandı'
+          completed: 'Tamamlandı',
+          unknown: 'Bilinmiyor'
      };
-     return statusMap[status];
+     return statusMap[status] || 'Bilinmiyor';
 };
 
 const isExamActive = (exam) => {
@@ -106,7 +248,7 @@ const isExamActive = (exam) => {
 
 const handleExamClick = (exam) => {
      if (!isExamActive(exam)) {
-          alert("Henüz başlama zamanı gelmedi.");
+          showError("Henüz başlama zamanı gelmedi.");
           return;
      }
      // Eğer öğrenci ise student route'a yönlendir
@@ -117,7 +259,76 @@ const handleExamClick = (exam) => {
      }
 };
 
-onMounted(async () => {
+// Permission checks
+const canEditExam = (exam) => {
+     console.log('Checking edit permission for exam:', exam);
+     console.log('Current user:', authStore.user);
+     console.log('Exam createdBy:', exam.createdBy);
+     console.log('User role:', authStore.user?.role);
+     console.log('User _id:', authStore.user?._id);
+     console.log('Exam createdBy _id:', exam.createdBy?._id);
+     
+     const isAdmin = authStore.user?.role === 'admin';
+     const isCreator = authStore.user?.role === 'teacher' && exam.createdBy?._id === authStore.user?._id;
+     
+     console.log('Is admin:', isAdmin);
+     console.log('Is creator:', isCreator);
+     console.log('Can edit:', isAdmin || isCreator);
+     
+     return isAdmin || isCreator;
+};
+
+const canDeleteExam = (exam) => {
+     console.log('Checking delete permission for exam:', exam);
+     console.log('Current user:', authStore.user);
+     console.log('Exam createdBy:', exam.createdBy);
+     console.log('User role:', authStore.user?.role);
+     console.log('User _id:', authStore.user?._id);
+     console.log('Exam createdBy _id:', exam.createdBy?._id);
+     
+     const isAdmin = authStore.user?.role === 'admin';
+     const isCreator = authStore.user?.role === 'teacher' && exam.createdBy?._id === authStore.user?._id;
+     
+     console.log('Is admin:', isAdmin);
+     console.log('Is creator:', isCreator);
+     console.log('Can delete:', isAdmin || isCreator);
+     
+     return isAdmin || isCreator;
+};
+
+// Edit exam
+const editExam = (exam) => {
+     console.log('Edit exam clicked:', exam);
+     console.log('Navigating to:', `/exams/${exam._id}/edit`);
+     router.push(`/exams/${exam._id}/edit`);
+};
+
+// Delete exam
+const deleteExam = (exam) => {
+     console.log('Delete exam clicked:', exam);
+     examToDelete.value = exam;
+     showDeleteModal.value = true;
+     console.log('Delete modal should be shown');
+};
+
+const confirmDelete = async () => {
+     if (!examToDelete.value) return;
+     
+     try {
+          await api.delete(`/exams/${examToDelete.value._id}`);
+          showSuccess('Sınav başarıyla silindi');
+          await loadExams();
+     } catch (error) {
+          showError(error.response?.data?.message || 'Sınav silinirken bir hata oluştu');
+     } finally {
+          showDeleteModal.value = false;
+          examToDelete.value = null;
+     }
+};
+
+const loadExams = async () => {
+     loading.value = true;
+     error.value = '';
      try {
           const token = localStorage.getItem('token');
           const res = await api.get('/exams', {
@@ -126,43 +337,52 @@ onMounted(async () => {
                }
           });
           exams.value = res.data;
+          console.log('Loaded exams:', res.data);
      } catch (e) {
+          console.error('Load exams error:', e);
           error.value = e.response?.data?.message || 'Sınavlar alınamadı';
      } finally {
           loading.value = false;
      }
+};
+
+onMounted(async () => {
+     await loadExams();
 });
 </script>
 
 <style scoped lang="scss">
-.exam-list {
-     margin: 0 auto;
-     padding: 20px 0;
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-.header {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     margin-bottom: 30px;
+.header-content {
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin: 0 0 6px 0;
+  }
+  
+  p {
+    color: #6b7280;
+    font-size: 14px;
+    margin: 0;
+  }
 }
 
-.create-btn {
-     display: flex;
-     align-items: center;
-     gap: 8px;
-     background: #1976d2;
-     color: white;
-     padding: 12px 20px;
-     border-radius: 8px;
-     text-decoration: none;
-     font-weight: 500;
-     transition: background 0.2s ease;
-
-     &:hover {
-          background: #1565c0;
-     }
+.header-actions {
+  display: flex;
+  gap: 12px;
 }
+
 
 .loading,
 .error {
@@ -173,6 +393,90 @@ onMounted(async () => {
 
 .error {
      color: #f44336;
+}
+
+.empty-exams {
+  padding: 20px;
+}
+
+/* DataTable custom styles for exam list */
+.exam-title h4 {
+  margin: 0 0 4px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.exam-description {
+  margin: 0;
+  font-size: 12px;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.exam-status-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  
+  &.upcoming {
+    background: #fef3c7;
+    color: #92400e;
+    border-color: #f59e0b;
+  }
+  
+  &.active {
+    background: #dcfce7;
+    color: #166534;
+    border-color: #22c55e;
+  }
+  
+  &.completed {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #9ca3af;
+  }
+  
+  &.unknown {
+    background: #fef2f2;
+    color: #991b1b;
+    border-color: #ef4444;
+  }
+}
+
+.exam-time, .exam-duration, .exam-questions, .exam-students, .exam-creator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #6b7280;
+  
+  .material-symbols-outlined {
+    font-size: 16px;
+  }
+}
+
+.exam-creator {
+  font-weight: 500;
+  color: #374151;
+}
+
+.exam-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
 }
 
 .exams-grid {

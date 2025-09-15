@@ -1,6 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
-import RegisterForm from "../components/auth/RegisterForm.vue";
 import ProfileView from "../views/ProfileView.vue";
 import ExamListView from "../views/ExamListView.vue";
 import AdminUserListView from "../views/AdminUserListView.vue";
@@ -23,11 +22,6 @@ type CustomRouteRecordRaw = RouteRecordRaw & {
 
 const routes: CustomRouteRecordRaw[] = [
   { path: "/login", component: LoginView, meta: { hideBreadcrumb: true } },
-  {
-    path: "/register",
-    component: RegisterForm,
-    meta: { hideBreadcrumb: true },
-  },
   { path: "/profile", component: ProfileView, meta: { requiresAuth: true } },
   { path: "/exams", component: ExamListView, meta: { requiresAuth: true } },
   {
@@ -39,6 +33,11 @@ const routes: CustomRouteRecordRaw[] = [
     path: "/exams/:id",
     component: ExamDetailView,
     meta: { requiresAuth: true },
+  },
+  {
+    path: "/exams/:id/edit",
+    component: () => import("../views/ExamEditView.vue"),
+    meta: { requiresAuth: true, allowedRoles: ["teacher", "admin"] },
   },
   {
     path: "/exams/:id/student",
@@ -77,17 +76,24 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore();
+
+  // Token varsa ama user yoksa, token'ın geçerli olup olmadığını kontrol et
+  if (authStore.token && !authStore.user) {
+    const isValid = await authStore.validateToken();
+    if (!isValid) {
+      next("/login");
+      return;
+    }
+  }
+
   const isAuthenticated = authStore.isAuthenticated;
   const userRole = authStore.user?.role;
 
-  if (to.path !== "/login" && to.path !== "/register" && !isAuthenticated) {
+  if (to.path !== "/login" && !isAuthenticated) {
     next("/login");
-  } else if (
-    (to.path === "/login" || to.path === "/register") &&
-    isAuthenticated
-  ) {
+  } else if (to.path === "/login" && isAuthenticated) {
     next("/");
   } else if (
     to.meta?.allowedRoles &&

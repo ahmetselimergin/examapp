@@ -5,6 +5,7 @@ export interface IQuestion extends Document {
   type: string;
   text: string;
   options: string[];
+  editorData?: any; // Rich text content from Editor.js
   correctAnswers: string[];
   difficulty: string;
   createdAt: Date;
@@ -29,6 +30,10 @@ const questionSchema = new Schema<IQuestion>({
       type: String,
     },
   ],
+  editorData: {
+    type: Schema.Types.Mixed,
+    required: false,
+  },
   correctAnswers: [
     {
       type: String,

@@ -6,6 +6,7 @@ export interface IExam extends Document {
   startTime: Date;
   endTime: Date;
   duration: number; // dakika cinsinden
+  questionCount: number; // soru sayısı
   createdBy: mongoose.Types.ObjectId;
   questions: mongoose.Types.ObjectId[];
   assignedStudents: mongoose.Types.ObjectId[];
@@ -36,6 +37,12 @@ const examSchema = new Schema<IExam>(
       type: Number,
       required: true,
       min: 1,
+    },
+    questionCount: {
+      type: Number,
+      required: true,
+      min: 1,
+      default: 0,
     },
     createdBy: {
       type: Schema.Types.ObjectId,

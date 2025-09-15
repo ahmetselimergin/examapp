@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@material-symbols/svg-400": "^0.35.1",
     "@vueuse/core": "^13.3.0",
     "axios": "^1.9.0",
     "i18next": "^25.2.1",
@@ -17,7 +18,8 @@
     "react-i18next": "^15.5.3",
     "vue": "^3.5.13",
     "vue-i18n": "^12.0.0-alpha.2",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "vue3-toastify": "^0.2.8"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.4",

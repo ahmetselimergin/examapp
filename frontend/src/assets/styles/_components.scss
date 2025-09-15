@@ -1,0 +1,345 @@
+// Common Component Styles
+// This file consolidates all common component styles to reduce duplication
+
+// Card Components
+.card {
+     background: white;
+     border-radius: 12px;
+     padding: 1.5rem;
+     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+     border: 1px solid #e3e7ef;
+     transition: all 0.2s ease;
+
+     &:hover {
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+     }
+}
+
+.form-card {
+     @extend .card;
+     padding: 2rem;
+}
+
+// Table Components
+.modern-table {
+     width: 100%;
+     border-collapse: separate;
+     border-spacing: 0;
+     background: #fff;
+     border-radius: 12px;
+     overflow: hidden;
+     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+     th,
+     td {
+          padding: 14px 16px;
+          text-align: left;
+     }
+
+     th {
+          background: #f7f8fa;
+          font-weight: 700;
+          color: #1976d2;
+          border-bottom: 2px solid #e3e7ef;
+          position: sticky;
+          top: 0;
+          z-index: 10;
+
+          &.sortable {
+               cursor: pointer;
+               user-select: none;
+
+               &:hover {
+                    background: #e3f2fd;
+               }
+          }
+     }
+
+     tbody tr {
+          transition: background 0.2s;
+
+          &:hover {
+               background: #f0f4fa;
+          }
+     }
+
+     td {
+          border-bottom: 1px solid #e3e7ef;
+          font-size: 1em;
+     }
+
+     tr:last-child td {
+          border-bottom: none;
+     }
+}
+
+// Grid Components
+.grid {
+     display: grid;
+     gap: 1rem;
+
+     &.auto-fit {
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+     }
+
+     &.auto-fill {
+          grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+     }
+
+     &.two-columns {
+          grid-template-columns: 1fr 1fr;
+     }
+
+     &.three-columns {
+          grid-template-columns: 1fr 1fr 1fr;
+     }
+}
+
+// Form Components
+.form-group {
+     margin-bottom: 1.25rem;
+}
+
+.form-row {
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: 1.25rem;
+}
+
+.form-actions {
+     display: flex;
+     justify-content: space-between;
+     gap: 1rem;
+     margin-top: 2rem;
+}
+
+// Status Components
+.status-badge {
+     display: inline-block;
+     padding: 4px 12px;
+     border-radius: 20px;
+     font-size: 12px;
+     font-weight: 500;
+     text-transform: uppercase;
+     letter-spacing: 0.5px;
+     white-space: nowrap;
+
+     &.upcoming {
+          background: #fff3e0;
+          color: #f57c00;
+     }
+
+     &.active {
+          background: #e8f5e8;
+          color: #2e7d32;
+     }
+
+     &.completed {
+          background: #f5f5f5;
+          color: #666;
+     }
+
+     &.inactive {
+          background: #ffebee;
+          color: #c62828;
+     }
+
+     &.pending {
+          background: #fff8e1;
+          color: #f57c00;
+     }
+
+     &.easy {
+          background: #e8f5e8;
+          color: #2e7d32;
+     }
+
+     &.medium {
+          background: #fff3e0;
+          color: #f57c00;
+     }
+
+     &.hard {
+          background: #ffebee;
+          color: #c62828;
+     }
+}
+
+// Loading and Error States
+.loading,
+.error {
+     text-align: center;
+     padding: 2rem;
+     color: #666;
+}
+
+.error {
+     color: #f44336;
+}
+
+// Empty State
+.empty-state {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     justify-content: center;
+     padding: 3rem 2rem;
+     text-align: center;
+     color: #666;
+
+     .empty-icon {
+          margin-bottom: 1rem;
+
+          .material-symbols-outlined {
+               font-size: 4rem;
+               opacity: 0.5;
+               color: #999;
+          }
+     }
+
+     .empty-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          margin-bottom: 0.5rem;
+          color: #333;
+     }
+
+     .empty-description {
+          font-size: 1rem;
+          margin-bottom: 2rem;
+          max-width: 400px;
+          line-height: 1.5;
+     }
+
+     .empty-actions {
+          display: flex;
+          gap: 1rem;
+          flex-wrap: wrap;
+          justify-content: center;
+     }
+}
+
+// Filter Components
+.filter-bar {
+     display: flex;
+     gap: 1rem;
+     align-items: flex-end;
+     padding: 1rem;
+     background: white;
+     border-radius: 8px;
+     border: 1px solid #e3e7ef;
+     margin-bottom: 1rem;
+     flex-wrap: wrap;
+
+     .search-section {
+          flex: 1;
+          min-width: 200px;
+     }
+
+     .filters-section {
+          display: flex;
+          gap: 0.5rem;
+          flex-wrap: wrap;
+          align-items: flex-end;
+     }
+
+     .actions-section {
+          display: flex;
+          gap: 0.5rem;
+          align-items: center;
+     }
+}
+
+// Step Indicator
+.step-indicator {
+     display: flex;
+     justify-content: center;
+     gap: 20px;
+     margin-top: 20px;
+
+     .step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.5;
+          transition: opacity 0.3s ease;
+
+          &.active {
+               opacity: 1;
+          }
+
+          &.completed {
+               opacity: 0.8;
+          }
+
+          .step-number {
+               width: 40px;
+               height: 40px;
+               border-radius: 50%;
+               background: #e0e0e0;
+               display: flex;
+               align-items: center;
+               justify-content: center;
+               font-weight: bold;
+               color: #666;
+          }
+
+          &.active .step-number {
+               background: #1976d2;
+               color: white;
+          }
+
+          &.completed .step-number {
+               background: #4caf50;
+               color: white;
+          }
+
+          .step-label {
+               font-size: 14px;
+               color: #666;
+               text-align: center;
+          }
+     }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+     .form-row {
+          grid-template-columns: 1fr;
+     }
+
+     .filter-bar {
+          flex-direction: column;
+          align-items: stretch;
+
+          .search-section {
+               min-width: auto;
+          }
+
+          .filters-section {
+               justify-content: stretch;
+          }
+
+          .actions-section {
+               justify-content: center;
+          }
+     }
+
+     .grid {
+
+          &.two-columns,
+          &.three-columns {
+               grid-template-columns: 1fr;
+          }
+     }
+
+     .form-actions {
+          flex-direction: column;
+     }
+
+     .step-indicator {
+          flex-direction: column;
+          gap: 10px;
+     }
+}

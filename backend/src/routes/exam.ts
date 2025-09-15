@@ -20,8 +20,10 @@ const router = express.Router();
 router.get("/", auth, async (req: Request, res: Response): Promise<void> => {
   try {
     const exams = await Exam.find()
-      .populate("createdBy", "name")
-      .populate("assignedStudents", "name email");
+      .populate("createdBy", "name email")
+      .populate("assignedStudents", "name email")
+      .populate("questions", "text type difficulty")
+      .sort({ createdAt: -1 });
     res.json(exams);
   } catch (error) {
     res.status(400).json({
@@ -71,19 +73,34 @@ router.post(
   checkRole("teacher", "admin"),
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-      const { title, description, startTime, endTime, duration } = req.body;
+      const {
+        title,
+        description,
+        startTime,
+        endTime,
+        duration,
+        questionCount,
+      } = req.body;
+
+      console.log("Create exam - User:", req.user);
+      console.log("Create exam - User _id:", req.user?._id);
+
       const exam = await Exam.create({
         title,
         description,
         startTime,
         endTime,
         duration,
+        questionCount: questionCount || 0,
         createdBy: req.user?._id,
         questions: [],
         assignedStudents: [],
       });
+
+      console.log("Created exam:", exam);
       res.status(201).json(exam);
     } catch (error) {
+      console.error("Create exam error:", error);
       res.status(400).json({
         message: error instanceof Error ? error.message : "An error occurred",
       });
@@ -101,15 +118,28 @@ router.post(
       const { questionIds } = req.body;
       const exam = await Exam.findById(req.params.id);
 
+      console.log("Add questions - User:", req.user);
+      console.log("Add questions - Exam:", exam);
+
       if (!exam) {
         res.status(404).json({ message: "Sınav bulunamadı" });
         return;
       }
 
-      if (
-        exam.createdBy.toString() !== req.user?._id &&
-        req.user?.role !== "admin"
-      ) {
+      console.log("Exam createdBy:", exam.createdBy.toString());
+      console.log("User _id:", req.user?._id);
+      console.log("User role:", req.user?.role);
+
+      // Convert both to strings for comparison
+      const examCreatorId = exam.createdBy.toString();
+      const userId = req.user?._id?.toString();
+
+      console.log("Exam creator ID (string):", examCreatorId);
+      console.log("User ID (string):", userId);
+      console.log("Are they equal?", examCreatorId === userId);
+
+      if (examCreatorId !== userId && req.user?.role !== "admin") {
+        console.log("Permission denied - not creator and not admin");
         res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
         return;
       }
@@ -154,7 +184,7 @@ router.put(
       }
 
       if (
-        exam.createdBy.toString() !== req.user?._id &&
+        exam.createdBy.toString() !== req.user?._id?.toString() &&
         req.user?.role !== "admin"
       ) {
         res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
@@ -194,7 +224,7 @@ router.post(
       }
 
       if (
-        exam.createdBy.toString() !== req.user?._id &&
+        exam.createdBy.toString() !== req.user?._id?.toString() &&
         req.user?.role !== "admin"
       ) {
         res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
@@ -255,7 +285,7 @@ router.delete(
       }
 
       if (
-        exam.createdBy.toString() !== req.user?._id &&
+        exam.createdBy.toString() !== req.user?._id?.toString() &&
         req.user?.role !== "admin"
       ) {
         res.status(403).json({ message: "Bu sınavı silme yetkiniz yok" });
@@ -338,7 +368,7 @@ router.get(
       }
 
       if (
-        exam.createdBy.toString() !== req.user?._id &&
+        exam.createdBy.toString() !== req.user?._id?.toString() &&
         req.user?.role !== "admin"
       ) {
         res.status(403).json({ message: "Bu sınavı görme yetkiniz yok" });
@@ -389,7 +419,7 @@ router.post(
       }
 
       if (
-        exam.createdBy.toString() !== req.user?._id &&
+        exam.createdBy.toString() !== req.user?._id?.toString() &&
         req.user?.role !== "admin"
       ) {
         res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });

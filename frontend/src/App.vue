@@ -43,15 +43,12 @@ const breadcrumbItems = computed(() => {
 });
 
 onMounted(async () => {
-  if (authStore.isAuthenticated && !authStore.user) {
-    try {
-      await authStore.fetchUserProfile();
-    } catch (error) {
-      console.error('Failed to fetch user profile:', error);
-      // Token geçersizse kullanıcıyı logout yap
-      if (error.response?.status === 401) {
-        authStore.logout();
-      }
+  // Token varsa ama user yoksa, token'ın geçerli olup olmadığını kontrol et
+  if (authStore.token && !authStore.user) {
+    const isValid = await authStore.validateToken();
+    if (!isValid) {
+      // Token geçersizse login sayfasına yönlendir
+      window.location.href = '/login';
     }
   }
 })
@@ -105,13 +102,13 @@ const toggleSidebar = () => {
 }
 
 .main-content.with-sidebar {
-  width: calc(100% - 250px);
-  margin: 0 250px;
+  width: calc(100% - 280px);
+  margin-left: 280px;
 }
 
 .main-content.with-sidebar.sidebar-collapsed {
-  width: calc(100% - 60px);
-  margin: 0 60px;
+  width: calc(100% - 72px);
+  margin-left: 72px;
 }
 
 @media screen and (max-width: 768px) {

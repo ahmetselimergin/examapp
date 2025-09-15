@@ -15,7 +15,13 @@
     "en": "İngilizce",
     "add": "Ekle",
     "edit": "Düzenle",
-    "delete": "Sil"
+    "delete": "Sil",
+    "loading": "Yükleniyor...",
+    "error": "Hata",
+    "retry": "Tekrar Dene",
+    "minutes": "dakika",
+    "next": "İleri",
+    "previous": "Geri"
   },
   "exam": {
     "title": "Sınavlar",
@@ -25,12 +31,43 @@
     "time": "Süre",
     "score": "Puan",
     "noExams": "Sınav yok",
-    "createExam": "Sınav Oluştur"
+    "createExam": "Sınav Oluştur",
+    "editExam": "Sınav Düzenle",
+    "editExamDescription": "Sınav bilgilerini düzenleyin",
+    "titlePlaceholder": "Sınav başlığını girin",
+    "description": "Açıklama",
+    "descriptionPlaceholder": "Sınav açıklamasını girin",
+    "startTime": "Başlangıç Zamanı",
+    "endTime": "Bitiş Zamanı",
+    "duration": "Süre",
+    "durationPlaceholder": "Süre (dakika)",
+    "questionCount": "Soru Sayısı",
+    "questionCountPlaceholder": "Soru sayısını girin",
+    "loadError": "Sınav yüklenirken bir hata oluştu",
+    "updateSuccess": "Sınav başarıyla güncellendi",
+    "updateError": "Sınav güncellenirken bir hata oluştu",
+    "endTimeAfterStartTime": "Bitiş zamanı başlangıç zamanından sonra olmalıdır",
+    "basicInfo": "Temel Bilgiler",
+    "examTitle": "Sınav Adı",
+    "selectQuestions": "Soruları Seçin",
+    "searchQuestions": "Soru ara...",
+    "allTypes": "Tüm Tipler",
+    "allDifficulties": "Tüm Zorluklar",
+    "questionText": "Soru Metni",
+    "type": "Tip",
+    "difficulty": "Zorluk",
+    "selectStudents": "Öğrencileri Seçin",
+    "searchStudents": "Öğrenci ara...",
+    "studentName": "Öğrenci Adı",
+    "email": "E-posta"
   },
   "validation": {
     "required": "Bu alan zorunludur",
     "invalidEmail": "Geçersiz e-posta adresi",
     "passwordLength": "Şifre en az 6 karakter olmalıdır"
+  },
+  "navbar": {
+    "editExam": "Sınav Düzenle"
   },
   "questionBank": {
     "title": "Soru Bankası",
@@ -56,7 +93,12 @@
     "addOption": "Şık Ekle",
     "option": "Şık",
     "correctAnswer": "Doğru Cevap",
-    "questionText": "Soru Metni"
+    "questionText": "Soru Metni",
+    "type": "Tip",
+    "createdAt": "Oluşturulma Tarihi",
+    "options": "seçenek",
+    "noQuestionsDescription": "Henüz hiç soru eklenmemiş. İlk soruyu eklemek için butona tıklayın.",
+    "unspecified": "Belirtilmemiş"
   },
   "settings": {
     "title": "Ayarlar",

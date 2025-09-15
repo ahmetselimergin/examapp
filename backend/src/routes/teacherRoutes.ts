@@ -13,10 +13,10 @@ const router = express.Router();
 // Tüm öğretmenleri getir
 router.get("/", auth, getAllTeachers);
 
-// Bir öğrencinin tüm öğretmenlerini getir
+// Bir öğrencinin tüm öğretmenlerini getir (specific route first)
 router.get("/student/:studentId/teachers", auth, getTeachersForStudent);
 
-// Bir öğretmenin tüm öğrencilerini getir
+// Bir öğretmenin tüm öğrencilerini getir (generic route after specific)
 router.get("/:teacherId/students", auth, getStudentsForTeacher);
 
 // Öğrenciyi öğretmene ata

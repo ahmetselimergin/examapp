@@ -19,29 +19,31 @@
    
    <style scoped lang="scss">
      @import "../../assets/styles/_framework.scss";
-   .ui-btn {
-     padding:10px 20px;
-     border: none;
-     border-radius: 6px;
-     font-size: 15px;
-     font-weight: 600;
-     cursor: pointer;
-     transition: background 0.2s, color 0.2s;
-     border: 1px solid transparent;
-     display: flex;
-     justify-content: center;
-     align-items: center;
-     gap: 6px;
-     .material-symbols-outlined{
-          font-size: 16px !important;
-     }
+  .ui-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    border: 1px solid transparent;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    .material-symbols-outlined{
+         font-size: 14px !important;
+    }
      &.rounded {
           border-radius: 100px;
      }
      &.primary {
-       background: $darker-blue;
-       color: $white;
-       &:hover { background: $dark-blue; }
+       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+       color: white;
+       &:hover { 
+         background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+       }
      }
      &.danger {
        background: $red;

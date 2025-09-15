@@ -15,8 +15,10 @@ const router = express_1.default.Router();
 router.get("/", auth_1.auth, async (req, res) => {
     try {
         const exams = await Exam_1.default.find()
-            .populate("createdBy", "name")
-            .populate("assignedStudents", "name email");
+            .populate("createdBy", "name email")
+            .populate("assignedStudents", "name email")
+            .populate("questions", "text type difficulty")
+            .sort({ createdAt: -1 });
         res.json(exams);
     }
     catch (error) {
@@ -53,22 +55,27 @@ router.get("/:id", auth_1.auth, async (req, res) => {
 });
 // Create new exam (only teachers and admins)
 router.post("/", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a;
+    var _a, _b;
     try {
-        const { title, description, startTime, endTime, duration } = req.body;
+        const { title, description, startTime, endTime, duration, questionCount, } = req.body;
+        console.log("Create exam - User:", req.user);
+        console.log("Create exam - User _id:", (_a = req.user) === null || _a === void 0 ? void 0 : _a._id);
         const exam = await Exam_1.default.create({
             title,
             description,
             startTime,
             endTime,
             duration,
-            createdBy: (_a = req.user) === null || _a === void 0 ? void 0 : _a._id,
+            questionCount: questionCount || 0,
+            createdBy: (_b = req.user) === null || _b === void 0 ? void 0 : _b._id,
             questions: [],
             assignedStudents: [],
         });
+        console.log("Created exam:", exam);
         res.status(201).json(exam);
     }
     catch (error) {
+        console.error("Create exam error:", error);
         res.status(400).json({
             message: error instanceof Error ? error.message : "An error occurred",
         });
@@ -76,16 +83,27 @@ router.post("/", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async
 });
 // Add existing questions to exam
 router.post("/:id/add-questions", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c, _d, _e;
     try {
         const { questionIds } = req.body;
         const exam = await Exam_1.default.findById(req.params.id);
+        console.log("Add questions - User:", req.user);
+        console.log("Add questions - Exam:", exam);
         if (!exam) {
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        console.log("Exam createdBy:", exam.createdBy.toString());
+        console.log("User _id:", (_a = req.user) === null || _a === void 0 ? void 0 : _a._id);
+        console.log("User role:", (_b = req.user) === null || _b === void 0 ? void 0 : _b.role);
+        // Convert both to strings for comparison
+        const examCreatorId = exam.createdBy.toString();
+        const userId = (_d = (_c = req.user) === null || _c === void 0 ? void 0 : _c._id) === null || _d === void 0 ? void 0 : _d.toString();
+        console.log("Exam creator ID (string):", examCreatorId);
+        console.log("User ID (string):", userId);
+        console.log("Are they equal?", examCreatorId === userId);
+        if (examCreatorId !== userId && ((_e = req.user) === null || _e === void 0 ? void 0 : _e.role) !== "admin") {
+            console.log("Permission denied - not creator and not admin");
             res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
             return;
         }
@@ -112,15 +130,15 @@ router.post("/:id/add-questions", auth_1.auth, (0, roleAuth_1.default)("teacher"
 });
 // Update exam (only creator, teachers and admins)
 router.put("/:id", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const exam = await Exam_1.default.findById(req.params.id);
         if (!exam) {
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        if (exam.createdBy.toString() !== ((_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) &&
+            ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) !== "admin") {
             res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
             return;
         }
@@ -137,7 +155,7 @@ router.put("/:id", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), asy
 });
 // Assign students to exam
 router.post("/:id/assign-students", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const { studentIds } = req.body;
         const exam = await Exam_1.default.findById(req.params.id);
@@ -145,8 +163,8 @@ router.post("/:id/assign-students", auth_1.auth, (0, roleAuth_1.default)("teache
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        if (exam.createdBy.toString() !== ((_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) &&
+            ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) !== "admin") {
             res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
             return;
         }
@@ -183,15 +201,15 @@ router.post("/:id/finish", auth_1.auth, (0, roleAuth_1.default)("teacher", "admi
 });
 // Delete exam (only creator and admins)
 router.delete("/:id", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const exam = await Exam_1.default.findById(req.params.id);
         if (!exam) {
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        if (exam.createdBy.toString() !== ((_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) &&
+            ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) !== "admin") {
             res.status(403).json({ message: "Bu sınavı silme yetkiniz yok" });
             return;
         }
@@ -239,7 +257,7 @@ router.post("/:id/submit-answers", auth_1.auth, (0, roleAuth_1.default)("student
 });
 // Öğrencinin cevaplarını getir (öğretmen/admin için)
 router.get("/:id/answers/:studentId", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const { id: examId, studentId } = req.params;
         // Sınavın var olduğunu ve kullanıcının yetkisi olduğunu kontrol et
@@ -248,8 +266,8 @@ router.get("/:id/answers/:studentId", auth_1.auth, (0, roleAuth_1.default)("teac
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        if (exam.createdBy.toString() !== ((_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) &&
+            ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) !== "admin") {
             res.status(403).json({ message: "Bu sınavı görme yetkiniz yok" });
             return;
         }
@@ -277,7 +295,7 @@ router.get("/:id/answers/:studentId", auth_1.auth, (0, roleAuth_1.default)("teac
 });
 // Öğrenci cevaplarının puanlarını kaydet
 router.post("/:id/answers/:studentId/score", auth_1.auth, (0, roleAuth_1.default)("teacher", "admin"), async (req, res) => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const { id: examId, studentId } = req.params;
         const { scores } = req.body; // [{ questionId, score }]
@@ -287,8 +305,8 @@ router.post("/:id/answers/:studentId/score", auth_1.auth, (0, roleAuth_1.default
             res.status(404).json({ message: "Sınav bulunamadı" });
             return;
         }
-        if (exam.createdBy.toString() !== ((_a = req.user) === null || _a === void 0 ? void 0 : _a._id) &&
-            ((_b = req.user) === null || _b === void 0 ? void 0 : _b.role) !== "admin") {
+        if (exam.createdBy.toString() !== ((_b = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id) === null || _b === void 0 ? void 0 : _b.toString()) &&
+            ((_c = req.user) === null || _c === void 0 ? void 0 : _c.role) !== "admin") {
             res.status(403).json({ message: "Bu sınavı düzenleme yetkiniz yok" });
             return;
         }

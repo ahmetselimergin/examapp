@@ -56,11 +56,14 @@
             </span>
           </div>
           <div class="start-btn-section">
-            <button 
-              class="start-btn" 
+            <Button 
+              type="button"
+              styleType="primary"
+              size="large"
               :disabled="countdown > 0" 
               @click="startExam"
-            >Sınava Başla</button>
+              text="Sınava Başla"
+            />
           </div>
         </div>
       </div>
@@ -102,11 +105,31 @@
           </div>
         </div>
         <div class="question-nav">
-          <button @click="prevQuestion" :disabled="currentQuestionIndex === 0">Önceki</button>
-          <button @click="nextQuestion" :disabled="currentQuestionIndex === exam.questions.length - 1">Sonraki</button>
+          <Button 
+            type="button"
+            styleType="primary"
+            size="medium"
+            @click="prevQuestion" 
+            :disabled="currentQuestionIndex === 0"
+            text="Önceki"
+          />
+          <Button 
+            type="button"
+            styleType="primary"
+            size="medium"
+            @click="nextQuestion" 
+            :disabled="currentQuestionIndex === exam.questions.length - 1"
+            text="Sonraki"
+          />
         </div>
         <div class="finish-section">
-          <button class="finish-btn" @click="finishExam">Sınavı Bitir</button>
+          <Button 
+            type="button"
+            styleType="primary"
+            size="medium"
+            @click="finishExam"
+            text="Sınavı Bitir"
+          />
         </div>
       </div>
     </div>
@@ -129,6 +152,7 @@ import {
 
 from 'vue-router';
 import api from '../services/api';
+import Button from '../components/ui/Button.vue';
 
 const route=useRoute();
 const router=useRouter();

@@ -1,8 +1,8 @@
 <template>
   <Modal
-    v-model="showModal"
+    :modelValue="showModal"
     :title="student.name + ' - Cevaplar ve Puanlama'"
-    @update:modelValue="$emit('close')"
+    @update:modelValue="handleModalUpdate"
     :showCloseButton="true"
     :closeOnOverlayClick="true"
   >
@@ -140,6 +140,12 @@ const saveScores = async () => {
 };
 
 const totalScore = computed(() => answers.value.reduce((sum, a) => sum + (a.score || 0), 0));
+
+const handleModalUpdate = (value) => {
+  if (!value) {
+    emit('close');
+  }
+};
 
 watch(() => props.student, () => {
   if (props.student && props.examId) fetchAnswers();
