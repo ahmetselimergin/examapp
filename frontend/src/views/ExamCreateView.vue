@@ -605,27 +605,27 @@ onMounted(() => {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: #e0e0e0;
+  background:transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: bold;
-  color: #666;
+  color: #fff;
 }
 
 .step.active .step-number {
-  background: #3b82f6;
+  background: transparent;
   color: white;
 }
 
 .step.completed .step-number {
-  background: #10b981;
+  background: transparent;
   color: white;
 }
 
 .step-label {
   font-size: 14px;
-  color: #666;
+  color: #fff;
   text-align: center;
 }
 

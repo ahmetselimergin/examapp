@@ -193,8 +193,12 @@
                         </div>
                       </td>
                       <td class="question-text">{{ question.text }}</td>
-                      <td class="question-type">{{ getQuestionTypeText(question.type) }}</td>
-                      <td class="question-difficulty">{{ question.difficulty }}</td>
+                      <td class="question-type">
+                        <StatusBadge :status="question.type" type="question" />
+                      </td>
+                      <td class="question-difficulty">
+                        <StatusBadge :status="question.difficulty" type="question" />
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -311,6 +315,7 @@ import { useAuthStore } from '../stores/auth';
 import Button from '../components/ui/Button.vue';
 import Input from '../components/ui/Input.vue';
 import Select from '../components/ui/Select.vue';
+import StatusBadge from '../components/ui/StatusBadge.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -325,7 +330,11 @@ const exam = ref(null);
 
 // Step management
 const currentStep = ref(1);
-const steps = ref(['Temel Bilgiler', 'Sorular', 'Öğrenciler']);
+const steps = computed(() => [
+  t('exam.stepBasicInfo'),
+  t('exam.stepQuestions'),
+  t('exam.stepStudents')
+]);
 
 // Form data
 const formData = ref({
@@ -356,20 +365,20 @@ const errorStudents = ref('');
 const studentSearch = ref('');
 
 // Question type options
-const questionTypeOptions = ref([
-  { value: '', label: 'Tüm Tipler' },
-  { value: 'single', label: 'Çoktan Tek Seçmeli' },
-  { value: 'multiple', label: 'Çoktan Çok Seçmeli' },
-  { value: 'truefalse', label: 'Doğru/Yanlış' },
-  { value: 'shortanswer', label: 'Kısa Cevap' }
+const questionTypeOptions = computed(() => [
+  { value: '', label: t('exam.allTypes') },
+  { value: 'single_choice', label: t('questionBank.singleChoice') },
+  { value: 'multiple_select', label: t('questionBank.multipleSelect') },
+  { value: 'true_false', label: t('questionBank.trueFalse') },
+  { value: 'open_ended', label: t('questionBank.openEnded') }
 ]);
 
 // Difficulty options
-const difficultyOptions = ref([
-  { value: '', label: 'Tüm Zorluklar' },
-  { value: 'easy', label: 'Kolay' },
-  { value: 'medium', label: 'Orta' },
-  { value: 'hard', label: 'Zor' }
+const difficultyOptions = computed(() => [
+  { value: '', label: t('exam.allDifficulties') },
+  { value: 'easy', label: t('questionBank.easy') },
+  { value: 'medium', label: t('questionBank.medium') },
+  { value: 'hard', label: t('questionBank.hard') }
 ]);
 
 // Computed properties
@@ -525,7 +534,7 @@ const loadQuestions = async () => {
     const response = await api.get('/questions');
     questions.value = response.data;
   } catch (error) {
-    errorQuestions.value = 'Sorular yüklenirken bir hata oluştu';
+    errorQuestions.value = t('exam.questionsLoadError');
   } finally {
     loadingQuestions.value = false;
   }
@@ -546,7 +555,7 @@ const loadStudents = async () => {
       students.value = [];
     }
   } catch (error) {
-    errorStudents.value = 'Öğrenciler yüklenirken bir hata oluştu';
+    errorStudents.value = t('exam.studentsLoadError');
   } finally {
     loadingStudents.value = false;
   }
@@ -561,7 +570,7 @@ const toggleQuestion = (questionId) => {
     if (selectedQuestions.value.length < formData.value.questionCount) {
       selectedQuestions.value.push(questionId);
     } else {
-      showError(`Maksimum ${formData.value.questionCount} soru seçebilirsiniz`);
+      showError(t('exam.maxQuestionsError', { count: formData.value.questionCount }));
     }
   }
 };
@@ -579,7 +588,7 @@ const toggleAllQuestions = () => {
     if (selectedQuestions.value.length + newSelections.length <= formData.value.questionCount) {
       selectedQuestions.value.push(...newSelections);
     } else {
-      showError(`Maksimum ${formData.value.questionCount} soru seçebilirsiniz`);
+      showError(t('exam.maxQuestionsError', { count: formData.value.questionCount }));
     }
   }
 };
@@ -605,17 +614,6 @@ const toggleAllStudents = () => {
       .map(s => s._id);
     selectedStudents.value.push(...newSelections);
   }
-};
-
-// Question type text
-const getQuestionTypeText = (type) => {
-  const typeMap = {
-    single: 'Çoktan Tek Seçmeli',
-    multiple: 'Çoktan Çok Seçmeli',
-    truefalse: 'Doğru/Yanlış',
-    shortanswer: 'Kısa Cevap'
-  };
-  return typeMap[type] || type;
 };
 
 // Finish exam update
@@ -648,11 +646,11 @@ const finishExamUpdate = async () => {
       });
     }
 
-    showSuccess('Sınav başarıyla güncellendi!');
+    showSuccess(t('exam.updateSuccess'));
     router.push('/exams');
   } catch (error) {
     console.error('Update exam error:', error);
-    showError(error.response?.data?.message || 'Sınav güncellenirken bir hata oluştu');
+    showError(error.response?.data?.message || t('exam.updateError'));
   } finally {
     saving.value = false;
   }
@@ -675,6 +673,7 @@ onMounted(() => {
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  padding: 0 12px;
 }
 
 .step-indicator {
@@ -689,6 +688,9 @@ onMounted(() => {
   align-items: center;
   padding: 20px;
   position: relative;
+  background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.5;
+  border-radius: 8px;
   
   &:not(:last-child)::after {
     content: '';
@@ -704,20 +706,21 @@ onMounted(() => {
   }
   
   &.active {
-    background: #3b82f6;
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     
     &::after {
-      border-left-color: #3b82f6;
+      border-left-color:transparent;
     }
   }
   
   &.completed {
-    background: #10b981;
+    background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    opacity: 0.8;
     color: white;
     
     &::after {
-      border-left-color: #10b981;
+      border-left-color:transparent;
     }
   }
 }
@@ -726,7 +729,7 @@ onMounted(() => {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -740,7 +743,7 @@ onMounted(() => {
 }
 
 .step-content {
-  padding: 30px;
+  margin: 20px 0;
 }
 
 .step-panel h3 {
@@ -756,7 +759,6 @@ onMounted(() => {
   justify-content: flex-end;
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px solid #e5e7eb;
 }
 
 .questions-section, .students-section {
@@ -842,7 +844,11 @@ onMounted(() => {
     color: #1f2937;
   }
   
-  .question-type, .question-difficulty, .student-email {
+  .question-type, .question-difficulty {
+    text-align: center;
+  }
+  
+  .student-email {
     color: #6b7280;
     font-size: 14px;
   }

@@ -59,15 +59,27 @@
     "selectStudents": "Öğrencileri Seçin",
     "searchStudents": "Öğrenci ara...",
     "studentName": "Öğrenci Adı",
-    "email": "E-posta"
+    "email": "E-posta",
+    "upcoming": "Yakında",
+    "active": "Aktif",
+    "completed": "Tamamlandı",
+    "stepBasicInfo": "Temel Bilgiler",
+    "stepQuestions": "Sorular",
+    "stepStudents": "Öğrenciler",
+    "questionsLoadError": "Sorular yüklenirken bir hata oluştu",
+    "studentsLoadError": "Öğrenciler yüklenirken bir hata oluştu",
+    "maxQuestionsError": "Maksimum {count} soru seçebilirsiniz",
+    "students": "Öğrenciler"
+  },
+  "user": {
+    "active": "Aktif",
+    "inactive": "Pasif",
+    "pending": "Beklemede"
   },
   "validation": {
     "required": "Bu alan zorunludur",
     "invalidEmail": "Geçersiz e-posta adresi",
     "passwordLength": "Şifre en az 6 karakter olmalıdır"
-  },
-  "navbar": {
-    "editExam": "Sınav Düzenle"
   },
   "questionBank": {
     "title": "Soru Bankası",
@@ -117,6 +129,7 @@
     "users": "Kullanıcılar",
     "students": "Öğrenciler",
     "admin": "Yönetici",
-    "quickActions": "Hızlı İşlemler"
+    "quickActions": "Hızlı İşlemler",
+    "editExam": "Sınav Düzenle"
   }
 } 

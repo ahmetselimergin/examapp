@@ -6,6 +6,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 
 interface Props {
   status: string
@@ -17,21 +18,29 @@ const props = withDefaults(defineProps<Props>(), {
   type: 'custom'
 })
 
+const { t } = useI18n()
+
 const statusMap = {
   exam: {
-    upcoming: { label: 'Yakında', class: 'upcoming' },
-    active: { label: 'Aktif', class: 'active' },
-    completed: { label: 'Tamamlandı', class: 'completed' }
+    upcoming: { labelKey: 'exam.upcoming', class: 'upcoming' },
+    active: { labelKey: 'exam.active', class: 'active' },
+    completed: { labelKey: 'exam.completed', class: 'completed' }
   },
   user: {
-    active: { label: 'Aktif', class: 'active' },
-    inactive: { label: 'Pasif', class: 'inactive' },
-    pending: { label: 'Beklemede', class: 'pending' }
+    active: { labelKey: 'user.active', class: 'active' },
+    inactive: { labelKey: 'user.inactive', class: 'inactive' },
+    pending: { labelKey: 'user.pending', class: 'pending' }
   },
   question: {
-    easy: { label: 'Kolay', class: 'easy' },
-    medium: { label: 'Orta', class: 'medium' },
-    hard: { label: 'Zor', class: 'hard' }
+    // Difficulty levels
+    easy: { labelKey: 'questionBank.easy', class: 'easy' },
+    medium: { labelKey: 'questionBank.medium', class: 'medium' },
+    hard: { labelKey: 'questionBank.hard', class: 'hard' },
+    // Question types
+    single_choice: { labelKey: 'questionBank.singleChoice', class: 'single-choice' },
+    multiple_select: { labelKey: 'questionBank.multipleSelect', class: 'multiple-select' },
+    true_false: { labelKey: 'questionBank.trueFalse', class: 'true-false' },
+    open_ended: { labelKey: 'questionBank.openEnded', class: 'open-ended' }
   },
   custom: {}
 }
@@ -39,14 +48,15 @@ const statusMap = {
 const label = computed(() => {
   if (props.customLabel) return props.customLabel
   
-  const typeMap = statusMap[props.type]
-  return typeMap[props.status]?.label || props.status
+  const typeMap = statusMap[props.type] as Record<string, { labelKey: string; class: string }>
+  const statusConfig = typeMap[props.status]
+  return statusConfig ? t(statusConfig.labelKey) : props.status
 })
 
 const statusClass = computed(() => {
   if (props.customLabel) return 'custom'
   
-  const typeMap = statusMap[props.type]
+  const typeMap = statusMap[props.type] as Record<string, { labelKey: string; class: string }>
   return typeMap[props.status]?.class || 'default'
 })
 </script>
@@ -104,6 +114,27 @@ const statusClass = computed(() => {
 .hard {
   background: #ffebee;
   color: #c62828;
+}
+
+// Question types
+.single-choice {
+  background: #e0e7ff;
+  color: #5b21b6;
+}
+
+.multiple-select {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.true-false {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.open-ended {
+  background: #fed7aa;
+  color: #ea580c;
 }
 
 // Default
