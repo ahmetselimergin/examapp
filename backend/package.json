@@ -8,7 +8,10 @@
     "start": "node dist/app.js",
     "dev": "nodemon --exec ts-node src/app.ts",
     "build": "tsc",
-    "watch": "tsc -w"
+    "watch": "tsc -w",
+    "install-app": "ts-node src/scripts/installer.ts",
+    "seed-admin": "ts-node src/scripts/seed-admin.ts",
+    "setup": "npm run seed-admin"
   },
   "keywords": [],
   "author": "",
