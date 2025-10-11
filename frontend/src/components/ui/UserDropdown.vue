@@ -82,9 +82,10 @@ defineExpose({
   position: relative;
   padding: 0 0.75em;
   display: inline-block;
+  width: 100%;
 }
 .user-dropdown-button-collapsed {
-     background: #fff;
+     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border: none;
     color: #002e73;
     cursor: pointer;
@@ -111,9 +112,9 @@ defineExpose({
   }
 }
 .user-dropdown-button {
-  background: $white;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border: none;
-  color: $dark-blue;
+  color: $white;
   cursor: pointer;
   padding: 0.5rem 1rem;
   display: flex;
@@ -124,7 +125,6 @@ defineExpose({
   width: 100%;
   min-height: 56px;
   .avatar {
-    background: $dark-blue;
     border-radius: 50%;
     width: 32px;
     height: 32px;
@@ -134,7 +134,7 @@ defineExpose({
     justify-content: center;
     .avatar-initials {
       font-size: 14px;
-      font-weight: 500;
+      font-weight: 900;
     }
   }
 }
@@ -142,7 +142,7 @@ defineExpose({
 .username {
   font-weight: 500;
   font-size: 13px;
-  color: $dark-blue;
+  color: $white;
   font-weight: 600;
 }
 

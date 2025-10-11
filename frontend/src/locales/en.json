@@ -62,6 +62,18 @@
     "maxQuestionsError": "You can select maximum {count} questions",
     "students": "Students"
   },
+  "navbar": {
+    "home": "Home",
+    "exams": "Exams",
+    "createExam": "Create Exam",
+    "editExam": "Edit Exam",
+    "questions": "Questions",
+    "questionBank": "Question Bank",
+    "users": "Users",
+    "admin": "Admin",
+    "students": "Students",
+    "profile": "Profile"
+  },
   "user": {
     "active": "Active",
     "inactive": "Inactive",

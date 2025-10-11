@@ -32,6 +32,8 @@ const breadcrumbItems = computed(() => {
     if (segment === 'question-bank') label = t('navbar.questionBank');
     if (segment === 'users') label = t('navbar.users');
     if (segment === 'admin') label = t('navbar.admin');
+    if (segment === 'students') label = t('navbar.students');
+    if (segment === 'profile') label = t('navbar.profile');
 
     items.push({
       label,

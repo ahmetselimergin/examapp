@@ -71,6 +71,18 @@
     "maxQuestionsError": "Maksimum {count} soru seçebilirsiniz",
     "students": "Öğrenciler"
   },
+  "navbar": {
+    "home": "Anasayfa",
+    "exams": "Sınavlar",
+    "createExam": "Sınav Oluştur",
+    "editExam": "Sınav Düzenle",
+    "questions": "Sorular",
+    "questionBank": "Soru Bankası",
+    "users": "Kullanıcılar",
+    "admin": "Yönetim",
+    "students": "Öğrenciler",
+    "profile": "Profil"
+  },
   "user": {
     "active": "Aktif",
     "inactive": "Pasif",

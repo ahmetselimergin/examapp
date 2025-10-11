@@ -132,7 +132,7 @@
      <!-- Delete Confirmation Modal -->
      <ConfirmationModal
        v-if="showDeleteModal"
-       :show="showDeleteModal"
+       :isOpen="showDeleteModal"
        :title="'Sınavı Sil'"
        :message="`${examToDelete?.title} sınavını silmek istediğinizden emin misiniz?`"
        :confirm-text="'Sil'"
@@ -140,6 +140,7 @@
        confirm-style="danger"
        @confirm="confirmDelete"
        @cancel="showDeleteModal = false"
+       @update:isOpen="showDeleteModal = $event"
      />
 </template>
 
@@ -286,6 +287,11 @@ const canDeleteExam = (exam) => {
      console.log('User _id:', authStore.user?._id);
      console.log('Exam createdBy _id:', exam.createdBy?._id);
      
+     if (!authStore.user) {
+          console.log('No user logged in');
+          return false;
+     }
+     
      const isAdmin = authStore.user?.role === 'admin';
      const isCreator = authStore.user?.role === 'teacher' && exam.createdBy?._id === authStore.user?._id;
      
@@ -306,23 +312,45 @@ const editExam = (exam) => {
 // Delete exam
 const deleteExam = (exam) => {
      console.log('Delete exam clicked:', exam);
+     console.log('Current user:', authStore.user);
+     console.log('Can delete check:', canDeleteExam(exam));
+     
+     if (!canDeleteExam(exam)) {
+          console.log('Delete permission denied');
+          showError('Bu sınavı silme yetkiniz yok');
+          return;
+     }
+     
      examToDelete.value = exam;
      showDeleteModal.value = true;
-     console.log('Delete modal should be shown');
+     console.log('Delete modal should be shown, showDeleteModal:', showDeleteModal.value);
+     console.log('examToDelete:', examToDelete.value);
 };
 
 const confirmDelete = async () => {
-     if (!examToDelete.value) return;
+     console.log('Confirm delete called');
+     console.log('examToDelete:', examToDelete.value);
+     
+     if (!examToDelete.value) {
+          console.log('No exam to delete');
+          return;
+     }
+     
+     console.log('Attempting to delete exam with ID:', examToDelete.value._id);
      
      try {
-          await api.delete(`/exams/${examToDelete.value._id}`);
+          const response = await api.delete(`/exams/${examToDelete.value._id}`);
+          console.log('Delete response:', response);
           showSuccess('Sınav başarıyla silindi');
           await loadExams();
      } catch (error) {
+          console.error('Delete error:', error);
+          console.error('Error response:', error.response);
           showError(error.response?.data?.message || 'Sınav silinirken bir hata oluştu');
      } finally {
           showDeleteModal.value = false;
           examToDelete.value = null;
+          console.log('Delete process completed');
      }
 };
 

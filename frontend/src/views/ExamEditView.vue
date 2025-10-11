@@ -692,26 +692,12 @@ onMounted(() => {
   opacity: 0.5;
   border-radius: 8px;
   
-  &:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid #e2e8f0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-  }
+  
   
   &.active {
     background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     
-    &::after {
-      border-left-color:transparent;
-    }
   }
   
   &.completed {
@@ -719,9 +705,6 @@ onMounted(() => {
     opacity: 0.8;
     color: white;
     
-    &::after {
-      border-left-color:transparent;
-    }
   }
 }
 

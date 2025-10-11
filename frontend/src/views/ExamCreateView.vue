@@ -211,7 +211,7 @@
             styleType="primary" 
             size="medium" 
             :text="'Devam Et'"
-            :disabled="selectedQuestions.length === 0"
+            :disabled="selectedQuestions.length !== examData.questionCount"
           />
         </div>
       </div>
@@ -303,6 +303,7 @@
             size="medium" 
             :text="'Sınavı Oluştur'"
             :loading="creatingExam"
+            :disabled="selectedStudents.length === 0"
           />
         </div>
       </div>
@@ -341,8 +342,7 @@ const examData = ref({
   startTime: '',
   endTime: '',
   duration: 60,
-  questionCount: 10,
-  _id: ''
+  questionCount: 10
 });
 
 // Questions
@@ -425,27 +425,31 @@ const filteredStudents = computed(() => {
   });
 });
 
-// Step 1: Create exam
+// Step 1: Validate and proceed (don't save yet)
 const handleStep1Submit = async () => {
   if (!examData.value.title || !examData.value.startTime || !examData.value.endTime || !examData.value.duration || !examData.value.questionCount) {
     showError('Lütfen tüm zorunlu alanları doldurun');
     return;
   }
 
+  // Validate start and end times
+  const startTime = new Date(examData.value.startTime);
+  const endTime = new Date(examData.value.endTime);
+  
+  if (endTime <= startTime) {
+    showError('Bitiş zamanı başlangıç zamanından sonra olmalıdır');
+    return;
+  }
+
+  // Don't save the exam yet, just proceed to next step
   loading.value = true;
   try {
-    console.log('Creating exam with data:', examData.value);
-    console.log('User from authStore:', authStore.user);
-    const response = await api.post('/exams', examData.value);
-    console.log('Exam created:', response.data);
-    console.log('Exam ID from response:', response.data._id);
-    examData.value._id = response.data._id;
-    console.log('Exam ID set in examData:', examData.value._id);
+    // Just move to next step and load questions
     currentStep.value = 2;
     loadQuestions();
   } catch (error: any) {
-    console.error('Create exam error:', error);
-    showError(error.response?.data?.message || 'Sınav oluşturulurken bir hata oluştu');
+    console.error('Step 1 error:', error);
+    showError('Bir hata oluştu');
   } finally {
     loading.value = false;
   }
@@ -481,6 +485,15 @@ const toggleQuestion = (questionId: string) => {
 
 const nextStep = () => {
   if (currentStep.value === 2) {
+    // Validate question selection before proceeding
+    if (selectedQuestions.value.length === 0) {
+      showError('Lütfen en az bir soru seçin');
+      return;
+    }
+    if (selectedQuestions.value.length !== examData.value.questionCount) {
+      showError(`Tam olarak ${examData.value.questionCount} soru seçmelisiniz`);
+      return;
+    }
     loadStudents();
   }
   if (currentStep.value < 3) {
@@ -528,24 +541,49 @@ const toggleStudent = (studentId: string) => {
 
 // Finish exam creation
 const finishExamCreation = async () => {
+  // Final validation before creating exam
+  if (selectedQuestions.value.length !== examData.value.questionCount) {
+    showError(`Tam olarak ${examData.value.questionCount} soru seçilmelidir`);
+    return;
+  }
+
+  if (selectedStudents.value.length === 0) {
+    showError('En az bir öğrenci seçilmelidir');
+    return;
+  }
+
   creatingExam.value = true;
   try {
-    console.log('Finishing exam creation for exam:', examData.value._id);
+    console.log('Creating exam with complete data...');
+    console.log('Exam data:', examData.value);
     console.log('Selected questions:', selectedQuestions.value);
     console.log('Selected students:', selectedStudents.value);
     
-    // Add questions to exam
+    // Step 1: Create the exam with basic info
+    const examResponse = await api.post('/exams', {
+      title: examData.value.title,
+      description: examData.value.description,
+      startTime: examData.value.startTime,
+      endTime: examData.value.endTime,
+      duration: examData.value.duration,
+      questionCount: examData.value.questionCount
+    });
+
+    const examId = examResponse.data._id;
+    console.log('Exam created with ID:', examId);
+
+    // Step 2: Add questions to exam
     if (selectedQuestions.value.length > 0) {
       console.log('Adding questions to exam...');
-      await api.post(`/exams/${examData.value._id}/add-questions`, {
+      await api.post(`/exams/${examId}/add-questions`, {
         questionIds: selectedQuestions.value
       });
     }
 
-    // Assign students to exam
+    // Step 3: Assign students to exam
     if (selectedStudents.value.length > 0) {
       console.log('Assigning students to exam...');
-      await api.post(`/exams/${examData.value._id}/assign-students`, {
+      await api.post(`/exams/${examId}/assign-students`, {
         studentIds: selectedStudents.value
       });
     }
