@@ -45,7 +45,7 @@ defineProps<{
   display: flex;
   align-items: center;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .breadcrumb-link {
@@ -60,12 +60,12 @@ defineProps<{
 }
 
 .breadcrumb-current {
-  color: #374151;
+  color: var(--text-primary);
   font-weight: 500;
 }
 
 .breadcrumb-separator {
   margin: 0 0.5rem;
-  color: #9ca3af;
+  color: var(--text-tertiary);
 }
 </style>

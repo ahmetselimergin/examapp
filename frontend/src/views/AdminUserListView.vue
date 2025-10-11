@@ -388,21 +388,23 @@ onMounted(fetchUsers);
   align-items: flex-start;
   margin-bottom: 20px;
   padding: 16px 20px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .header-content {
   h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
   }
   
   p {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
     margin: 0;
   }
@@ -464,7 +466,7 @@ onMounted(fetchUsers);
   border: none;
   background: none;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-primary);
   font-size: 14px;
   transition: background-color 0.2s ease;
   width: 100%;

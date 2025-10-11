@@ -34,6 +34,7 @@ const breadcrumbItems = computed(() => {
     if (segment === 'admin') label = t('navbar.admin');
     if (segment === 'students') label = t('navbar.students');
     if (segment === 'profile') label = t('navbar.profile');
+    if (segment === 'settings') label = t('navbar.settings');
 
     items.push({
       label,
@@ -95,7 +96,8 @@ const toggleSidebar = () => {
 @import "./assets/styles/_framework.scss";
 .app-container {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: var(--bg-secondary);
+  transition: background-color 0.3s ease;
 }
 
 .main-content {

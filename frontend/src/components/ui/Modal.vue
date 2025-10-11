@@ -72,7 +72,7 @@ const close = () => {
 }
 
 .modal-container {
-     background-color: white;
+     background-color: var(--bg-primary);
      border-radius: 8px;
      padding: 20px;
      max-width: 30vw;
@@ -82,6 +82,9 @@ const close = () => {
      position: relative;
      right: 1em;
      margin: auto 0 auto auto;
+     border: 1px solid var(--border-primary);
+     box-shadow: var(--shadow-lg);
+     transition: all 0.3s ease;
 }
 
 .modal-container.fullscreen {
@@ -117,8 +120,8 @@ const close = () => {
 
 .modal-container.fullscreen .modal-header {
      padding: 20px 24px;
-     border-bottom: 1px solid #e5e7eb;
-     background: white;
+     border-bottom: 1px solid var(--border-primary);
+     background: var(--bg-primary);
      position: sticky;
      top: 0;
      z-index: 10;
@@ -129,6 +132,7 @@ const close = () => {
      margin: 0;
      font-size: 1.25rem;
      font-weight: 600;
+     color: var(--text-primary);
 }
 
 .modal-close {
@@ -136,12 +140,18 @@ const close = () => {
      border: none;
      font-size: 1.5rem;
      cursor: pointer;
-     padding: 0;
-     color: #666;
+     padding: 8px;
+     color: var(--text-secondary);
+     border-radius: 6px;
+     transition: all 0.2s ease;
+     display: flex;
+     align-items: center;
+     justify-content: center;
 }
 
 .modal-close:hover {
-     color: #333;
+     color: var(--text-primary);
+     background: var(--bg-tertiary);
 }
 
 .modal-content {
@@ -163,8 +173,8 @@ const close = () => {
 
 .modal-container.fullscreen .modal-footer {
      padding: 20px 24px;
-     border-top: 1px solid #e5e7eb;
-     background: white;
+     border-top: 1px solid var(--border-primary);
+     background: var(--bg-primary);
      position: sticky;
      bottom: 0;
      z-index: 10;

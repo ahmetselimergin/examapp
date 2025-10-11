@@ -7,6 +7,7 @@ import axios from "axios";
 import i18n from "./i18n";
 import Toast from "vue3-toastify";
 import "vue3-toastify/dist/index.css";
+import { useTheme } from "./composables/useTheme";
 
 const app = createApp(App);
 app.use(createPinia());
@@ -22,5 +23,9 @@ const token = localStorage.getItem("token");
 if (token) {
   axios.defaults.headers.common["Authorization"] = "Bearer " + token;
 }
+
+// Initialize theme system
+const { initTheme } = useTheme();
+initTheme();
 
 app.mount("#app");

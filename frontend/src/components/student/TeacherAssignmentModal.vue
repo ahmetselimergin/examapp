@@ -102,15 +102,16 @@ watch(() => props.isOpen, (newValue) => {
 .teacher-selection {
   .modal-description {
     margin-bottom: 1rem;
-    color: #666;
+    color: var(--text-secondary);
   }
   
   .teacher-list {
     max-height: 300px;
     overflow-y: auto;
-    border: 1px solid #e3e7ef;
+    border: 1px solid var(--border-secondary);
     border-radius: 8px;
     padding: 0.5rem;
+    background: var(--bg-primary);
   }
   
   .teacher-item {
@@ -121,18 +122,35 @@ watch(() => props.isOpen, (newValue) => {
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.2s;
+    color: var(--text-primary);
     
     &:hover {
-      background-color: #f0f4fa;
+      background-color: var(--bg-secondary);
     }
     
     &.selected {
-      background-color: #e3f2fd;
+      background-color: rgba(102, 126, 234, 0.1);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+    }
+    
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--border-secondary);
+      border-radius: 4px;
+      background: var(--bg-primary);
+      cursor: pointer;
+      
+      &:checked {
+        background: #667eea;
+        border-color: #667eea;
+      }
     }
   }
   
   .teacher-name {
     flex: 1;
+    color: var(--text-primary);
   }
   
   .no-teacher-msg {
@@ -140,6 +158,10 @@ watch(() => props.isOpen, (newValue) => {
     margin-top: 1rem;
     font-size: 1rem;
     text-align: center;
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-secondary);
   }
 }
 </style>

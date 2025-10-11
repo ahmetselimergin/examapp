@@ -23,7 +23,6 @@ const userRole = computed(() => authStore.user?.role || '');
 const router = useRouter();
 const authStore = useAuthStore();
 const isMenuOpen = ref(false);
-const userDropdownRef = ref(null);
 
 const toggleMenu = () => {
      isMenuOpen.value = !isMenuOpen.value;
@@ -36,13 +35,6 @@ function onToggleSidebar() {
 const handleLogout = () => {
      authStore.logout();
      router.push('/login');
-};
-
-const openSettings = () => {
-     // UserDropdown bileşenindeki openSettings fonksiyonunu çağır
-     if (userDropdownRef.value) {
-          userDropdownRef.value.openSettings();
-     }
 };
 
 </script>
@@ -111,12 +103,12 @@ const openSettings = () => {
                <div class="nav-group" v-if="!isCollapsed">
                     <div class="nav-group-title">Help</div>
                     
-                    <div class="nav-item" @click="openSettings">
+                    <router-link to="/settings" class="nav-item" :class="{ 'active': $route.path === '/settings' }" :title="isCollapsed ? 'Ayarlar' : ''">
                          <div class="nav-icon">
                               <span class="material-symbols-outlined">settings</span>
                          </div>
-                         <span class="nav-text">Settings</span>
-                    </div>
+                         <span v-if="!isCollapsed" class="nav-text">{{ t('navbar.settings') }}</span>
+                    </router-link>
                     
                     
                </div>
@@ -151,13 +143,13 @@ const openSettings = () => {
      top: 0;
      height: 100vh;
      width: 280px;
-     background: white;
-     border-right: 1px solid #f1f3f4;
+     background: var(--bg-primary);
+     border-right: 1px solid var(--border-primary);
      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
      z-index: 1000;
      display: flex;
      flex-direction: column;
-     box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+     box-shadow: var(--shadow-md);
 }
 
 .modern-sidebar.is-collapsed {
@@ -170,8 +162,8 @@ const openSettings = () => {
      align-items: center;
      justify-content: space-between;
      padding: 24px 20px;
-     border-bottom: 1px solid #f1f3f4;
-     background: #fafbfc;
+     border-bottom: 1px solid var(--border-primary);
+     background: var(--bg-secondary);
      min-height: 80px;
 }
 
@@ -180,7 +172,7 @@ const openSettings = () => {
      align-items: center;
      gap: 12px;
      text-decoration: none;
-     color: #1f2937;
+     color: var(--text-primary);
      font-weight: 700;
      font-size: 20px;
      transition: all 0.2s ease;
@@ -201,7 +193,7 @@ const openSettings = () => {
      .brand-text {
           font-size: 18px;
           font-weight: 700;
-          color: #1f2937;
+          color: var(--text-primary);
           white-space: nowrap;
           overflow: hidden;
      }
@@ -211,18 +203,18 @@ const openSettings = () => {
      width: 36px;
      height: 36px;
      border: none;
-     background: #f3f4f6;
+     background: var(--bg-tertiary);
      border-radius: 8px;
      display: flex;
      align-items: center;
      justify-content: center;
      cursor: pointer;
      transition: all 0.2s ease;
-     color: #6b7280;
+     color: var(--text-secondary);
      
      &:hover {
-          background: #e5e7eb;
-          color: #374151;
+          background: var(--border-secondary);
+          color: var(--text-primary);
      }
      
      .material-symbols-outlined {
@@ -255,7 +247,7 @@ const openSettings = () => {
 .nav-group-title {
      font-size: 12px;
      font-weight: 600;
-     color: #9ca3af;
+     color: var(--text-tertiary);
      text-transform: uppercase;
      letter-spacing: 0.05em;
      margin-bottom: 12px;
@@ -270,7 +262,7 @@ const openSettings = () => {
      margin-bottom: 4px;
      border-radius: 12px;
      text-decoration: none;
-     color: #6b7280;
+     color: var(--text-secondary);
      font-weight: 500;
      font-size: 14px;
      transition: all 0.2s ease;
@@ -278,8 +270,8 @@ const openSettings = () => {
      cursor: pointer;
      
      &:hover {
-          background: #f8fafc;
-          color: #374151;
+          background: var(--bg-secondary);
+          color: var(--text-primary);
           transform: translateX(2px);
      }
      
@@ -304,7 +296,7 @@ const openSettings = () => {
           display: flex;
           align-items: center;
           justify-content: center;
-          color: #9ca3af;
+          color: var(--text-tertiary);
           transition: all 0.2s ease;
           
           .material-symbols-outlined {
@@ -313,7 +305,7 @@ const openSettings = () => {
      }
      
      .nav-text {
-          color: #6b7280;
+          color: var(--text-secondary);
           font-weight: 500;
           white-space: nowrap;
           overflow: hidden;

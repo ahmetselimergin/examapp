@@ -13,12 +13,15 @@
      </div>
     </button>
     <div v-if="isOpen" class="user-dropdown-menu">
+      <router-link to="/settings" class="dropdown-item settings-button" @click="isOpen = false">
+        <span class="material-symbols-outlined">settings</span>
+        <span class="dropdown-item-text">{{ t('common.settings') }}</span>
+      </router-link>
       <button @click="handleLogout" class="dropdown-item logout-button">
         <span class="material-symbols-outlined"> logout </span>
         <span class="dropdown-item-text">{{ t('common.logout') }}</span>
       </button>
     </div>
-    <SettingsModal v-model="isSettingsOpen" />
   </div>
 </template>
 
@@ -26,7 +29,6 @@
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "../../stores/auth";
-import SettingsModal from "./SettingsModal.vue";
 import { useI18n } from 'vue-i18n';
 
 const { t } = useI18n();
@@ -39,16 +41,10 @@ const router = useRouter();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user);
 const isOpen = ref(false);
-const isSettingsOpen = ref(false);
 const dropdownRef = ref(null);
 
 const toggleDropdown = () => {
   isOpen.value = !isOpen.value;
-};
-
-const openSettings = () => {
-  isOpen.value = false;
-  isSettingsOpen.value = true;
 };
 
 const handleClickOutside = (event) => {
@@ -69,18 +65,12 @@ const handleLogout = () => {
   authStore.logout();
   router.push("/login");
 };
-
-// Expose functions to parent component
-defineExpose({
-  openSettings
-});
 </script>
 
 <style scoped lang="scss">
 @import "../../assets/styles/_framework.scss";
 .user-dropdown {
   position: relative;
-  padding: 0 0.75em;
   display: inline-block;
   width: 100%;
 }
@@ -181,6 +171,10 @@ defineExpose({
     }
     .material-symbols-outlined {
         font-size: 18px !important;
+    }
+    &.settings-button {
+        background-color: $primary;
+        color: white;
     }
     &.logout-button {
         background-color: $red;

@@ -4,6 +4,7 @@
     "login": "Login",
     "register": "Register",
     "logout": "Logout",
+    "settings": "Settings",
     "email": "Email",
     "password": "Password",
     "submit": "Submit",
@@ -72,12 +73,16 @@
     "users": "Users",
     "admin": "Admin",
     "students": "Students",
-    "profile": "Profile"
+    "profile": "Profile",
+    "settings": "Settings"
   },
   "user": {
     "active": "Active",
     "inactive": "Inactive",
-    "pending": "Pending"
+    "pending": "Pending",
+    "admin": "Administrator",
+    "teacher": "Teacher",
+    "student": "Student"
   },
   "validation": {
     "required": "This field is required",
@@ -86,8 +91,33 @@
   },
   "settings": {
     "title": "Settings",
+    "subtitle": "Manage your profile information and system settings",
     "language": "Language Options",
-    "profile": "Profile Information"
+    "languageDescription": "Change the application language",
+    "profile": "Profile Information",
+    "profileDescription": "View and update your profile information",
+    "theme": "Theme Settings",
+    "themeDescription": "Customize the application's appearance",
+    "activeTheme": "Active Theme",
+    "lightTheme": "Light Theme",
+    "darkTheme": "Dark Theme",
+    "autoTheme": "System",
+    "themeDescriptionAuto": "Follows system theme. Currently {theme} theme is active.",
+    "themeDescriptionLight": "Always uses light theme.",
+    "themeDescriptionDark": "Always uses dark theme.",
+    "lightThemeText": "light",
+    "darkThemeText": "dark",
+    "accountActions": "Account Actions",
+    "accountActionsDescription": "Security operations related to your account",
+    "changePassword": "Change Password",
+    "systemInfo": "System Information",
+    "systemInfoDescription": "Information about the application",
+    "appVersion": "Application Version",
+    "lastUpdate": "Last Update",
+    "developer": "Developer",
+    "accountStatus": "Account Status",
+    "active": "Active",
+    "registrationDate": "Registration Date"
   },
   "questionBank": {
     "title": "Question Bank",

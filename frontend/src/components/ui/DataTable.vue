@@ -407,11 +407,12 @@ const getActionsPopupStyle = (index: number) => {
 
 <style scoped lang="scss">
 .modern-data-table {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  border: 1px solid #f1f3f4;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 // Header Section
@@ -454,8 +455,9 @@ const getActionsPopupStyle = (index: number) => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 32px;
-  background: white;
-  border-bottom: 1px solid #f1f3f4;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-primary);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .controls-left {
@@ -474,29 +476,30 @@ const getActionsPopupStyle = (index: number) => {
     .search-icon {
       position: absolute;
       left: 12px;
-      color: #9ca3af;
+      color: var(--text-tertiary);
       font-size: 20px;
       z-index: 1;
     }
     
     .search-input {
       padding: 12px 16px 12px 44px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid var(--border-secondary);
       border-radius: 12px;
       font-size: 14px;
       width: 300px;
-      background: #f9fafb;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
       transition: all 0.2s ease;
       
       &:focus {
         outline: none;
         border-color: #3b82f6;
-        background: white;
+        background: var(--bg-primary);
         box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
       }
       
       &::placeholder {
-        color: #9ca3af;
+        color: var(--text-tertiary);
       }
     }
   }
@@ -517,11 +520,13 @@ const getActionsPopupStyle = (index: number) => {
 .rows-per-page {
   .rows-select {
     padding: 8px 12px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-secondary);
     border-radius: 8px;
     font-size: 14px;
-    background: white;
+    background: var(--bg-primary);
+    color: var(--text-primary);
     cursor: pointer;
+    transition: all 0.2s ease;
     
     &:focus {
       outline: none;
@@ -532,7 +537,8 @@ const getActionsPopupStyle = (index: number) => {
 
 // Table Wrapper
 .table-wrapper {
-  background: white;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 .table-container {
@@ -545,26 +551,39 @@ const getActionsPopupStyle = (index: number) => {
   border-collapse: separate;
   border-spacing: 0;
   font-size: 14px;
+  background: var(--bg-primary);
+  
+  tbody {
+    background: var(--bg-primary);
+  }
+  
+  tbody tr {
+    background: var(--bg-primary);
+  }
+  
+  tbody td {
+    background: var(--bg-primary);
+  }
 }
 
 .table-header-cell {
-  background: #f8fafc;
+  background: var(--bg-secondary);
   font-weight: 600;
-  color: #374151;
+  color: var(--text-primary);
   padding: 16px 20px;
   text-align: left;
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid var(--border-secondary);
+  transition: all 0.2s ease;
   
   &.sortable {
     cursor: pointer;
     user-select: none;
-    transition: background-color 0.2s ease;
     
     &:hover {
-      background: #f1f5f9;
+      background: var(--bg-tertiary);
     }
   }
 }
@@ -581,7 +600,7 @@ const getActionsPopupStyle = (index: number) => {
     font-weight: 500;
     text-transform: capitalize;
     letter-spacing: 0.05em;
-    color: #42474f;
+    color: var(--text-primary);
   }
   
   .header-actions {
@@ -598,7 +617,7 @@ const getActionsPopupStyle = (index: number) => {
     transition: background-color 0.2s ease;
     
     &:hover {
-      background: #f1f5f9;
+      background: var(--bg-tertiary);
     }
     
     .active-sort {
@@ -607,7 +626,7 @@ const getActionsPopupStyle = (index: number) => {
     }
     
     .inactive-sort {
-      color: #9ca3af;
+      color: var(--text-tertiary);
       opacity: 0.6;
     }
   }
@@ -620,11 +639,11 @@ const getActionsPopupStyle = (index: number) => {
     border-radius: 4px;
     transition: all 0.2s ease;
     font-size: 16px;
-    color: #9ca3af;
+    color: var(--text-tertiary);
     
     &:hover {
-      background: #f1f5f9;
-      color: #6b7280;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
     }
     
     &.active {
@@ -636,10 +655,10 @@ const getActionsPopupStyle = (index: number) => {
 
 .table-row {
   transition: background-color 0.2s ease;
-  border-bottom: 1px solid #f1f3f4;
+  border-bottom: 1px solid var(--border-primary);
   
   &:hover {
-    background: #f8fafc;
+    background: var(--bg-secondary);
   }
   
   &:last-child {
@@ -649,9 +668,11 @@ const getActionsPopupStyle = (index: number) => {
 
 .table-cell {
   padding: 16px 20px;
-  color: #374151;
+  color: var(--text-primary);
   font-size: 14px;
   vertical-align: middle;
+  background: var(--bg-primary);
+  transition: all 0.2s ease;
   
   .cell-content {
     display: block;
@@ -662,6 +683,8 @@ const getActionsPopupStyle = (index: number) => {
 .select-column {
   width: 60px;
   text-align: center;
+  background: var(--bg-secondary);
+  transition: background-color 0.3s ease;
   
   .checkbox-wrapper {
     display: flex;
@@ -673,9 +696,10 @@ const getActionsPopupStyle = (index: number) => {
     width: 16px;
     height: 16px;
     border-radius: 4px;
-    border: 2px solid #d1d5db;
+    border: 2px solid var(--border-secondary);
     cursor: pointer;
     transition: all 0.2s ease;
+    background: var(--bg-primary);
     
     &:checked {
       background: #3b82f6;
@@ -692,6 +716,8 @@ const getActionsPopupStyle = (index: number) => {
 .actions-column {
   width: 60px;
   text-align: center;
+  background: var(--bg-secondary);
+  transition: background-color 0.3s ease;
   
   .actions-menu {
     position: relative;
@@ -702,7 +728,7 @@ const getActionsPopupStyle = (index: number) => {
   
   .actions-dots {
     font-size: 18px;
-    color: #9ca3af;
+    color: var(--text-tertiary);
     font-weight: bold;
   }
   
@@ -713,7 +739,7 @@ const getActionsPopupStyle = (index: number) => {
     padding: 8px;
     border-radius: 8px;
     font-size: 18px;
-    color: #9ca3af;
+    color: var(--text-tertiary);
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
@@ -723,8 +749,8 @@ const getActionsPopupStyle = (index: number) => {
     position: relative;
     
     &:hover {
-      background: #f3f4f6;
-      color: #6b7280;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
       transform: scale(1.05);
     }
     
@@ -751,15 +777,16 @@ const getActionsPopupStyle = (index: number) => {
   
   .actions-popup {
     position: fixed !important;
-    background: white;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
     border-radius: 12px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(59, 130, 246, 0.1);
+    box-shadow: var(--shadow-lg);
     z-index: 99999 !important;
     padding: 8px 0;
     min-width: 140px;
     animation: slideIn 0.2s ease-out;
     transform-origin: top;
+    transition: all 0.3s ease;
     
     .action-buttons {
       display: flex;
@@ -772,7 +799,7 @@ const getActionsPopupStyle = (index: number) => {
         border: none;
         background: none;
         cursor: pointer;
-        color: #374151;
+        color: var(--text-primary);
         font-size: 13px;
         font-weight: 500;
         transition: all 0.2s ease;
@@ -821,12 +848,13 @@ const getActionsPopupStyle = (index: number) => {
   justify-content: space-between;
   align-items: center;
   padding: 20px 32px;
-  background: #fafbfc;
-  border-top: 1px solid #f1f3f4;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .pagination-info {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 14px;
   font-weight: 500;
 }
@@ -846,21 +874,21 @@ const getActionsPopupStyle = (index: number) => {
 .page-number {
   width: 32px;
   height: 32px;
-  border: 1px solid #e5e7eb;
-  background: white;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-primary);
   border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
   cursor: pointer;
   transition: all 0.2s ease;
   
   &:hover {
-    background: #f3f4f6;
-    border-color: #d1d5db;
+    background: var(--bg-tertiary);
+    border-color: var(--border-secondary);
   }
   
   &.active {
@@ -874,16 +902,19 @@ const getActionsPopupStyle = (index: number) => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 14px;
   
   .page-input {
     width: 60px;
     padding: 6px 8px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-secondary);
     border-radius: 6px;
     text-align: center;
     font-size: 14px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
     
     &:focus {
       outline: none;
@@ -895,14 +926,15 @@ const getActionsPopupStyle = (index: number) => {
 // Filter Dropdown
 .filter-dropdown {
   position: fixed !important;
-  background: white;
-  border: 1px solid #e5e7eb;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: var(--shadow-lg);
   z-index: 99999 !important;
   margin-top: 4px;
   min-width: 250px;
   max-width: 300px;
+  transition: all 0.3s ease;
 }
 
 .filter-content {
@@ -918,28 +950,29 @@ const getActionsPopupStyle = (index: number) => {
     left: 12px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9ca3af;
+    color: var(--text-tertiary);
     font-size: 16px;
   }
   
   .filter-input {
     width: 100%;
     padding: 10px 12px 10px 36px;
-    border: 1px solid #e5e7eb;
+    border: 1px solid var(--border-secondary);
     border-radius: 6px;
     font-size: 14px;
-    background: #f9fafb;
+    background: var(--bg-secondary);
+    color: var(--text-primary);
     transition: all 0.2s ease;
     
     &:focus {
       outline: none;
       border-color: #3b82f6;
-      background: white;
+      background: var(--bg-primary);
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
     }
     
     &::placeholder {
-      color: #9ca3af;
+      color: var(--text-tertiary);
     }
   }
 }
@@ -957,10 +990,10 @@ const getActionsPopupStyle = (index: number) => {
   border-radius: 6px;
   transition: background-color 0.2s ease;
   font-size: 14px;
-  color: #374151;
+  color: var(--text-primary);
   
   &:hover {
-    background: #f1f5f9;
+    background: var(--bg-secondary);
   }
   
   &.active {
@@ -996,13 +1029,13 @@ const getActionsPopupStyle = (index: number) => {
   }
   
   .reset-btn {
-    background: #f3f4f6;
-    border: 1px solid #d1d5db;
-    color: #6b7280;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-secondary);
+    color: var(--text-secondary);
     
     &:hover {
-      background: #e5e7eb;
-      color: #374151;
+      background: var(--border-secondary);
+      color: var(--text-primary);
     }
   }
   
@@ -1032,7 +1065,8 @@ const getActionsPopupStyle = (index: number) => {
 // Empty State
 .empty-state {
   padding: 20px;
-  background: white;
+  background: var(--bg-primary);
+  transition: background-color 0.3s ease;
 }
 
 // Responsive Design

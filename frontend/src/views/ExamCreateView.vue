@@ -827,9 +827,10 @@ onMounted(() => {
 .questions-table, .students-table {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
-  background: white;
+  background: var(--bg-primary);
+  transition: all 0.3s ease;
 }
 
 .selection-table {
@@ -839,21 +840,25 @@ onMounted(() => {
 }
 
 .selection-table th {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   padding: 12px 16px;
   text-align: left;
   font-weight: 600;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-secondary);
   position: sticky;
   top: 0;
   z-index: 10;
+  transition: all 0.3s ease;
 }
 
 .selection-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-primary);
   vertical-align: middle;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: all 0.3s ease;
 }
 
 .question-row, .student-row {
@@ -862,7 +867,7 @@ onMounted(() => {
 }
 
 .question-row:hover, .student-row:hover {
-  background: #f9fafb;
+  background: var(--bg-secondary);
 }
 
 .question-row.selected, .student-row.selected {

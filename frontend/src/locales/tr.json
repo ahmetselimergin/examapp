@@ -4,6 +4,7 @@
     "login": "Giriş Yap",
     "register": "Kayıt Ol",
     "logout": "Çıkış Yap",
+    "settings": "Ayarlar",
     "email": "E-posta",
     "password": "Şifre",
     "submit": "Gönder",
@@ -81,12 +82,16 @@
     "users": "Kullanıcılar",
     "admin": "Yönetim",
     "students": "Öğrenciler",
-    "profile": "Profil"
+    "profile": "Profil",
+    "settings": "Ayarlar"
   },
   "user": {
     "active": "Aktif",
     "inactive": "Pasif",
-    "pending": "Beklemede"
+    "pending": "Beklemede",
+    "admin": "Yönetici",
+    "teacher": "Öğretmen",
+    "student": "Öğrenci"
   },
   "validation": {
     "required": "Bu alan zorunludur",
@@ -126,8 +131,33 @@
   },
   "settings": {
     "title": "Ayarlar",
+    "subtitle": "Profil bilgilerinizi ve sistem ayarlarınızı yönetin",
     "language": "Dil Seçenekleri",
-    "profile": "Profil Bilgileri"
+    "languageDescription": "Uygulamanın dilini değiştirin",
+    "profile": "Profil Bilgileri",
+    "profileDescription": "Profil bilgilerinizi görüntüleyin ve güncelleyin",
+    "theme": "Tema Ayarları",
+    "themeDescription": "Uygulamanın görünümünü özelleştirin",
+    "activeTheme": "Aktif Tema",
+    "lightTheme": "Açık Tema",
+    "darkTheme": "Koyu Tema",
+    "autoTheme": "Sistem",
+    "themeDescriptionAuto": "Sistem temasını takip eder. Şu anda {theme} tema aktif.",
+    "themeDescriptionLight": "Her zaman açık tema kullanılır.",
+    "themeDescriptionDark": "Her zaman koyu tema kullanılır.",
+    "lightThemeText": "açık",
+    "darkThemeText": "koyu",
+    "accountActions": "Hesap İşlemleri",
+    "accountActionsDescription": "Hesabınızla ilgili güvenlik işlemleri",
+    "changePassword": "Şifre Değiştir",
+    "systemInfo": "Sistem Bilgileri",
+    "systemInfoDescription": "Uygulama hakkında bilgiler",
+    "appVersion": "Uygulama Sürümü",
+    "lastUpdate": "Son Güncelleme",
+    "developer": "Geliştirici",
+    "accountStatus": "Hesap Durumu",
+    "active": "Aktif",
+    "registrationDate": "Kayıt Tarihi"
   },
   "navbar": {
     "home": "Anasayfa",

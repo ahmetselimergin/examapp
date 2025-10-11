@@ -418,21 +418,23 @@ onMounted(async () => {
   align-items: flex-start;
   margin-bottom: 20px;
   padding: 16px 20px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
+  transition: all 0.3s ease;
 }
 
 .header-content {
   h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
   }
   
   p {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
     margin: 0;
   }
@@ -477,10 +479,10 @@ onMounted(async () => {
     h3 {
       font-size: 18px;
       font-weight: 600;
-      color: #1f2937;
+      color: var(--text-primary);
       margin: 0 0 16px 0;
       padding-bottom: 8px;
-      border-bottom: 2px solid #e5e7eb;
+      border-bottom: 2px solid var(--border-secondary);
     }
   }
   
@@ -497,12 +499,12 @@ onMounted(async () => {
     
     label {
       font-weight: 500;
-      color: #6b7280;
+      color: var(--text-secondary);
       min-width: 100px;
     }
     
     span {
-      color: #1f2937;
+      color: var(--text-primary);
     }
     
     .role-badge {
@@ -522,10 +524,11 @@ onMounted(async () => {
   }
   
   .teacher-item {
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-secondary);
     border-radius: 8px;
     padding: 12px 16px;
+    transition: all 0.3s ease;
     
     .teacher-info {
       display: flex;
@@ -534,12 +537,12 @@ onMounted(async () => {
       
       .teacher-name {
         font-weight: 500;
-        color: #1f2937;
+        color: var(--text-primary);
       }
       
       .teacher-email {
         font-size: 14px;
-        color: #6b7280;
+        color: var(--text-secondary);
       }
     }
   }
@@ -547,7 +550,7 @@ onMounted(async () => {
   .no-teachers {
     text-align: center;
     padding: 32px 16px;
-    color: #9ca3af;
+    color: var(--text-tertiary);
     
     .material-symbols-outlined {
       font-size: 32px;
@@ -569,12 +572,12 @@ onMounted(async () => {
 .student-name {
   .name-text {
     font-weight: 600;
-    color: #1f2937;
+    color: var(--text-primary);
   }
 }
 
 .student-email {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -589,7 +592,7 @@ onMounted(async () => {
   }
   
   .no-teacher {
-    color: #9ca3af;
+    color: var(--text-tertiary);
     font-size: 12px;
     font-style: italic;
   }
@@ -604,14 +607,15 @@ onMounted(async () => {
   border: none;
   background: none;
   cursor: pointer;
-  color: #374151;
+  color: var(--text-primary);
   font-size: 14px;
   transition: background-color 0.2s ease;
   width: 100%;
+  opacity: 0.8;
   text-align: left;
   
-  &:hover {
-    background: #f3f4f6;
+    &:hover {
+      opacity: 1;
   }
   
   
@@ -626,7 +630,7 @@ onMounted(async () => {
   transition: background-color 0.2s ease;
   
   &:hover {
-    background-color: #f8fafc;
+    background-color: var(--bg-secondary);
   }
 }
 

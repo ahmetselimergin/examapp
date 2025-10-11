@@ -23,6 +23,11 @@ type CustomRouteRecordRaw = RouteRecordRaw & {
 const routes: CustomRouteRecordRaw[] = [
   { path: "/login", component: LoginView, meta: { hideBreadcrumb: true } },
   { path: "/profile", component: ProfileView, meta: { requiresAuth: true } },
+  { 
+    path: "/settings", 
+    component: () => import("../views/SettingsView.vue"), 
+    meta: { requiresAuth: true } 
+  },
   { path: "/exams", component: ExamListView, meta: { requiresAuth: true } },
   {
     path: "/exams/create",

@@ -154,12 +154,13 @@ watch(() => props.student, () => {
 
 <style scoped>
 .question-card-modal {
-  background: #f8f9fa;
+  background: var(--bg-secondary);
   border-radius: 8px;
   padding: 20px 18px;
   margin-bottom: 18px;
-  border: 1px solid #e0e0e0;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
 }
 .question-header-modal {
   display: flex;
@@ -169,7 +170,7 @@ watch(() => props.student, () => {
 }
 .question-header-modal h3 {
   margin: 0;
-  color: #333;
+  color: var(--text-primary);
   font-size: 1.1em;
 }
 .type-badge-modal {
@@ -188,6 +189,7 @@ watch(() => props.student, () => {
   font-weight: 500;
   margin-bottom: 12px;
   line-height: 1.4;
+  color: var(--text-primary);
 }
 .options-modal {
   margin: 12px 0 0 0;
@@ -197,14 +199,14 @@ watch(() => props.student, () => {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: #fff;
+  background: var(--bg-primary);
   margin: 7px 0;
   border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid var(--border-secondary);
   position: relative;
   font-weight: 400;
-  color: #1976d2;
-  transition: background 0.2s, color 0.2s;
+  color: var(--text-primary);
+  transition: all 0.2s ease;
 }
 .selected-option-modal {
   background: #1976d2 !important;
@@ -214,7 +216,7 @@ watch(() => props.student, () => {
 }
 .option-letter-modal {
   font-weight: bold;
-  color: #1976d2;
+  color: var(--text-secondary);
   min-width: 20px;
 }
 .selected-option-modal .option-letter-modal {
@@ -224,39 +226,44 @@ watch(() => props.student, () => {
 .student-answer-modal {
   margin-bottom: 10px;
   font-size: 1.08em;
+  color: var(--text-primary);
 }
 .question-meta-modal {
   display: flex;
   gap: 15px;
-  color: #666;
+  color: var(--text-secondary);
   font-size: 0.97em;
   margin-top: 10px;
   padding-top: 10px;
-  border-top: 1px solid #e0e0e0;
+  border-top: 1px solid var(--border-primary);
 }
 .difficulty-badge-modal {
-  background: #f0f0f0;
+  background: var(--bg-tertiary);
   padding: 4px 8px;
   border-radius: 12px;
   font-size: 12px;
-  color: #888;
+  color: var(--text-secondary);
 }
 .score-section-modal {
   display: flex;
   align-items: center;
   gap: 10px;
   margin-top: 10px;
+  color: var(--text-primary);
 }
 input[type="number"] {
   width: 60px;
   padding: 4px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-secondary);
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 .total-score-modal {
   margin: 20px 0 10px 0;
   font-size: 1.1em;
   display: inline-block;
+  color: var(--text-primary);
 }
 .save-btn {
   background: #1976d2;
@@ -276,5 +283,9 @@ input[type="number"] {
 .error {
   color: #f44336;
   margin: 20px 0;
+  background: var(--bg-secondary);
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-primary);
 }
 </style> 

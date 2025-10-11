@@ -128,14 +128,15 @@ const handleOverlayClick = () => {
 }
 
 .confirmation-modal {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-lg);
   max-width: 320px;
   width: 100%;
   max-height: 80vh;
   overflow: hidden;
   animation: modalSlideIn 0.2s ease-out;
+  border: 1px solid var(--border-primary);
 }
 
 @keyframes modalSlideIn {
@@ -154,13 +155,13 @@ const handleOverlayClick = () => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 12px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .confirmation-title {
   font-size: 14px;
   font-weight: 600;
-  color: #111827;
+  color: var(--text-primary);
   margin: 0;
 }
 
@@ -170,7 +171,7 @@ const handleOverlayClick = () => {
   cursor: pointer;
   padding: 8px;
   border-radius: 6px;
-  color: #6b7280;
+  color: var(--text-secondary);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -178,8 +179,8 @@ const handleOverlayClick = () => {
 }
 
 .close-button:hover {
-  background: #f3f4f6;
-  color: #374151;
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
 }
 
 .close-button .material-symbols-outlined {
@@ -226,21 +227,21 @@ const handleOverlayClick = () => {
 
 .confirmation-message {
   font-size: 14px;
-  color: #374151;
+  color: var(--text-secondary);
   margin: 0 0 12px 0;
   line-height: 1.4;
 }
 
 .confirmation-details {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   padding: 8px 12px;
   border-radius: 6px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-primary);
   margin-top: 12px;
 }
 
 .confirmation-details strong {
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 500;
   font-size: 12px;
 }
@@ -250,27 +251,27 @@ const handleOverlayClick = () => {
   gap: 8px;
   justify-content: flex-end;
   padding: 12px 16px;
-  background: #f9fafb;
-  border-top: 1px solid #e5e7eb;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border-primary);
 }
 
 .cancel-button {
   padding: 8px 16px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-secondary);
   border-radius: 6px;
-  background: white;
+  background: var(--bg-primary);
   font-size: 13px;
   font-weight: 500;
-  color: #6b7280;
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.2s ease;
   min-width: 70px;
 }
 
 .cancel-button:hover:not(:disabled) {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #374151;
+  background: var(--bg-tertiary);
+  border-color: var(--border-secondary);
+  color: var(--text-primary);
 }
 
 .cancel-button:disabled {

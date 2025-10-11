@@ -389,7 +389,7 @@ const formatDate = (dateString: string) => {
 .question-text-cell {
   .question-text {
     font-weight: 500;
-    color: #374151;
+    color: var(--text-primary);
     margin-bottom: 4px;
     line-height: 1.5;
   }
@@ -397,8 +397,8 @@ const formatDate = (dateString: string) => {
   .question-preview {
     .options-count {
       font-size: 12px;
-      color: #6b7280;
-      background: #f3f4f6;
+      color: var(--text-secondary);
+      background: var(--bg-tertiary);
       padding: 2px 8px;
       border-radius: 12px;
     }
@@ -457,7 +457,7 @@ const formatDate = (dateString: string) => {
 }
 
 .date-text {
-  color: #6b7280;
+  color: var(--text-secondary);
   font-size: 14px;
 }
 
@@ -474,7 +474,7 @@ const formatDate = (dateString: string) => {
   cursor: pointer;
   transition: all 0.2s ease;
   background: none;
-  color: #374151;
+  color: var(--text-primary);
   
   .material-symbols-outlined {
     font-size: 16px;
