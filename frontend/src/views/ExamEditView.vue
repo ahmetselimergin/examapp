@@ -1,17 +1,28 @@
 <template>
   <div class="exam-edit-container">
+    <!-- Page Header -->
     <div class="page-header">
       <div class="header-content">
-        <h1>{{ $t('exam.editExam') }}</h1>
-        <p>{{ $t('exam.editExamDescription') }}</p>
+        <div class="header-left">
+          <h1 class="page-title">{{ $t('examEdit.title') }}</h1>
+          <p class="page-subtitle">{{ $t('examEdit.subtitle') }}</p>
+        </div>
+        <div class="header-right" v-if="exam">
+          <div class="exam-status-badge" :class="getExamStatus(exam)">
+            <span class="material-symbols-outlined">{{ getStatusIcon(exam) }}</span>
+            {{ getExamStatusText(exam) }}
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Loading State -->
     <div v-if="loading" class="loading-state">
       <div class="spinner"></div>
       <p>{{ $t('common.loading') }}</p>
     </div>
 
+    <!-- Error State -->
     <div v-else-if="error" class="error-state">
       <div class="error-icon">
         <span class="material-symbols-outlined">error</span>
@@ -21,115 +32,113 @@
       <Button @click="loadExam" :text="$t('common.retry')" styleType="primary" />
     </div>
 
+    <!-- Tab Navigation -->
     <div v-else-if="exam" class="exam-edit-form">
-      <!-- Step Indicator -->
-      <div class="step-indicator">
-        <div 
-          v-for="(step, index) in steps" 
-          :key="index"
-          class="step"
-          :class="{ active: currentStep === index + 1, completed: currentStep > index + 1 }"
-        >
-          <div class="step-number">{{ index + 1 }}</div>
-          <div class="step-label">{{ step }}</div>
-        </div>
+      <div class="tab-navigation">
+        <nav class="tab-nav">
+          <button
+            v-for="tab in tabs"
+            :key="tab.key"
+            @click="activeTab = tab.key"
+            class="tab-btn"
+            :class="{ active: activeTab === tab.key }"
+          >
+            <span class="material-symbols-outlined">{{ tab.icon }}</span>
+            {{ tab.label }}
+          </button>
+        </nav>
       </div>
 
-      <!-- Step Content -->
-      <div class="step-content">
-        <!-- Step 1: Basic Info -->
-        <div v-if="currentStep === 1" class="step-panel">
-          <h3>{{ $t('exam.basicInfo') }}</h3>
-          <form @submit.prevent="handleStep1Submit">
-            <div class="form-group">
-              <label for="title">{{ $t('exam.examTitle') }} *</label>
-              <Input
-                id="title"
-                v-model="formData.title"
-                :placeholder="$t('exam.titlePlaceholder')"
-                :error="errors.title"
-              />
-            </div>
-
-            <div class="form-group">
-              <label for="description">{{ $t('exam.description') }}</label>
-              <textarea
-                id="description"
-                v-model="formData.description"
-                :placeholder="$t('exam.descriptionPlaceholder')"
-                class="form-textarea"
-                rows="3"
-              ></textarea>
-            </div>
-
-            <div class="form-row">
+      <!-- Tab Content -->
+      <div class="tab-content">
+        <!-- Basic Information Tab -->
+        <div v-show="activeTab === 'info'" class="tab-panel">
+          <div class="info-section">
+            <h3>{{ t('examEdit.basicInfo') }}</h3>
+            <form @submit.prevent="handleStep1Submit">
               <div class="form-group">
-                <label for="startTime">{{ $t('exam.startTime') }} *</label>
+                <label for="title">{{ $t('exam.examTitle') }} *</label>
                 <Input
-                  id="startTime"
-                  v-model="formData.startTime"
-                  type="datetime-local"
-                  :error="errors.startTime"
+                  id="title"
+                  v-model="formData.title"
+                  :placeholder="$t('exam.titlePlaceholder')"
+                  :error="errors.title"
                 />
               </div>
 
               <div class="form-group">
-                <label for="endTime">{{ $t('exam.endTime') }} *</label>
-                <Input
-                  id="endTime"
-                  v-model="formData.endTime"
-                  type="datetime-local"
-                  :error="errors.endTime"
-                />
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="duration">{{ $t('exam.duration') }} ({{ $t('common.minutes') }}) *</label>
-                <Input
-                  id="duration"
-                  v-model="formData.duration"
-                  type="number"
-                  min="1"
-                  :placeholder="$t('exam.durationPlaceholder')"
-                  :error="errors.duration"
-                />
+                <label for="description">{{ $t('exam.description') }}</label>
+                <textarea
+                  id="description"
+                  v-model="formData.description"
+                  :placeholder="$t('exam.descriptionPlaceholder')"
+                  class="form-textarea"
+                  rows="3"
+                ></textarea>
               </div>
 
-              <div class="form-group">
-                <label for="questionCount">{{ $t('exam.questionCount') }} *</label>
-                <Input
-                  id="questionCount"
-                  v-model="formData.questionCount"
-                  type="number"
-                  min="1"
-                  :placeholder="$t('exam.questionCountPlaceholder')"
-                  :error="errors.questionCount"
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="startTime">{{ $t('exam.startTime') }} *</label>
+                  <Input
+                    id="startTime"
+                    v-model="formData.startTime"
+                    type="datetime-local"
+                    :error="errors.startTime"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="endTime">{{ $t('exam.endTime') }} *</label>
+                  <Input
+                    id="endTime"
+                    v-model="formData.endTime"
+                    type="datetime-local"
+                    :error="errors.endTime"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="duration">{{ $t('exam.duration') }} ({{ $t('common.minutes') }}) *</label>
+                  <Input
+                    id="duration"
+                    v-model="formData.duration"
+                    type="number"
+                    min="1"
+                    :placeholder="$t('exam.durationPlaceholder')"
+                    :error="errors.duration"
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="subject">{{ $t('exam.subject') }} *</label>
+                  <Input
+                    id="subject"
+                    v-model="formData.subject"
+                    :placeholder="$t('exam.subjectPlaceholder')"
+                    :error="errors.subject"
+                  />
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <Button 
+                  type="submit" 
+                  :text="t('examEdit.saveBasicInfo')" 
+                  styleType="primary" 
+                  :loading="updating"
                 />
               </div>
-            </div>
-
-            <div class="step-actions">
-              <Button
-                type="button"
-                @click="$router.push('/exams')"
-                :text="$t('common.cancel')"
-                styleType="secondary"
-              />
-              <Button
-                type="submit"
-                :text="$t('common.next')"
-                styleType="primary"
-              />
-            </div>
-          </form>
+            </form>
+          </div>
         </div>
 
-        <!-- Step 2: Questions -->
-        <div v-if="currentStep === 2" class="step-panel">
-          <h3>{{ $t('exam.questions') }}</h3>
+        <!-- Questions Tab -->
+        <div v-show="activeTab === 'questions'" class="tab-panel">
           <div class="questions-section">
+            <h3>{{ $t('exam.questions') }}</h3>
             <div class="section-header">
               <h4>{{ $t('exam.selectQuestions') }}</h4>
               <div class="search-filters">
@@ -222,10 +231,10 @@
           </div>
         </div>
 
-        <!-- Step 3: Students -->
-        <div v-if="currentStep === 3" class="step-panel">
-          <h3>{{ $t('exam.students') }}</h3>
+        <!-- Students Tab -->
+        <div v-show="activeTab === 'students'" class="tab-panel">
           <div class="students-section">
+            <h3>{{ $t('exam.students') }}</h3>
             <div class="section-header">
               <h4>{{ $t('exam.selectStudents') }}</h4>
               <div class="search-filters">
@@ -323,23 +332,69 @@ const { t } = useI18n();
 const { showSuccess, showError } = useToast();
 const authStore = useAuthStore();
 
+// Status helper functions
+const getExamStatus = (exam) => {
+  if (!exam) return 'draft';
+  const now = new Date();
+  const startTime = new Date(exam.startTime);
+  const endTime = new Date(exam.endTime);
+  
+  if (now < startTime) return 'upcoming';
+  if (now >= startTime && now <= endTime) return 'active';
+  return 'completed';
+};
+
+const getStatusIcon = (exam) => {
+  const status = getExamStatus(exam);
+  switch (status) {
+    case 'upcoming': return 'schedule';
+    case 'active': return 'play_circle';
+    case 'completed': return 'check_circle';
+    default: return 'draft';
+  }
+};
+
+const getExamStatusText = (exam) => {
+  const status = getExamStatus(exam);
+  switch (status) {
+    case 'upcoming': return t('examDetail.upcoming');
+    case 'active': return t('examDetail.active');
+    case 'completed': return t('examDetail.completed');
+    default: return t('examDetail.draft');
+  }
+};
+
 const loading = ref(true);
 const saving = ref(false);
+const updating = ref(false);
 const error = ref('');
 const exam = ref(null);
 
-// Step management
-const currentStep = ref(1);
-const steps = computed(() => [
-  t('exam.stepBasicInfo'),
-  t('exam.stepQuestions'),
-  t('exam.stepStudents')
+// Tab management
+const activeTab = ref('info');
+const tabs = computed(() => [
+  {
+    key: 'info',
+    label: t('examEdit.basicInfo'),
+    icon: 'info'
+  },
+  {
+    key: 'questions',
+    label: t('exam.questions'),
+    icon: 'quiz'
+  },
+  {
+    key: 'students',
+    label: t('exam.students'),
+    icon: 'group'
+  }
 ]);
 
 // Form data
 const formData = ref({
   title: '',
   description: '',
+  subject: '',
   startTime: '',
   endTime: '',
   duration: 60,
@@ -437,6 +492,7 @@ const loadExam = async () => {
     formData.value = {
       title: exam.value.title || '',
       description: exam.value.description || '',
+      subject: exam.value.subject || '',
       startTime: formatDateTimeLocal(exam.value.startTime),
       endTime: formatDateTimeLocal(exam.value.endTime),
       duration: exam.value.duration || 60,
@@ -666,6 +722,265 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  background: var(--bg-secondary);
+  min-height: 100vh;
+}
+
+.page-header {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.header-right {
+  margin-left: 24px;
+}
+
+.exam-status-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  &.upcoming {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+  }
+  
+  &.active {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.2);
+  }
+  
+  &.completed {
+    background: rgba(107, 114, 128, 0.1);
+    color: #6b7280;
+    border: 1px solid rgba(107, 114, 128, 0.2);
+  }
+  
+  &.draft {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+}
+
+.loading-state, .error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--border-secondary);
+  border-top: 4px solid #667eea;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-icon {
+  width: 64px;
+  height: 64px;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.error-icon .material-symbols-outlined {
+  font-size: 32px;
+  color: #ef4444;
+}
+
+.tab-navigation {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  .material-symbols-outlined {
+    font-size: 20px;
+  }
+}
+
+.tab-content {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.tab-panel {
+  padding: 32px;
+}
+
+.info-section {
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 24px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-secondary);
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  input, textarea, select {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-secondary);
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+  }
+
+  textarea {
+    height: auto !important;
+    min-height: 80px;
+    padding: 12px !important;
+    resize: vertical;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-secondary);
+}
+
+.questions-section, .students-section {
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 24px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-secondary);
+  }
 }
 
 .exam-edit-form {

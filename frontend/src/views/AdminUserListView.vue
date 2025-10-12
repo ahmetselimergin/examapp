@@ -2,8 +2,8 @@
   <div class="users-container">
     <div class="page-header">
       <div class="header-content">
-        <h2>Kullanıcı Listesi</h2>
-        <p>Kullanıcıları yönetin ve düzenleyin</p>
+        <h2>{{ t('users.title') }}</h2>
+        <p>{{ t('users.subtitle') }}</p>
       </div>
       <div class="header-actions">
         <Button 
@@ -12,12 +12,12 @@
           size="medium" 
           @click="openCreateUserModal" 
           icon="add" 
-          text="Yeni Kullanıcı" 
+          :text="t('users.newUser')" 
         />
       </div>
     </div>
 
-    <div v-if="loading" class="loading">Kullanıcılar yükleniyor...</div>
+    <div v-if="loading" class="loading">{{ t('users.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <DataTable
@@ -30,19 +30,19 @@
         <template #actions="{ item, closeMenu }">
           <button @click="editUser(item); closeMenu()" class="action-btn ">
             <span class="material-symbols-outlined">edit</span>
-            Edit
+            {{ t('common.edit') }}
           </button>
           <button @click="deleteUser(item); closeMenu()" class="action-btn ">
             <span class="material-symbols-outlined">delete</span>
-            Delete
+            {{ t('common.delete') }}
           </button>
         </template>
         
         <template #empty>
           <Empty 
             icon="person_off"
-            title="Kullanıcı bulunamadı"
-            description="Gösterilecek kullanıcı bulunmuyor."
+            :title="t('users.noUsers')"
+            :description="t('users.noUsersDescription')"
             :show-action="false"
           />
         </template>
@@ -53,34 +53,48 @@
           <Modal 
                :modelValue="showCreateUserModal" 
                @update:modelValue="handleCreateUserModalUpdate"
-               title="Yeni Kullanıcı Oluştur"
+               :title="t('users.createUser')"
           >
                <div class="create-user-form">
                     <div class="form-group">
-                         <label>Ad Soyad</label>
-                         <Input v-model="newUser.name" placeholder="Ad Soyad" />
+                         <label>{{ t('users.fullName') }}</label>
+                         <Input 
+                              v-model="newUser.name" 
+                              :placeholder="t('users.fullName')"
+                              autocomplete="off"
+                         />
                     </div>
                     <div class="form-group">
-                         <label>E-posta</label>
-                         <Input v-model="newUser.email" type="email" placeholder="E-posta" />
+                         <label>{{ t('users.email') }}</label>
+                         <Input 
+                              v-model="newUser.email" 
+                              type="email" 
+                              :placeholder="t('users.email')"
+                              autocomplete="new-password"
+                         />
                     </div>
                     <div class="form-group">
-                         <label>Şifre</label>
-                         <Input v-model="newUser.password" type="password" placeholder="Şifre" />
+                         <label>{{ t('users.password') }}</label>
+                         <Input 
+                              v-model="newUser.password" 
+                              type="password" 
+                              :placeholder="t('users.password')"
+                              autocomplete="new-password"
+                         />
                     </div>
                     <div class="form-group">
-                         <label>Rol</label>
+                         <label>{{ t('users.role') }}</label>
                          <Select 
                               v-model="newUser.role" 
                               :options="roleFormOptions"
-                              placeholder="Rol seçiniz"
+                              :placeholder="t('users.selectRole')"
                          />
                     </div>
                </div>
                <template #footer>
                     <div class="modal-footer">
-                         <Button @click="closeCreateUserModal" variant="secondary">İptal</Button>
-                         <Button @click="createUser" variant="primary">Oluştur</Button>
+                         <Button @click="closeCreateUserModal" variant="secondary">{{ t('common.cancel') }}</Button>
+                         <Button @click="createUser" variant="primary">{{ t('common.create') }}</Button>
                     </div>
                 </template>
            </Modal>
@@ -89,34 +103,48 @@
            <Modal 
                 :modelValue="showEditUserModal" 
                 @update:modelValue="handleEditUserModalUpdate"
-                title="Kullanıcı Düzenle"
+                :title="t('users.editUser')"
            >
                 <div class="edit-user-form">
                      <div class="form-group">
-                          <label>Ad Soyad</label>
-                          <Input v-model="editingUser.name" placeholder="Ad Soyad" />
+                          <label>{{ t('users.fullName') }}</label>
+                          <Input 
+                               v-model="editingUser.name" 
+                               :placeholder="t('users.fullName')"
+                               autocomplete="off"
+                          />
                      </div>
                      <div class="form-group">
-                          <label>E-posta</label>
-                          <Input v-model="editingUser.email" type="email" placeholder="E-posta" />
+                          <label>{{ t('users.email') }}</label>
+                          <Input 
+                               v-model="editingUser.email" 
+                               type="email" 
+                               :placeholder="t('users.email')"
+                               autocomplete="off"
+                          />
                      </div>
                      <div class="form-group">
-                          <label>Şifre (Boş bırakırsanız değişmez)</label>
-                          <Input v-model="editingUser.password" type="password" placeholder="Yeni şifre (opsiyonel)" />
+                          <label>{{ t('users.passwordOptional') }}</label>
+                          <Input 
+                               v-model="editingUser.password" 
+                               type="password" 
+                               :placeholder="t('users.newPassword')"
+                               autocomplete="new-password"
+                          />
                      </div>
                      <div class="form-group">
-                          <label>Rol</label>
+                          <label>{{ t('users.role') }}</label>
                           <Select 
                                v-model="editingUser.role" 
                                :options="roleFormOptions"
-                               placeholder="Rol seçiniz"
+                               :placeholder="t('users.selectRole')"
                           />
                      </div>
                 </div>
                 <template #footer>
                      <div class="modal-footer">
-                          <Button @click="closeEditUserModal" variant="secondary">İptal</Button>
-                          <Button @click="updateUser" variant="primary">Güncelle</Button>
+                          <Button @click="closeEditUserModal" variant="secondary">{{ t('common.cancel') }}</Button>
+                          <Button @click="updateUser" variant="primary">{{ t('common.update') }}</Button>
                      </div>
                  </template>
             </Modal>
@@ -125,11 +153,11 @@
            <ConfirmationModal
                 :isOpen="showDeleteModal"
                 @update:isOpen="showDeleteModal = $event"
-                title="Kullanıcıyı Sil"
-                :message="`${userToDelete?.name} adlı kullanıcıyı silmek istediğinizden emin misiniz?`"
-                :details="`E-posta: ${userToDelete?.email}`"
-                confirmText="Evet, Sil"
-                cancelText="İptal"
+                :title="t('users.deleteUser')"
+                :message="t('users.confirmDelete', { name: userToDelete?.name })"
+                :details="t('users.emailDetail', { email: userToDelete?.email })"
+                :confirmText="t('common.delete')"
+                :cancelText="t('common.cancel')"
                 confirmStyle="danger"
                 icon="delete_forever"
                 :loading="deleting"
@@ -187,34 +215,34 @@ const editingUser = ref({
 
 // Role options for filter
 const roleOptions = ref([
-  { label: 'Tüm Roller', value: '' },
-  { label: 'Öğrenci', value: 'student' },
-  { label: 'Öğretmen', value: 'teacher' },
-  { label: 'Admin', value: 'admin' }
+  { label: t('users.allRoles'), value: '' },
+  { label: t('user.student'), value: 'student' },
+  { label: t('user.teacher'), value: 'teacher' },
+  { label: t('user.admin'), value: 'admin' }
 ]);
 
 // Role options for form select
 const roleFormOptions = ref([
-  { label: 'Öğrenci', value: 'student' },
-  { label: 'Öğretmen', value: 'teacher' },
-  { label: 'Admin', value: 'admin' }
+  { label: t('user.student'), value: 'student' },
+  { label: t('user.teacher'), value: 'teacher' },
+  { label: t('user.admin'), value: 'admin' }
 ]);
 
 // DataTable columns
 const columns = ref([
   {
     key: 'name',
-    label: t('common.fullName'),
+    label: t('users.fullName'),
     sortable: true
   },
   {
     key: 'email',
-    label: t('common.email'),
+    label: t('users.email'),
     sortable: true
   },
   {
     key: 'role',
-    label: t('common.role'),
+    label: t('users.role'),
     sortable: true,
     formatter: (value) => {
       const roleMap = {
@@ -256,7 +284,7 @@ const fetchUsers = async () => {
                password: ''
           }));
      } catch (e) {
-          error.value = e.response?.data?.message || 'Kullanıcılar alınamadı';
+          error.value = e.response?.data?.message || t('users.fetchError');
      } finally {
           loading.value = false;
      }
@@ -277,12 +305,12 @@ const confirmDelete = async () => {
      deleting.value = true;
      try {
           await api.delete(`/auth/admin/users/${userToDelete.value._id}`);
-          showSuccess('Kullanıcı başarıyla silindi!');
+          showSuccess(t('users.deleteSuccess'));
           await fetchUsers();
           showDeleteModal.value = false;
           userToDelete.value = null;
      } catch (e) {
-          showError(e.response?.data?.message || 'Silme işlemi başarısız');
+          showError(e.response?.data?.message || t('users.deleteError'));
      } finally {
           deleting.value = false;
      }
@@ -314,9 +342,9 @@ const updateUser = async () => {
           }
           
           closeEditUserModal();
-          showSuccess('Kullanıcı başarıyla güncellendi!');
+          showSuccess(t('users.updateSuccess'));
      } catch (e) {
-          showError(e.response?.data?.message || 'Güncelleme işlemi başarısız');
+          showError(e.response?.data?.message || t('users.updateError'));
      }
 };
 
@@ -343,9 +371,9 @@ const createUser = async () => {
           const res = await api.post('/auth/admin/users', newUser.value);
           users.value.push({ ...res.data, password: '' });
           closeCreateUserModal();
-          showSuccess('Kullanıcı başarıyla oluşturuldu!');
+          showSuccess(t('users.createSuccess'));
      } catch (e) {
-          showError(e.response?.data?.message || 'Kullanıcı oluşturma işlemi başarısız');
+          showError(e.response?.data?.message || t('users.createError'));
      }
 };
 

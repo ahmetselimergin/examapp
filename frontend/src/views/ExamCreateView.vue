@@ -1,219 +1,230 @@
 <template>
   <div class="exam-create-container">
-    <!-- Step Indicator -->
-    <div class="step-indicator-container">
-      <div class="step-indicator">
-        <div 
-          v-for="(step, index) in steps" 
-          :key="index"
-          :class="['step-item', { 
-            'active': currentStep === index + 1,
-            'completed': currentStep > index + 1 
-          }]"
-        >
-          <div class="step-circle">
-            <span v-if="currentStep > index + 1" class="material-symbols-outlined check-icon">check</span>
-            <span v-else class="step-number">{{ index + 1 }}</span>
-          </div>
-          <div class="step-content">
-            <div class="step-title">{{ step.label }}</div>
-            <div class="step-description">{{ step.description }}</div>
-          </div>
-          <div v-if="index < steps.length - 1" class="step-connector" :class="{ 'completed': currentStep > index + 1 }"></div>
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-content">
+        <div class="header-left">
+          <h1 class="page-title">{{ $t('examCreate.title') }}</h1>
+          <p class="page-subtitle">{{ $t('examCreate.subtitle') }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Step 1: Exam Basic Info -->
-    <div v-if="currentStep === 1" class="step-content">
-      <div class="form-card">
-        <h3>{{ $t('examCreate.examInfo') }}</h3>
-        <form @submit.prevent="handleStep1Submit" class="exam-form">
-          <div class="form-group">
-            <label>{{ $t('examCreate.examName') }} *</label>
-            <input 
-              v-model="examData.title" 
-              type="text" 
-              :placeholder="$t('examCreate.examNamePlaceholder')"
-              required
-              class="form-input"
-            />
-          </div>
-          
-          <div class="form-group">
-            <label>{{ $t('examCreate.description') }}</label>
-            <textarea 
-              v-model="examData.description" 
-              :placeholder="$t('examCreate.descriptionPlaceholder')"
-              class="form-textarea"
-              rows="3"
-            ></textarea>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>{{ $t('examCreate.startTime') }} *</label>
-              <input 
-                v-model="examData.startTime" 
-                type="datetime-local"
-                required
-                class="form-input"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label>{{ $t('examCreate.endTime') }} *</label>
-              <input 
-                v-model="examData.endTime" 
-                type="datetime-local"
-                required
-                class="form-input"
-              />
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>{{ $t('examCreate.duration') }} *</label>
-              <input 
-                v-model="examData.duration" 
-                type="number"
-                min="1"
-                :placeholder="$t('examCreate.durationPlaceholder')"
-                required
-                class="form-input"
-              />
-            </div>
-            
-            <div class="form-group">
-              <label>{{ $t('examCreate.questionCount') }} *</label>
-              <input 
-                v-model="examData.questionCount" 
-                type="number"
-                min="1"
-                :placeholder="$t('examCreate.questionCountPlaceholder')"
-                required
-                class="form-input"
-              />
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <Button 
-              type="submit" 
-              styleType="primary" 
-              size="medium" 
-              :text="$t('common.next')"
-              :loading="loading"
-            />
-          </div>
-        </form>
-      </div>
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <nav class="tab-nav">
+        <button
+          v-for="tab in tabs"
+          :key="tab.key"
+          @click="activeTab = tab.key"
+          class="tab-btn"
+          :class="{ active: activeTab === tab.key, disabled: tab.disabled }"
+          :disabled="tab.disabled"
+        >
+          <span class="material-symbols-outlined">{{ tab.icon }}</span>
+          {{ tab.label }}
+        </button>
+      </nav>
     </div>
 
-    <!-- Step 2: Question Selection -->
-    <div v-if="currentStep === 2" class="step-content">
-      <div class="form-card">
-        <h3>{{ $t('examCreate.questionSelection') }}</h3>
-        <div v-if="loadingQuestions" class="loading">{{ $t('examCreate.loadingQuestions') }}</div>
-        <div v-else-if="errorQuestions" class="error">{{ errorQuestions }}</div>
-        <div v-else>
-          <div v-if="questions.length === 0" class="empty-state">
-            <Empty 
-              icon="quiz"
-              :title="$t('examCreate.noQuestions')"
-              :description="$t('examCreate.noQuestionsDesc')"
-              :show-action="false"
-            />
-          </div>
-          <div v-else>
-            <!-- Search and Filter -->
-            <div class="search-filter-bar">
-              <div class="search-box">
+    <!-- Tab Content -->
+    <div class="tab-content">
+      <!-- Basic Information Tab -->
+      <div v-show="activeTab === 'info'" class="tab-panel">
+        <div class="info-section">
+          <h3>{{ $t('examCreate.examInfo') }}</h3>
+          <form @submit.prevent="handleStep1Submit" class="exam-form">
+            <div class="form-group">
+              <label>{{ $t('examCreate.examName') }} *</label>
+              <input 
+                v-model="examData.title" 
+                type="text" 
+                :placeholder="$t('examCreate.examNamePlaceholder')"
+                required
+                class="form-input"
+              />
+            </div>
+            
+            <div class="form-group">
+              <label>{{ $t('examCreate.description') }}</label>
+              <textarea 
+                v-model="examData.description" 
+                :placeholder="$t('examCreate.descriptionPlaceholder')"
+                class="form-textarea"
+                rows="3"
+              ></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>{{ $t('examCreate.startTime') }} *</label>
                 <input 
-                  v-model="questionSearch" 
-                  type="text" 
-                  :placeholder="$t('examCreate.searchQuestions')"
-                  class="search-input"
+                  v-model="examData.startTime" 
+                  type="datetime-local"
+                  required
+                  class="form-input"
                 />
-                <span class="material-symbols-outlined search-icon">search</span>
               </div>
-              <div class="filter-group">
-                <select v-model="questionTypeFilter" class="filter-select">
-                  <option value="">{{ $t('examCreate.allTypes') }}</option>
-                  <option value="multiple-choice">{{ $t('questionBank.multipleChoice') }}</option>
-                  <option value="true-false">{{ $t('questionBank.trueFalse') }}</option>
-                  <option value="short-answer">{{ $t('questionBank.shortAnswer') }}</option>
-                </select>
-                <select v-model="difficultyFilter" class="filter-select">
-                  <option value="">{{ $t('examCreate.allDifficulties') }}</option>
-                  <option value="easy">{{ $t('questionBank.easy') }}</option>
-                  <option value="medium">{{ $t('questionBank.medium') }}</option>
-                  <option value="hard">{{ $t('questionBank.hard') }}</option>
-                </select>
+              
+              <div class="form-group">
+                <label>{{ $t('examCreate.endTime') }} *</label>
+                <input 
+                  v-model="examData.endTime" 
+                  type="datetime-local"
+                  required
+                  class="form-input"
+                />
               </div>
             </div>
-            
-            <!-- Question Count Info -->
-            <div class="question-count-info">
-              <span class="selected-count">{{ selectedQuestions.length }} / {{ examData.questionCount }} {{ $t('examCreate.questionsSelected') }}</span>
-              <span v-if="selectedQuestions.length > examData.questionCount" class="count-warning">
-                {{ $t('examCreate.maxQuestionsWarning', { count: examData.questionCount }) }}
-              </span>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>{{ $t('examCreate.duration') }} *</label>
+                <input 
+                  v-model="examData.duration" 
+                  type="number"
+                  min="1"
+                  :placeholder="$t('examCreate.durationPlaceholder')"
+                  required
+                  class="form-input"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label>{{ $t('examCreate.questionCount') }} *</label>
+                <input 
+                  v-model="examData.questionCount" 
+                  type="number"
+                  min="1"
+                  :placeholder="$t('examCreate.questionCountPlaceholder')"
+                  required
+                  class="form-input"
+                />
+              </div>
             </div>
+
+            <div class="form-actions">
+              <Button 
+                type="button"
+                @click="$router.push('/exams')"
+                :text="$t('common.cancel')"
+                styleType="secondary"
+              />
+              <Button 
+                type="submit" 
+                :text="$t('examCreate.saveAndContinue')" 
+                styleType="primary" 
+                :loading="loading"
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Questions Tab -->
+      <div v-show="activeTab === 'questions'" class="tab-panel">
+        <div class="questions-section">
+          <h3>{{ $t('examCreate.questionSelection') }}</h3>
+          <div v-if="loadingQuestions" class="loading">{{ $t('examCreate.loadingQuestions') }}</div>
+          <div v-else-if="errorQuestions" class="error">{{ errorQuestions }}</div>
+          <div v-else>
+            <div v-if="questions.length === 0" class="empty-state">
+              <Empty 
+                icon="quiz"
+                :title="$t('examCreate.noQuestions')"
+                :description="$t('examCreate.noQuestionsDesc')"
+                :show-action="false"
+              />
+            </div>
+            <div v-else>
+              <!-- Search and Filter -->
+              <div class="search-filter-bar">
+                <div class="search-box">
+                  <input 
+                    v-model="questionSearch" 
+                    type="text" 
+                    :placeholder="$t('examCreate.searchQuestions')"
+                    class="search-input"
+                  />
+                  <span class="material-symbols-outlined search-icon">search</span>
+                </div>
+                <div class="filter-group">
+                  <select v-model="questionTypeFilter" class="filter-select">
+                    <option value="">{{ $t('examCreate.allTypes') }}</option>
+                    <option value="multiple-choice">{{ $t('questionBank.multipleChoice') }}</option>
+                    <option value="true-false">{{ $t('questionBank.trueFalse') }}</option>
+                    <option value="short-answer">{{ $t('questionBank.shortAnswer') }}</option>
+                  </select>
+                  <select v-model="difficultyFilter" class="filter-select">
+                    <option value="">{{ $t('examCreate.allDifficulties') }}</option>
+                    <option value="easy">{{ $t('questionBank.easy') }}</option>
+                    <option value="medium">{{ $t('questionBank.medium') }}</option>
+                    <option value="hard">{{ $t('questionBank.hard') }}</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Question Count Info -->
+              <div class="question-count-info">
+                <span class="selected-count">{{ selectedQuestions.length }} / {{ examData.questionCount }} {{ $t('examCreate.questionsSelected') }}</span>
+                <span v-if="selectedQuestions.length > examData.questionCount" class="count-warning">
+                  {{ $t('examCreate.maxQuestionsWarning', { count: examData.questionCount }) }}
+                </span>
+              </div>
             
-            <div class="questions-table">
-              <table class="selection-table">
-                <thead>
-                  <tr>
-                    <th class="select-column"></th>
-                    <th>Soru Metni</th>
-                    <th>Tip</th>
-                    <th>Zorluk</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr 
-                    v-for="question in filteredQuestions" 
-                    :key="question._id"
-                    class="question-row"
-                    :class="{ selected: selectedQuestions.includes(question._id) }"
-                  >
-                    <td class="select-column">
-                      <div class="question-checkbox" @click.stop>
-                        <input 
-                          type="checkbox" 
-                          :checked="selectedQuestions.includes(question._id)"
-                          @change="toggleQuestion(question._id)"
-                          @click.stop
-                        />
-                      </div>
-                    </td>
-                    <td class="question-text">
-                      <h4>{{ question.text }}</h4>
-                    </td>
-                    <td class="question-type">
-                      <span class="type-badge">{{ getQuestionTypeText(question.type) }}</span>
-                    </td>
-                    <td class="question-difficulty">
-                      <span class="difficulty-badge" :class="question.difficulty">{{ question.difficulty }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div class="questions-table">
+                <table class="selection-table">
+                  <thead>
+                    <tr>
+                      <th class="select-column"></th>
+                      <th>{{ $t('examCreate.questionText') }}</th>
+                      <th>{{ $t('examCreate.type') }}</th>
+                      <th>{{ $t('examCreate.difficulty') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr 
+                      v-for="question in filteredQuestions" 
+                      :key="question._id"
+                      class="question-row"
+                      :class="{ selected: selectedQuestions.includes(question._id) }"
+                    >
+                      <td class="select-column">
+                        <div class="question-checkbox" @click.stop>
+                          <input 
+                            type="checkbox" 
+                            :checked="selectedQuestions.includes(question._id)"
+                            @change="toggleQuestion(question._id)"
+                            @click.stop
+                          />
+                        </div>
+                      </td>
+                      <td class="question-text">
+                        <h4>{{ question.text }}</h4>
+                      </td>
+                      <td class="question-type">
+                        <span class="type-badge">{{ getQuestionTypeText(question.type) }}</span>
+                      </td>
+                      <td class="question-difficulty">
+                        <span class="difficulty-badge" :class="question.difficulty">{{ question.difficulty }}</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
         
         <div class="form-actions">
           <Button 
-            @click="previousStep" 
+            @click="activeTab = 'info'" 
             styleType="secondary" 
             size="medium" 
             :text="$t('common.previous')"
           />
           <Button 
-            @click="nextStep" 
+            @click="goToStudentsTab" 
             styleType="primary" 
             size="medium" 
             :text="$t('common.next')"
@@ -221,84 +232,82 @@
           />
         </div>
       </div>
-    </div>
 
-    <!-- Step 3: Student Assignment -->
-    <div v-if="currentStep === 3" class="step-content">
-      <div class="form-card">
-        <h3>{{ $t('examCreate.studentAssignment') }}</h3>
-        <div v-if="loadingStudents" class="loading">{{ $t('examCreate.loadingStudents') }}</div>
-        <div v-else-if="errorStudents" class="error">{{ errorStudents }}</div>
-        <div v-else>
-          <div v-if="students.length === 0" class="empty-state">
-            <Empty 
-              icon="person_off"
-              :title="$t('examCreate.noStudents')"
-              :description="$t('examCreate.noStudentsDesc')"
-              :show-action="false"
-            />
-          </div>
+      <!-- Students Tab -->
+      <div v-show="activeTab === 'students'" class="tab-panel">
+        <div class="students-section">
+          <h3>{{ $t('examCreate.stepStudentAssignment') }}</h3>
+          <div v-if="loadingStudents" class="loading">{{ $t('examCreate.loadingStudents') }}</div>
+          <div v-else-if="errorStudents" class="error">{{ errorStudents }}</div>
           <div v-else>
-            <!-- Student Search -->
-            <div class="search-filter-bar">
-              <div class="search-box">
-                <input 
-                  v-model="studentSearch" 
-                  type="text" 
-                  :placeholder="$t('examCreate.searchStudents')"
-                  class="search-input"
-                />
-                <span class="material-symbols-outlined search-icon">search</span>
+            <div v-if="students.length === 0" class="empty-state">
+              <Empty 
+                icon="group"
+                :title="$t('examCreate.noStudents')"
+                :description="$t('examCreate.noStudentsDesc')"
+                :show-action="false"
+              />
+            </div>
+            <div v-else>
+              <!-- Search -->
+              <div class="search-filter-bar">
+                <div class="search-box">
+                  <input 
+                    v-model="studentSearch" 
+                    type="text" 
+                    :placeholder="$t('examCreate.searchStudents')"
+                    class="search-input"
+                  />
+                  <span class="material-symbols-outlined search-icon">search</span>
+                </div>
               </div>
-            </div>
-            
-            <!-- Student Count Info -->
-            <div class="student-count-info">
-              <span class="selected-count">{{ selectedStudents.length }} {{ $t('examCreate.studentsSelected') }}</span>
-            </div>
-            
-            <div class="students-table">
-              <table class="selection-table">
-                <thead>
-                  <tr>
-                    <th class="select-column"></th>
-                    <th>Ad Soyad</th>
-                    <th>E-posta</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr 
-                    v-for="student in filteredStudents" 
-                    :key="student._id"
-                    class="student-row"
-                    :class="{ selected: selectedStudents.includes(student._id) }"
-                  >
-                    <td class="select-column">
-                      <div class="student-checkbox" @click.stop>
-                        <input 
-                          type="checkbox" 
-                          :checked="selectedStudents.includes(student._id)"
-                          @change="toggleStudent(student._id)"
-                          @click.stop
-                        />
-                      </div>
-                    </td>
-                    <td class="student-name">
-                      <h4>{{ student.name }}</h4>
-                    </td>
-                    <td class="student-email">
-                      <p>{{ student.email }}</p>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              
+              <!-- Selected Count Info -->
+              <div class="selected-count-info">
+                <span class="selected-count">{{ selectedStudents.length }} {{ $t('examCreate.studentsSelected') }}</span>
+              </div>
+              
+              <!-- Students Table -->
+              <div class="students-table">
+                <table class="selection-table">
+                  <thead>
+                    <tr>
+                      <th class="select-column">
+                        <input type="checkbox" @change="toggleAllStudents" :checked="allStudentsSelected" />
+                      </th>
+                      <th>{{ $t('examCreate.studentName') }}</th>
+                      <th>{{ $t('examCreate.studentEmail') }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr 
+                      v-for="student in filteredStudents" 
+                      :key="student._id"
+                      class="student-row"
+                      :class="{ selected: selectedStudents.includes(student._id) }"
+                    >
+                      <td class="select-column">
+                        <div class="student-checkbox" @click.stop>
+                          <input 
+                            type="checkbox" 
+                            :checked="selectedStudents.includes(student._id)"
+                            @change="toggleStudent(student._id)"
+                          />
+                        </div>
+                      </td>
+                      <td class="student-name">{{ student.name }}</td>
+                      <td class="student-email">{{ student.email }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
         
         <div class="form-actions">
           <Button 
-            @click="previousStep" 
+            @click="activeTab = 'questions'" 
             styleType="secondary" 
             size="medium" 
             :text="$t('common.previous')"
@@ -314,6 +323,7 @@
         </div>
       </div>
     </div>
+    
   </div>
 </template>
 
@@ -333,23 +343,32 @@ const router = useRouter();
 const { showSuccess, showError } = useToast();
 const authStore = useAuthStore();
 
-const steps = [
-  { 
+// Tab management
+const activeTab = ref('info');
+const tabs = computed(() => [
+  {
+    key: 'info',
     label: t('examCreate.stepExamInfo'),
-    description: t('examCreate.stepExamInfoDesc')
+    icon: 'info',
+    disabled: false
   },
-  { 
+  {
+    key: 'questions',
     label: t('examCreate.stepQuestionSelection'),
-    description: t('examCreate.stepQuestionSelectionDesc')
+    icon: 'quiz',
+    disabled: !examCreated.value
   },
-  { 
+  {
+    key: 'students',
     label: t('examCreate.stepStudentAssignment'),
-    description: t('examCreate.stepStudentAssignmentDesc')
+    icon: 'group',
+    disabled: !examCreated.value || selectedQuestions.value.length === 0
   }
-];
+]);
 
-const currentStep = ref(1);
+const examCreated = ref(false);
 const loading = ref(false);
+const saving = ref(false);
 const creatingExam = ref(false);
 
 // Exam data
@@ -445,7 +464,7 @@ const filteredStudents = computed(() => {
 // Step 1: Validate and proceed (don't save yet)
 const handleStep1Submit = async () => {
   if (!examData.value.title || !examData.value.startTime || !examData.value.endTime || !examData.value.duration || !examData.value.questionCount) {
-    showError('Lütfen tüm zorunlu alanları doldurun');
+    showError(t('examCreate.validation.allFieldsRequired'));
     return;
   }
 
@@ -454,19 +473,19 @@ const handleStep1Submit = async () => {
   const endTime = new Date(examData.value.endTime);
   
   if (endTime <= startTime) {
-    showError('Bitiş zamanı başlangıç zamanından sonra olmalıdır');
+    showError(t('examCreate.validation.endTimeAfterStart'));
     return;
   }
 
   // Don't save the exam yet, just proceed to next step
   loading.value = true;
   try {
-    // Just move to next step and load questions
-    currentStep.value = 2;
+    // Just move to next tab and load questions
+    activeTab.value = 'questions';
     loadQuestions();
   } catch (error: any) {
     console.error('Step 1 error:', error);
-    showError('Bir hata oluştu');
+    showError(t('common.error'));
   } finally {
     loading.value = false;
   }
@@ -500,27 +519,24 @@ const toggleQuestion = (questionId: string) => {
   }
 };
 
-const nextStep = () => {
-  if (currentStep.value === 2) {
-    // Validate question selection before proceeding
-    if (selectedQuestions.value.length === 0) {
-      showError('Lütfen en az bir soru seçin');
-      return;
-    }
-    if (selectedQuestions.value.length !== examData.value.questionCount) {
-      showError(`Tam olarak ${examData.value.questionCount} soru seçmelisiniz`);
-      return;
-    }
-    loadStudents();
+// Question selection validation for tab navigation
+const validateQuestionSelection = () => {
+  if (selectedQuestions.value.length === 0) {
+    showError(t('examCreate.validation.selectQuestions'));
+    return false;
   }
-  if (currentStep.value < 3) {
-    currentStep.value++;
+  if (selectedQuestions.value.length !== examData.value.questionCount) {
+    showError(t('examCreate.validation.exactQuestionCount', { count: examData.value.questionCount }));
+    return false;
   }
+  return true;
 };
 
-const previousStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--;
+// Navigate to students tab with validation
+const goToStudentsTab = () => {
+  if (validateQuestionSelection()) {
+    activeTab.value = 'students';
+    loadStudents();
   }
 };
 
@@ -621,6 +637,192 @@ onMounted(() => {
 </script>
 
 <style scoped lang="scss">
+.exam-create-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: var(--bg-secondary);
+  min-height: 100vh;
+}
+
+.page-header {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.header-left {
+  flex: 1;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.tab-navigation {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  padding: 8px;
+  margin-bottom: 24px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover:not(:disabled) {
+    background: var(--bg-secondary);
+    color: var(--text-primary);
+  }
+  
+  &.active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  }
+  
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .material-symbols-outlined {
+    font-size: 20px;
+  }
+}
+
+.tab-content {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.tab-panel {
+  padding: 32px;
+}
+
+.info-section, .questions-section, .students-section {
+  h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 24px 0;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border-secondary);
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+
+  label {
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+
+  input, textarea, select {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-secondary);
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      outline: none;
+    }
+
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+  }
+
+  textarea {
+    height: auto !important;
+    min-height: 80px;
+    padding: 12px !important;
+    resize: vertical;
+  }
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  
+  &.full-width {
+    grid-column: 1 / -1; /* Span across all columns */
+  }
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-secondary);
+}
 .exam-create-container {
   max-width: 1200px;
   margin: 0 auto;

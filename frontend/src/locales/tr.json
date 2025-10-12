@@ -28,6 +28,11 @@
     "noDescription": "Açıklama yok",
     "next": "İleri",
     "previous": "Geri",
+    "create": "Oluştur",
+    "update": "Güncelle",
+    "fullName": "Ad Soyad",
+    "email": "E-posta",
+    "role": "Rol",
     "confirmRequired": "Onay Gerekli"
   },
   "home": {
@@ -152,7 +157,39 @@
     "admin": "Yönetim",
     "students": "Öğrenciler",
     "profile": "Profil",
-    "settings": "Ayarlar"
+    "settings": "Ayarlar",
+    "exam": "Sınav",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol",
+    "quickActions": "Hızlı İşlemler"
+  },
+  "users": {
+    "title": "Kullanıcı Listesi",
+    "subtitle": "Kullanıcıları yönetin ve düzenleyin",
+    "newUser": "Yeni Kullanıcı",
+    "createUser": "Yeni Kullanıcı Oluştur",
+    "editUser": "Kullanıcı Düzenle",
+    "deleteUser": "Kullanıcıyı Sil",
+    "confirmDelete": "{name} adlı kullanıcıyı silmek istediğinizden emin misiniz?",
+    "emailDetail": "E-posta: {email}",
+    "fullName": "Ad Soyad",
+    "email": "E-posta",
+    "password": "Şifre",
+    "newPassword": "Yeni şifre (opsiyonel)",
+    "passwordOptional": "Şifre (Boş bırakırsanız değişmez)",
+    "role": "Rol",
+    "selectRole": "Rol seçiniz",
+    "allRoles": "Tüm Roller",
+    "loading": "Kullanıcılar yükleniyor...",
+    "noUsers": "Kullanıcı bulunamadı",
+    "noUsersDescription": "Gösterilecek kullanıcı bulunmuyor.",
+    "createSuccess": "Kullanıcı başarıyla oluşturuldu!",
+    "updateSuccess": "Kullanıcı başarıyla güncellendi!",
+    "deleteSuccess": "Kullanıcı başarıyla silindi!",
+    "createError": "Kullanıcı oluşturma işlemi başarısız",
+    "updateError": "Güncelleme işlemi başarısız",
+    "deleteError": "Silme işlemi başarısız",
+    "fetchError": "Kullanıcılar alınamadı"
   },
   "user": {
     "active": "Aktif",
@@ -191,12 +228,22 @@
     "addOption": "Şık Ekle",
     "option": "Şık",
     "correctAnswer": "Doğru Cevap",
+    "correct": "Doğru",
     "questionText": "Soru Metni",
     "type": "Tip",
     "createdAt": "Oluşturulma Tarihi",
     "options": "seçenek",
     "noQuestionsDescription": "Henüz hiç soru eklenmemiş. İlk soruyu eklemek için butona tıklayın.",
-    "unspecified": "Belirtilmemiş"
+    "unspecified": "Belirtilmemiş",
+    "multipleChoice": "Çoktan Seçmeli",
+    "shortAnswer": "Kısa Cevap",
+    "configuration": "Yapılandırma",
+    "validation": {
+      "questionTextRequired": "Lütfen soru metnini giriniz!",
+      "correctAnswerRequired": "Lütfen doğru cevabı seçiniz!",
+      "multipleCorrectRequired": "Lütfen en az bir doğru şık seçiniz!",
+      "allOptionsRequired": "Lütfen tüm şıkları doldurunuz!"
+    }
   },
   "settings": {
     "title": "Ayarlar",
@@ -263,23 +310,6 @@
     "skipExistingDescription": "Aynı kayıtlar atlanacak",
     "importWarningExtended": "Bu işlem geri alınamaz. Devam etmeden önce yedek aldığınızdan emin olun."
   },
-  "navbar": {
-    "home": "Anasayfa",
-    "exams": "Sınavlar",
-    "createExam": "Sınav Oluştur",
-    "editExam": "Sınav Düzenle",
-    "questions": "Sorular",
-    "questionBank": "Soru Bankası",
-    "users": "Kullanıcılar",
-    "admin": "Yönetim",
-    "students": "Öğrenciler",
-    "profile": "Profil",
-    "settings": "Ayarlar",
-    "exam": "Sınav",
-    "login": "Giriş Yap",
-    "register": "Kayıt Ol",
-    "quickActions": "Hızlı İşlemler"
-  },
   "students": {
     "title": "Öğrenci Listesi",
     "description": "Öğrencileri yönetin ve düzenleyin",
@@ -317,14 +347,28 @@
     "questionNumber": "Soru",
     "noQuestions": "Bu sınavda henüz soru bulunmuyor.",
     "assignedStudents": "Atanan Öğrenciler",
-    "noStudents": "Bu sınava atanan öğrenci yok.",
     "finishExam": "Sınavı Bitir",
     "loadError": "Sınav yüklenirken bir hata oluştu",
     "confirmDelete": "Sınavı Sil",
     "confirmDeleteMessage": "{examName} sınavını silmek istediğinizden emin misiniz?",
-    "deleteError": "Sınav silinemedi",
     "confirmFinish": "Sınavı bitirmek istediğinize emin misiniz?",
-    "finishError": "Sınav bitirilemedi"
+    "examResults": "Sınav Sonuçları",
+    "noResults": "Henüz sonuç bulunmuyor",
+    "completed": "Tamamlandı",
+    "inProgress": "Devam Ediyor",
+    "notStarted": "Başlamadı",
+    "noStudents": "Atanmış öğrenci bulunmuyor",
+    "deleteError": "Sınav silinemedi",
+    "finishError": "Sınav bitirilemedi",
+    "upcoming": "Yaklaşan",
+    "active": "Aktif",
+    "draft": "Taslak"
+  },
+  "examEdit": {
+    "title": "Sınavı Düzenle",
+    "subtitle": "Sınav bilgilerini güncelleyin",
+    "basicInfo": "Temel Bilgiler",
+    "saveBasicInfo": "Temel Bilgileri Kaydet"
   },
   "examCreate": {
     "title": "Yeni Sınav Oluştur",
@@ -335,6 +379,17 @@
     "stepQuestionSelectionDesc": "Sınav sorularını seçin",
     "stepStudentAssignment": "Öğrenci Ataması",
     "stepStudentAssignmentDesc": "Öğrencileri sınava atayın",
+    "saveAndContinue": "Kaydet ve Devam Et",
+    "loadingStudents": "Öğrenciler yükleniyor...",
+    "noStudents": "Öğrenci bulunamadı",
+    "noStudentsDesc": "Atanacak öğrenci bulunmuyor.",
+    "searchStudents": "Öğrenci ara",
+    "studentsSelected": "öğrenci seçildi",
+    "studentName": "Öğrenci Adı",
+    "studentEmail": "E-posta",
+    "questionText": "Soru Metni",
+    "type": "Tip",
+    "difficulty": "Zorluk",
     "examInfo": "Sınav Bilgileri",
     "examName": "Sınav Adı",
     "examNamePlaceholder": "Sınav adını girin",
@@ -361,7 +416,13 @@
     "noStudentsDesc": "Henüz öğrenci kaydı bulunmuyor.",
     "searchStudents": "Öğrenci ara...",
     "studentsSelected": "öğrenci seçildi",
-    "createExam": "Sınavı Oluştur"
+    "createExam": "Sınavı Oluştur",
+    "validation": {
+      "allFieldsRequired": "Lütfen tüm zorunlu alanları doldurun",
+      "endTimeAfterStart": "Bitiş zamanı başlangıç zamanından sonra olmalıdır",
+      "selectQuestions": "Lütfen en az bir soru seçin",
+      "exactQuestionCount": "Tam olarak {count} soru seçmelisiniz"
+    }
   },
   "studentAnswers": {
     "titleSuffix": "Cevaplar ve Puanlama",

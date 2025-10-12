@@ -10,7 +10,7 @@
       </div>
     </div>
     
-    <div v-if="loadingQuestions" class="loading">Sorular yükleniyor...</div>
+    <div v-if="loadingQuestions" class="loading">{{ t('common.loading') }}</div>
     <div v-else-if="errorQuestions" class="error">{{ errorQuestions }}</div>
     <div v-else>
       <DataTable
@@ -76,13 +76,13 @@
     <Modal 
       :modelValue="showAddModal" 
       @update:modelValue="handleAddModalUpdate" 
-      title="Yeni Soru Ekle"
+      :title="t('questionBank.addQuestion')"
       :fullscreen="true"
       class="fullscreen-modal"
     >
       <template #header>
         <div class="modal-header-content">
-          <h3 class="modal-title">Yeni Soru Ekle</h3>
+          <h3 class="modal-title">{{ t('questionBank.addQuestion') }}</h3>
           <div class="modal-header-actions">
             <Button 
               styleType="primary" 
@@ -104,13 +104,13 @@
     <Modal 
       :modelValue="showEditModal" 
       @update:modelValue="handleEditModalUpdate" 
-      title="Soruyu Düzenle"
+      :title="t('questionBank.editQuestion')"
       :fullscreen="true"
       class="fullscreen-modal"
     >
       <template #header>
         <div class="modal-header-content">
-          <h3 class="modal-title">Soruyu Düzenle</h3>
+          <h3 class="modal-title">{{ t('questionBank.editQuestion') }}</h3>
           <div class="modal-header-actions">
             <Button 
               styleType="primary" 
@@ -413,23 +413,52 @@ const formatDate = (dateString: string) => {
   display: inline-block;
   
   &.multiple_select {
-    background-color: #dbeafe;
-    color: #1e40af;
+    background-color: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.2);
   }
   
   &.true_false {
-    background-color: #dcfce7;
+    background-color: rgba(34, 197, 94, 0.1);
     color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.2);
   }
   
   &.open_ended {
-    background-color: #fed7aa;
+    background-color: rgba(251, 146, 60, 0.1);
     color: #ea580c;
+    border: 1px solid rgba(251, 146, 60, 0.2);
   }
   
   &.single_choice {
-    background-color: #e0e7ff;
-    color: #5b21b6;
+    background-color: rgba(139, 92, 246, 0.1);
+    color: #7c3aed;
+    border: 1px solid rgba(139, 92, 246, 0.2);
+  }
+}
+
+/* Dark mode adjustments for question type badges */
+[data-theme="dark"] {
+  .question-type-badge {
+    &.multiple_select {
+      background-color: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+    }
+    
+    &.true_false {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+    
+    &.open_ended {
+      background-color: rgba(251, 146, 60, 0.15);
+      color: #fb923c;
+    }
+    
+    &.single_choice {
+      background-color: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+    }
   }
 }
 
@@ -441,18 +470,41 @@ const formatDate = (dateString: string) => {
   display: inline-block;
   
   &.easy {
-    background-color: #dcfce7;
-    color: #15803d;
+    background-color: rgba(34, 197, 94, 0.1);
+    color: #16a34a;
+    border: 1px solid rgba(34, 197, 94, 0.2);
   }
   
   &.medium {
-    background-color: #fef3c7;
+    background-color: rgba(251, 146, 60, 0.1);
     color: #d97706;
+    border: 1px solid rgba(251, 146, 60, 0.2);
   }
   
   &.hard {
-    background-color: #fee2e2;
+    background-color: rgba(239, 68, 68, 0.1);
     color: #dc2626;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+}
+
+/* Dark mode adjustments for badges */
+[data-theme="dark"] {
+  .difficulty-badge {
+    &.easy {
+      background-color: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+    }
+    
+    &.medium {
+      background-color: rgba(251, 146, 60, 0.15);
+      color: #fb923c;
+    }
+    
+    &.hard {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+    }
   }
 }
 
@@ -481,7 +533,7 @@ const formatDate = (dateString: string) => {
   }
   
   &:hover {
-    background: #f3f4f6;
+    background: var(--bg-secondary);
   }
 }
 
@@ -495,19 +547,19 @@ const formatDate = (dateString: string) => {
     
     .material-symbols-outlined {
       font-size: 48px;
-      color: #d1d5db;
+      color: var(--text-tertiary);
     }
   }
   
   h3 {
     font-size: 18px;
     font-weight: 600;
-    color: #374151;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
   }
   
   p {
-    color: #6b7280;
+    color: var(--text-secondary);
     margin: 0 0 24px 0;
   }
 }
@@ -515,7 +567,7 @@ const formatDate = (dateString: string) => {
 .fullscreen-content {
   height: 100%;
   padding: 24px;
-  background: #f9fafb;
+  background: var(--bg-secondary);
   overflow-y: auto;
 }
 
@@ -524,6 +576,15 @@ const formatDate = (dateString: string) => {
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
 }
 
 .modal-header-actions {
@@ -533,23 +594,67 @@ const formatDate = (dateString: string) => {
 }
 
 .modal-close {
-  background: none;
-  border: none;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
   font-size: 1.5rem;
   cursor: pointer;
   padding: 0;
-  color: #666;
+  color: var(--text-secondary);
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+    border-color: var(--border-primary);
+  }
 }
 
-.modal-close:hover {
-  color: #333;
-  background-color: #f5f5f5;
+/* Fullscreen Modal Styles */
+:deep(.fullscreen-modal) {
+  .modal-backdrop {
+    background: rgba(0, 0, 0, 0.7);
+  }
+
+  .modal-content {
+    background: var(--bg-primary);
+    border: 1px solid var(--border-secondary);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+
+  .modal-header {
+    background: var(--bg-primary);
+    border-bottom: 1px solid var(--border-secondary);
+    padding: 20px 24px;
+  }
+
+  .modal-body {
+    background: var(--bg-secondary);
+    padding: 0;
+  }
 }
+
+/* Dark mode specific adjustments */
+[data-theme="dark"] {
+  .fullscreen-content {
+    background: var(--bg-tertiary);
+  }
+
+  :deep(.fullscreen-modal) {
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
 </style>
 

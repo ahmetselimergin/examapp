@@ -1,62 +1,145 @@
 <template>
-<form @submit.prevent="handleSubmit" class="question-form">
-     <div class="form-row">
+  <div class="question-form-container">
+    <form @submit.prevent="handleSubmit" class="question-form">
+      <!-- Basic Information Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">quiz</span>
+          {{ t('questionBank.questionText') }}
+        </h3>
+        <div class="form-group">
           <Input 
-               :label="t('questionBank.questionText')" 
-               v-model="question.text" 
-               :placeholder="t('questionBank.questionText')"
+            :label="t('questionBank.questionText')" 
+            v-model="question.text" 
+            :placeholder="t('questionBank.questionText')"
+            size="large"
           />
-     </div>
-     <div class="form-row">
-          <Select size="medium" :label="t('questionBank.questionType')" v-model="question.type" :options="questionTypes" :placeholder="t('questionBank.questionType')"></Select>
+        </div>
+      </div>
 
-          <Select size="medium" :label="t('questionBank.difficulty')" v-model="question.difficulty" :options="difficultyOptions" :placeholder="t('questionBank.difficulty')"></Select>
-
-     </div>
-
-     <!-- Çoktan seçmeli için şıklar -->
-     <div v-if="question.type === 'single_choice' || question.type === 'multiple_select'" class="options-section">
-          <div class="flex flex-row space-end align-center w-full my-2">
-               <Button type="button" styleType="primary" size="small" @click="addOption" icon="add">
-                    {{ t('questionBank.addOption') }}
-               </Button>
-          </div>
-          <div v-for="(option, idx) in question.options" :key="idx" class="option-row">
-               <span v-if="question.type === 'single_choice'">
-                    <input type="radio" :name="'correct-answer'" :value="String(idx)" v-model="question.correctAnswers" :disabled="!option" />
-               </span>
-               <span v-else-if="question.type === 'multiple_select'">
-                    <input type="checkbox" :value="String(idx)" v-model="question.correctAnswers" :disabled="!option" />
-               </span>
-               <input v-model="question.options[idx]" :placeholder="t('questionBank.option')" class="option-input" />
-               <button type="button" class="remove-option-btn" @click="removeOption(idx)">
-                   
-                    <span class="material-symbols-outlined">delete</span>
-               </button>
-          </div>
-     </div>
-
-     <!-- Doğru/Yanlış için -->
-     <div v-if="question.type === 'true_false'" class="form-row">
+      <!-- Question Configuration Section -->
+      <div class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">settings</span>
+          {{ t('questionBank.configuration') }}
+        </h3>
+        <div class="form-row">
           <Select 
-               size="medium" 
-               :label="t('questionBank.correctAnswer')" 
-               v-model="question.correctAnswers" 
-               :options="trueFalseOptions" 
-               :placeholder="t('questionBank.correctAnswer')"
+            size="large" 
+            :label="t('questionBank.questionType')" 
+            v-model="question.type" 
+            :options="questionTypes" 
+            :placeholder="t('questionBank.questionType')"
           />
-     </div>
+          <Select 
+            size="large" 
+            :label="t('questionBank.difficulty')" 
+            v-model="question.difficulty" 
+            :options="difficultyOptions" 
+            :placeholder="t('questionBank.difficulty')"
+          />
+        </div>
+      </div>
 
-     <!-- Açık Uçlu için sadece doğru cevap -->
-     <div v-if="['open_ended'].includes(question.type)" class="form-row">
+      <!-- Multiple Choice Options Section -->
+      <div v-if="question.type === 'single_choice' || question.type === 'multiple_select'" class="form-section options-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <span class="material-symbols-outlined">list</span>
+            {{ t('questionBank.options') }}
+          </h3>
+          <Button 
+            type="button" 
+            styleType="primary" 
+            size="medium" 
+            @click="addOption" 
+            icon="add"
+            :text="t('questionBank.addOption')"
+          />
+        </div>
+        
+        <div class="options-list">
+          <div v-for="(option, idx) in question.options" :key="idx" class="option-card">
+            <div class="option-marker">
+              <span class="option-letter">{{ String.fromCharCode(65 + idx) }}</span>
+            </div>
+            <div class="option-content">
+              <input 
+                v-model="question.options[idx]" 
+                :placeholder="`${t('questionBank.option')} ${String.fromCharCode(65 + idx)}`" 
+                class="option-input" 
+              />
+            </div>
+            <div class="option-controls">
+              <div class="correct-answer-control">
+                <input 
+                  v-if="question.type === 'single_choice'"
+                  type="radio" 
+                  :name="'correct-answer'" 
+                  :value="String(idx)" 
+                  v-model="question.correctAnswers" 
+                  :disabled="!option"
+                  class="correct-radio"
+                />
+                <input 
+                  v-else-if="question.type === 'multiple_select'"
+                  type="checkbox" 
+                  :value="String(idx)" 
+                  v-model="question.correctAnswers" 
+                  :disabled="!option"
+                  class="correct-checkbox"
+                />
+                <label class="correct-label">
+                  {{ question.type === 'single_choice' ? t('questionBank.correctAnswer') : t('questionBank.correct') }}
+                </label>
+              </div>
+              <button 
+                type="button" 
+                class="remove-option-btn" 
+                @click="removeOption(idx)"
+                :disabled="question.options.length <= 2"
+              >
+                <span class="material-symbols-outlined">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- True/False Section -->
+      <div v-if="question.type === 'true_false'" class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">check_circle</span>
+          {{ t('questionBank.correctAnswer') }}
+        </h3>
+        <div class="form-group">
+          <Select 
+            size="large" 
+            :label="t('questionBank.correctAnswer')" 
+            v-model="question.correctAnswers" 
+            :options="trueFalseOptions" 
+            :placeholder="t('questionBank.correctAnswer')"
+          />
+        </div>
+      </div>
+
+      <!-- Open Ended Section -->
+      <div v-if="['open_ended'].includes(question.type)" class="form-section">
+        <h3 class="section-title">
+          <span class="material-symbols-outlined">edit_note</span>
+          {{ t('questionBank.correctAnswer') }}
+        </h3>
+        <div class="form-group">
           <Input 
-               :label="t('questionBank.correctAnswer')" 
-               v-model="question.correctAnswers" 
-               :placeholder="t('questionBank.correctAnswer')"
+            :label="t('questionBank.correctAnswer')" 
+            v-model="question.correctAnswers" 
+            :placeholder="t('questionBank.correctAnswer')"
+            size="large"
           />
-     </div>
-
-</form>
+        </div>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script setup>
@@ -219,7 +302,7 @@ const removeOption = (idx) => {
 const handleSubmit = () => {
      // Validation: Check if question text is provided
      if (!question.value.text || question.value.text.trim() === '') {
-          showError('Lütfen soru metnini giriniz!');
+          showError(t('questionBank.validation.questionTextRequired'));
           return;
      }
      
@@ -227,12 +310,12 @@ const handleSubmit = () => {
      if (['single_choice', 'multiple_select'].includes(question.value.type)) {
           if (question.value.type === 'single_choice') {
                if (question.value.correctAnswers === '' || question.value.correctAnswers === null || question.value.correctAnswers === undefined) {
-                    showError('Lütfen doğru şıkkı seçiniz!');
+                    showError(t('questionBank.validation.correctAnswerRequired'));
                     return;
                }
           } else if (question.value.type === 'multiple_select') {
                if (!Array.isArray(question.value.correctAnswers) || question.value.correctAnswers.length === 0) {
-                    showError('Lütfen en az bir doğru şık seçiniz!');
+                    showError(t('questionBank.validation.multipleCorrectRequired'));
                     return;
                }
           }
@@ -240,7 +323,7 @@ const handleSubmit = () => {
           // Check if all options are filled
           const emptyOptions = question.value.options.filter(opt => !opt || opt.trim() === '');
           if (emptyOptions.length > 0) {
-               showError('Lütfen tüm şıkları doldurunuz!');
+               showError(t('questionBank.validation.allOptionsRequired'));
                return;
           }
      }
@@ -248,7 +331,7 @@ const handleSubmit = () => {
      // Validation: Check if correct answer is provided for true/false questions
      if (question.value.type === 'true_false') {
           if (!question.value.correctAnswers || question.value.correctAnswers === '') {
-               showError('Lütfen doğru cevabı seçiniz!');
+               showError(t('questionBank.validation.correctAnswerRequired'));
                return;
           }
      }
@@ -256,7 +339,7 @@ const handleSubmit = () => {
      // Validation: Check if correct answer is provided for open-ended questions
      if (question.value.type === 'open_ended') {
           if (!question.value.correctAnswers || question.value.correctAnswers.trim() === '') {
-               showError('Lütfen doğru cevabı giriniz!');
+               showError(t('questionBank.validation.correctAnswerRequired'));
                return;
           }
      }
@@ -300,100 +383,290 @@ defineExpose({
 <style lang="scss" scoped>
 @import "../../assets/styles/_framework.scss";
 
+.question-form-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0;
+}
+
 .question-form {
-     max-width: 1200px;
-     margin: 0 auto;
-     padding: 20px;
-     background: white;
-     border-radius: 8px;
-     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.form-section {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    border-color: var(--border-primary);
+  }
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 20px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--border-secondary);
+
+  .material-symbols-outlined {
+    font-size: 22px;
+    color: #667eea;
+  }
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+
+  .section-title {
+    margin-bottom: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+  }
 }
 
 .form-row {
-     display: flex;
-     gap: 16px;
-     align-items: flex-start;
-     margin-bottom: 24px;
-     
-     &:first-child {
-          flex-direction: column;
-          align-items: stretch;
-     }
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: flex-start;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
-.difficulty-select {
-     display: flex;
-     flex-direction: column;
-     min-width: 180px;
+.form-group {
+  display: flex;
+  flex-direction: column;
 }
 
+/* Options Section */
 .options-section {
-     margin-bottom: 24px;
-     position: relative;
-     background: #f9fafb;
-     padding: 20px;
-     border-radius: 8px;
-     border: 1px solid #e5e7eb;
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
 }
 
-.options-label {
-     font-weight: 500;
-     font-size: 14px;
-     color: $darkgrey;
-     margin-bottom: 8px;
-     display: block;
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.add-option-btn {
-     position: absolute;
-     right: 0;
-     top: 0;
-     background: #1976d2;
-     color: #fff;
-     border: none;
-     border-radius: 4px;
-     padding: 4px 12px;
-     font-size: 14px;
-     cursor: pointer;
-     margin-bottom: 8px;
+.option-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-secondary);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: #667eea;
+    box-shadow: 0 2px 12px rgba(102, 126, 234, 0.1);
+  }
 }
 
-.option-row {
-     display: flex;
-     align-items: center;
-     gap: 12px;
-     margin-bottom: 12px;
-     padding: 12px;
-     background: white;
-     border-radius: 6px;
-     border: 1px solid #e5e7eb;
+.option-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.option-letter {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.option-content {
+  flex: 1;
 }
 
 .option-input {
-     flex: 1;
-     padding: 6px 10px;
-     border: 1px solid #ccc;
-     border-radius: 4px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid var(--border-secondary);
+  border-radius: 8px;
+  font-size: 16px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+.option-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.correct-answer-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+}
+
+.correct-radio,
+.correct-checkbox {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+}
+
+.correct-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin: 0;
+  cursor: pointer;
 }
 
 .remove-option-btn {
-     background: none;
-     border: none;
-     color: #e53935;
-     font-size: 18px;
-     cursor: pointer;
-     margin-left: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover:not(:disabled) {
+    background: #fecaca;
+    border-color: #f87171;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .material-symbols-outlined {
+    font-size: 20px;
+  }
 }
 
+/* Dark mode specific styles */
+[data-theme="dark"] {
+  .option-card {
+    background: var(--bg-secondary);
+    
+    &:hover {
+      background: var(--bg-primary);
+    }
+  }
 
-.save-btn {
-     background: #1976d2;
-     color: #fff;
-     border: none;
-     border-radius: 4px;
-     padding: 8px 24px;
-     font-size: 16px;
-     cursor: pointer;
-     margin-top: 16px;
+  .remove-option-btn {
+    background: rgba(220, 38, 38, 0.1);
+    border-color: rgba(220, 38, 38, 0.2);
+    
+    &:hover:not(:disabled) {
+      background: rgba(220, 38, 38, 0.2);
+      border-color: rgba(220, 38, 38, 0.3);
+    }
+  }
+
+  .correct-answer-control {
+    background: var(--bg-tertiary);
+    border-color: var(--border-tertiary);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .question-form-container {
+    padding: 0 16px;
+  }
+
+  .form-section {
+    padding: 20px;
+  }
+
+  .section-title {
+    font-size: 16px;
+    
+    .material-symbols-outlined {
+      font-size: 20px;
+    }
+  }
+
+  .option-card {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .option-marker {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .option-controls {
+    gap: 12px;
+  }
+
+  .remove-option-btn {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+@media (max-width: 480px) {
+  .option-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .option-controls {
+    justify-content: space-between;
+  }
+
+  .section-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
 }
 </style>
