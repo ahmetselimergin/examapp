@@ -47,57 +47,86 @@ defineProps<{
      .input-label {
           font-size: .875em;
           font-weight: 500;
-          color: $darkgrey;
+          color: var(--text-primary);
      }
 }
 
 .ui-input {
-     transition: border 0.2s;
+     transition: border 0.2s, background-color 0.2s, color 0.2s;
      width: 100%;
-     border: 1px solid #ddd;
-     border-radius: 5px;
-     background: #fff;
-     transition: border 0.2s;
-     padding: 0.5em;
-     font-size: 0.8em;
+     height: 40px;
+     border: 1px solid var(--border-secondary);
+     border-radius: 6px;
+     background: var(--bg-primary);
+     color: var(--text-primary);
+     padding: 0 10px;
+     font-size: 14px;
      font-family: inherit;
 
      &:focus {
-          border-color: $primary;
+          border-color: #667eea;
           outline: none;
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+     }
+     
+     &::placeholder {
+          color: var(--text-tertiary);
      }
 
      &.large {
           width: 100%;
-          padding: 1em .75em;
-          border: 3px solid #d7d7d7;
+          height: 48px;
+          padding: 0 14px;
+          border: 1px solid var(--border-secondary);
           border-radius: 8px;
-          font-size: 1em;
-          background: #fff;
+          font-size: 16px;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          
+          &:focus {
+               border-color: #667eea;
+               box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
      }
 
      &.small {
           width: 100%;
-          padding: 0.5em .75em;
-          border: 1px solid #d7d7d7;
-          border-radius: 5px;
-          font-size: 0.75em;
-          background: #fff;
+          height: 32px;
+          padding: 0 8px;
+          border: 1px solid var(--border-secondary);
+          border-radius: 4px;
+          font-size: 13px;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          
+          &:focus {
+               border-color: #667eea;
+               box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
      }
 
      &.medium {
           width: 100%;
-          padding: 0.7em .75em;
-          border: 1px solid #d7d7d7;
-          border-radius: 5px;
-          font-size: .875em;
-          background: #fff;
+          height: 40px;
+          padding: 0 10px;
+          border: 1px solid var(--border-secondary);
+          border-radius: 6px;
+          font-size: 14px;
+          background: var(--bg-primary);
+          color: var(--text-primary);
+          
+          &:focus {
+               border-color: #667eea;
+               box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+          }
      }
 }
 
 .ui-textarea {
      resize: vertical;
-     min-height: 100px;
+     min-height: 80px;
+     height: auto !important;
+     padding: 10px !important;
      font-family: inherit;
 }
 </style>

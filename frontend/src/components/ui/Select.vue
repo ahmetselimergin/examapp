@@ -50,10 +50,7 @@ defineEmits(['update:modelValue'])
 }
 .ui-select {
   width: 100%;
-  padding: 1em 2.5em 1em 1em;
-  border: 1px solid #ddd;
   border-radius: 5px;
-  background: #fff;
   transition: border 0.2s;
   &.small {
     padding: 0.5em;

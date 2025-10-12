@@ -2,7 +2,7 @@
   <div v-if="isOpen" class="confirmation-overlay" @click="handleOverlayClick">
     <div class="confirmation-modal" @click.stop>
       <div class="confirmation-header">
-        <h3 class="confirmation-title">{{ title }}</h3>
+        <h3 class="confirmation-title">{{ displayTitle }}</h3>
         <button class="close-button" @click="handleCancel">
           <span class="material-symbols-outlined">close</span>
         </button>
@@ -26,7 +26,7 @@
           @click="handleCancel"
           :disabled="loading"
         >
-          {{ cancelText }}
+          {{ displayCancelText }}
         </button>
         <button
           class="confirm-button"
@@ -35,7 +35,7 @@
           :disabled="loading"
         >
           <span v-if="loading" class="loading-spinner"></span>
-          {{ confirmText }}
+          {{ displayConfirmText }}
         </button>
       </div>
     </div>
@@ -44,6 +44,9 @@
 
 <script setup>
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+
+const { t } = useI18n();
 
 const props = defineProps({
   isOpen: {
@@ -52,7 +55,7 @@ const props = defineProps({
   },
   title: {
     type: String,
-    default: 'Onay Gerekli'
+    default: ''
   },
   message: {
     type: String,
@@ -64,11 +67,11 @@ const props = defineProps({
   },
   confirmText: {
     type: String,
-    default: 'Evet, Sil'
+    default: ''
   },
   cancelText: {
     type: String,
-    default: 'İptal'
+    default: ''
   },
   confirmStyle: {
     type: String,
@@ -94,6 +97,18 @@ const iconClass = computed(() => {
     'warning': 'warning-icon'
   };
   return classes[props.confirmStyle] || classes.danger;
+});
+
+const displayTitle = computed(() => {
+  return props.title || t('common.confirmRequired');
+});
+
+const displayConfirmText = computed(() => {
+  return props.confirmText || t('common.delete');
+});
+
+const displayCancelText = computed(() => {
+  return props.cancelText || t('common.cancel');
 });
 
 const handleConfirm = () => {

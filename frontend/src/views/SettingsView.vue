@@ -160,8 +160,155 @@
               styleType="danger"
               size="medium"
               icon="logout"
-              text="Çıkış Yap"
+              :text="$t('common.logout')"
             />
+          </div>
+        </div>
+      </div>
+
+      <!-- Backup and Restore Section (Only for Admins) -->
+      <div v-if="authStore.user?.role === 'admin'" class="settings-card">
+        <div class="card-header">
+          <div class="card-icon">
+            <span class="material-symbols-outlined">backup</span>
+          </div>
+          <div class="card-title">
+            <h3>{{ $t('settings.backup') }}</h3>
+            <p>{{ $t('settings.backupDescription') }}</p>
+          </div>
+        </div>
+        
+        <div class="card-content">
+          <!-- Backup Info -->
+          <div v-if="backupInfo" class="backup-info">
+            <div class="info-grid">
+              <div class="info-stat">
+                <span class="stat-number">{{ backupInfo.totalRecords.users }}</span>
+                <span class="stat-label">{{ $t('settings.totalUsers') }}</span>
+              </div>
+              <div class="info-stat">
+                <span class="stat-number">{{ backupInfo.totalRecords.questions }}</span>
+                <span class="stat-label">{{ $t('settings.totalQuestions') }}</span>
+              </div>
+              <div class="info-stat">
+                <span class="stat-number">{{ backupInfo.totalRecords.exams }}</span>
+                <span class="stat-label">{{ $t('settings.totalExams') }}</span>
+              </div>
+              <div class="info-stat">
+                <span class="stat-number">{{ backupInfo.totalRecords.studentAnswers }}</span>
+                <span class="stat-label">{{ $t('settings.totalAnswers') }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Export Section -->
+          <div class="backup-section">
+            <div class="section-header">
+              <h4>{{ $t('settings.exportData') }}</h4>
+              <p>{{ $t('settings.exportDescription') }}</p>
+            </div>
+            
+            <div class="export-options">
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="exportOptions.includePasswords" />
+                <span>{{ $t('settings.includePasswords') }}</span>
+              </label>
+              
+              <div v-if="exportOptions.includePasswords" class="export-warning">
+                <span class="material-symbols-outlined">warning</span>
+                <div>
+                  <strong>{{ $t('settings.passwordWarning') }}</strong>
+                  <br>
+                  <small>{{ $t('settings.defaultPassword') }}</small>
+                </div>
+              </div>
+            </div>
+            
+            <div class="action-buttons">
+              <Button 
+                @click="handleExport"
+                styleType="primary"
+                size="medium"
+                icon="download"
+                :text="$t('settings.exportData')"
+                :loading="exportLoading"
+                :disabled="exportLoading"
+              />
+            </div>
+          </div>
+
+          <!-- Import Section -->
+          <div class="backup-section">
+            <div class="section-header">
+              <h4>{{ $t('settings.importData') }}</h4>
+              <p>{{ $t('settings.importDescription') }}</p>
+            </div>
+            
+            <div class="import-controls">
+              <div class="file-input-wrapper">
+                <input 
+                  type="file" 
+                  ref="fileInput"
+                  @change="handleFileSelect"
+                  accept=".json"
+                  style="display: none"
+                />
+                <Button 
+                  @click="$refs.fileInput.click()"
+                  styleType="secondary"
+                  size="medium"
+                  icon="upload_file"
+                  :text="selectedFile ? selectedFile.name : $t('settings.selectFile')"
+                />
+              </div>
+              
+              <div v-if="selectedFile" class="import-options">
+                <div class="option-group">
+                  <h5 style="margin: 0 0 12px 0; color: var(--text-primary); font-size: 16px;">
+                    {{ $t('settings.importOptions') }}
+                  </h5>
+                  
+                  <label class="checkbox-label">
+                    <input type="checkbox" v-model="importOptions.clearExisting" />
+                    <div>
+                      <strong>{{ $t('settings.clearExisting') }}</strong>
+                      <br>
+                      <small style="color: var(--text-tertiary);">Mevcut tüm veriler silinecek</small>
+                    </div>
+                  </label>
+                  
+                  <label class="checkbox-label">
+                    <input type="checkbox" v-model="importOptions.skipExisting" />
+                    <div>
+                      <strong>{{ $t('settings.skipExisting') }}</strong>
+                      <br>
+                      <small style="color: var(--text-tertiary);">Aynı kayıtlar atlanacak</small>
+                    </div>
+                  </label>
+                </div>
+                
+                <div class="import-warning">
+                  <span class="material-symbols-outlined">warning</span>
+                  <div>
+                    <strong>{{ $t('settings.importWarning') }}</strong>
+                    <br>
+                    <small>Bu işlem geri alınamaz. Devam etmeden önce yedek aldığınızdan emin olun.</small>
+                  </div>
+                </div>
+                
+                <div class="action-buttons">
+                  <Button 
+                    @click="handleImport"
+                    styleType="warning"
+                    size="medium"
+                    icon="upload"
+                    :text="$t('settings.confirmImport')"
+                    :loading="importLoading"
+                    :disabled="importLoading || !selectedFile"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -190,7 +337,7 @@
             </div>
             <div class="info-item">
               <span class="info-label">{{ $t('settings.developer') }}</span>
-              <span class="info-value">Exam App Team</span>
+              <span class="info-value">{{ $t('settings.examAppTeam') }}</span>
             </div>
           </div>
         </div>
@@ -200,7 +347,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import { useI18n } from 'vue-i18n';
@@ -208,6 +355,7 @@ import { useToast } from '../composables/useToast';
 import { useTheme } from '../composables/useTheme';
 import LanguageSwitcher from '../components/LanguageSwitcher.vue';
 import Button from '../components/ui/Button.vue';
+import api from '../services/api';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -220,6 +368,21 @@ const {
   getThemeIcon, 
   getThemeLabel 
 } = useTheme();
+
+// Backup related refs
+const backupInfo = ref(null);
+const exportLoading = ref(false);
+const importLoading = ref(false);
+const selectedFile = ref(null);
+const fileInput = ref(null);
+const importOptions = ref({
+  clearExisting: false,
+  skipExisting: true
+});
+
+const exportOptions = ref({
+  includePasswords: false
+});
 
 const themeOptions = [
   { value: 'light', label: computed(() => t('settings.lightTheme')), icon: 'light_mode' },
@@ -248,15 +411,108 @@ const formatDate = (date) => {
 };
 
 const handlePasswordChange = () => {
-  showError('Şifre değiştirme özelliği henüz aktif değil');
+  showError(t('settings.passwordChangeNotAvailable'));
   // TODO: Implement password change functionality
 };
 
 const handleLogout = () => {
   authStore.logout();
-  showSuccess('Başarıyla çıkış yapıldı');
+  showSuccess(t('settings.logoutSuccess'));
   router.push('/login');
 };
+
+// Backup functions
+const loadBackupInfo = async () => {
+  if (authStore.user?.role !== 'admin') return;
+  
+  try {
+    const response = await api.get('/backup/info');
+    backupInfo.value = response.data;
+  } catch (error) {
+    console.error('Backup info loading error:', error);
+  }
+};
+
+const handleExport = async () => {
+  exportLoading.value = true;
+  try {
+    const params = new URLSearchParams();
+    if (exportOptions.value.includePasswords) {
+      params.append('includePasswords', 'true');
+    }
+    
+    const response = await api.get(`/backup/export?${params.toString()}`, {
+      responseType: 'blob'
+    });
+    
+    // Create download link
+    const blob = new Blob([response.data], { type: 'application/json' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `examapp-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    
+    showSuccess(t('settings.exportSuccess'));
+  } catch (error) {
+    console.error('Export error:', error);
+    showError(t('settings.exportError'));
+  } finally {
+    exportLoading.value = false;
+  }
+};
+
+const handleFileSelect = (event) => {
+  const file = event.target.files[0];
+  if (file && file.type === 'application/json') {
+    selectedFile.value = file;
+  } else {
+    showError(t('settings.selectValidJsonFile'));
+    selectedFile.value = null;
+  }
+};
+
+const handleImport = async () => {
+  if (!selectedFile.value) return;
+  
+  importLoading.value = true;
+  try {
+    const fileContent = await selectedFile.value.text();
+    const importData = JSON.parse(fileContent);
+    
+    const response = await api.post('/backup/import', {
+      data: importData.data,
+      options: importOptions.value
+    });
+    
+    showSuccess(t('settings.importSuccess'));
+    
+    // Reset form
+    selectedFile.value = null;
+    fileInput.value.value = '';
+    importOptions.value = {
+      clearExisting: false,
+      skipExisting: true
+    };
+    
+    // Reload backup info
+    await loadBackupInfo();
+    
+  } catch (error) {
+    console.error('Import error:', error);
+    showError(t('settings.importError'));
+  } finally {
+    importLoading.value = false;
+  }
+};
+
+// Load backup info on mount
+onMounted(() => {
+  loadBackupInfo();
+});
 </script>
 
 <style scoped lang="scss">
@@ -525,7 +781,7 @@ const handleLogout = () => {
   h4 {
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 8px 0;
   }
 }
@@ -594,6 +850,7 @@ const handleLogout = () => {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+  margin-top: 16px;
 }
 
 .system-info {
@@ -623,6 +880,189 @@ const handleLogout = () => {
   font-size: 14px;
   color: var(--text-primary);
   font-weight: 500;
+}
+
+// Backup & Restore Styles
+.backup-info {
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 20px;
+}
+
+.info-stat {
+  text-align: center;
+  padding: 16px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-secondary);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  .stat-number {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.backup-section {
+  padding: 24px 0;
+  border-top: 1px solid var(--border-primary);
+  
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+.section-header {
+  margin-bottom: 20px;
+  
+  h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    &::before {
+      content: '';
+      width: 4px;
+      height: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+  }
+  
+  p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.export-options {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-primary);
+}
+
+.import-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.file-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.import-options {
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.option-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--text-primary);
+  padding: 12px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--bg-tertiary);
+  }
+  
+  input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-secondary);
+    border-radius: 4px;
+    background: var(--bg-primary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    
+    &:checked {
+      background: #667eea;
+      border-color: #667eea;
+      position: relative;
+      
+      &::after {
+        content: '✓';
+        position: absolute;
+        top: -2px;
+        left: 2px;
+        color: white;
+        font-size: 12px;
+        font-weight: bold;
+      }
+    }
+  }
+}
+
+.import-warning, .export-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  color: #d97706;
+  font-size: 14px;
+  line-height: 1.5;
+  
+  .material-symbols-outlined {
+    font-size: 20px;
+    color: #f59e0b;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
 }
 
 @media (max-width: 768px) {

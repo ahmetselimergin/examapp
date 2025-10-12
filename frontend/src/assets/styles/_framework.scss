@@ -47,6 +47,57 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+// Global input styles for dark mode
+input, textarea, select {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-secondary);
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  
+  &:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+// Textarea specific styles
+textarea {
+  height: auto !important;
+  min-height: 80px;
+  padding: 10px !important;
+  resize: vertical;
+}
+
+// Select specific styles
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 10px center;
+  background-repeat: no-repeat;
+  background-size: 14px;
+  padding-right: 35px;
+}
+
+// Dark theme select arrow
+[data-theme="dark"] select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+}
+
+// Option elements for select dropdowns
+option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
 $primary: #001a41;
 $secondary: #c6c6c6;
 $white: #fff;

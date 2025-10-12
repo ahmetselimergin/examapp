@@ -344,7 +344,7 @@ const formatDate = (dateString: string) => {
   align-items: flex-start;
   margin-bottom: 20px;
   padding: 16px 20px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
@@ -353,7 +353,7 @@ const formatDate = (dateString: string) => {
   h2 {
     font-size: 20px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: var(--text-primary);
     margin: 0 0 6px 0;
   }
   

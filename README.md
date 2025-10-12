@@ -8,6 +8,8 @@ A comprehensive online exam management system built with modern web technologies
 - **User Management**: Control students and instructors
 - **System Administration**: Complete system oversight and configuration
 - **Role-Based Access Control**: Secure role-based permissions
+- **Data Export/Import**: Backup and restore system data
+- **Dark/Light Mode**: Theme customization for better user experience
 
 ### 👨‍🏫 Teacher Features
 - **Question Bank**: Create and manage different types of questions
@@ -19,6 +21,13 @@ A comprehensive online exam management system built with modern web technologies
 - **Exam Taking**: Interactive exam interface
 - **Results Viewing**: Access to exam results and performance
 - **User Profile**: Manage personal information
+- **Theme Preferences**: Choose between light, dark, or system theme
+
+### 🎨 UI/UX Features
+- **Responsive Design**: Works seamlessly on desktop and mobile devices
+- **Dark/Light Mode**: Automatic theme switching based on system preference
+- **Multi-language Support**: Turkish and English language options
+- **Modern Interface**: Clean and intuitive user interface with smooth animations
 
 ## 🛠️ Technologies Used
 
@@ -38,6 +47,7 @@ A comprehensive online exam management system built with modern web technologies
 - **Axios** - HTTP client
 - **SCSS** - Styling
 - **i18n** - Internationalization (Turkish & English)
+- **Theme System** - Dark/Light mode with system preference detection
 
 ## 🚀 Quick Start
 
@@ -181,6 +191,7 @@ The backend provides RESTful APIs for:
 - `/api/students` - Student operations
 - `/api/exams` - Exam management
 - `/api/questions` - Question bank
+- `/api/backup` - Data export/import operations (Admin only)
 
 ## 🔐 Authentication
 
@@ -193,6 +204,60 @@ The application supports multiple languages:
 - **English** (en)
 
 Language can be switched through the UI language selector.
+
+## 💾 Data Management
+
+### Export/Import Features (Admin Only)
+
+The application includes comprehensive data backup and restore functionality:
+
+#### **Data Export**
+- **Complete System Backup**: Export all users, questions, exams, and exam answers
+- **JSON Format**: Data exported in structured JSON format for easy handling
+- **Metadata Included**: Export includes timestamp and record counts
+- **Password Security Options**:
+  - **Default (Secure)**: Passwords excluded from export for security
+  - **Include Passwords**: Optional dangerous mode that includes encrypted passwords
+- **Flexible Export**: Choose what data to include based on security requirements
+
+#### **Data Import**
+- **Flexible Import Options**:
+  - **Clear Existing Data**: Remove all current data before import
+  - **Skip Existing Records**: Avoid duplicates by skipping existing entries
+- **Password Handling**:
+  - **Secure Default**: Users without passwords get default password `imported123`
+  - **Preserved Passwords**: If exported with passwords, original passwords are restored
+- **Validation**: Comprehensive data validation during import process
+- **Progress Tracking**: Real-time feedback on import progress
+- **Error Handling**: Detailed error reporting for failed imports
+
+#### **Usage**
+1. Navigate to **Settings** → **Backup and Restore** (Admin only)
+2. View current system statistics (users, questions, exams, answers)
+3. **Export**: Click "Export Data" to download backup file
+4. **Import**: Select JSON file, choose options, and confirm import
+
+⚠️ **Important**: Always backup your data before performing imports, especially with "Clear Existing Data" option.
+
+## 🎨 Theme System
+
+The application features a comprehensive dark/light mode system:
+
+### **Theme Options**
+- **Light Mode**: Clean, bright interface
+- **Dark Mode**: Easy on the eyes, perfect for low-light environments  
+- **Auto Mode**: Automatically follows system theme preference
+
+### **Features**
+- **Instant Switching**: Real-time theme changes without page reload
+- **Persistent Settings**: Theme preference saved in localStorage
+- **System Integration**: Respects operating system theme settings
+- **Comprehensive Coverage**: All components, modals, and pages support both themes
+
+### **Access**
+- Navigate to **Settings** → **Theme Settings**
+- Choose your preferred theme option
+- Changes apply immediately across the entire application
 
 ## 🤝 Contributing
 
@@ -214,4 +279,19 @@ If you encounter any issues during setup or usage, please check:
 3. Both backend and frontend servers are running
 4. Admin user has been created successfully
 
+### Common Issues
+- **Theme not applying**: Clear browser cache and localStorage
+- **Import fails**: Ensure JSON file is valid and from a compatible export
+- **Dark mode inconsistencies**: Check that all components use CSS variables
+
 For additional help, please create an issue in the repository.
+
+## 🔄 Recent Updates
+
+### Version 1.1.0 (Latest)
+- ✅ **Data Export/Import System**: Complete backup and restore functionality
+- ✅ **Dark/Light Mode**: Comprehensive theme system with auto-detection
+- ✅ **Modal Improvements**: All modals now support dark mode
+- ✅ **Enhanced Settings Page**: Centralized settings with theme and backup options
+- ✅ **Improved Accessibility**: Better contrast and readability in both themes
+- ✅ **Multi-language Support**: Full Turkish and English translations

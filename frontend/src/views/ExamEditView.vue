@@ -669,17 +669,16 @@ onMounted(() => {
 }
 
 .exam-edit-form {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-primary);
   overflow: hidden;
   padding: 0 12px;
 }
 
 .step-indicator {
   display: flex;
-  background: #f8fafc;
-  border-bottom: 1px solid #e2e8f0;
 }
 
 .step {
@@ -732,8 +731,68 @@ onMounted(() => {
 .step-panel h3 {
   font-size: 20px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 20px 0;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+    font-size: 14px;
+  }
+  
+  input, textarea, select {
+    width: 100%;
+    height: 40px;
+    padding: 0 10px;
+    border: 1px solid var(--border-secondary);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+    &:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+    
+    &::placeholder {
+      color: var(--text-tertiary);
+    }
+  }
+  
+  textarea {
+    height: auto;
+    min-height: 80px;
+    padding: 10px;
+    resize: vertical;
+  }
+  
+  select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 10px center;
+    background-repeat: no-repeat;
+    background-size: 14px;
+    padding-right: 35px;
+    
+    option {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+    }
+  }
+  
+  [data-theme="dark"] & select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23d1d5db' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  }
 }
 
 .step-actions {
@@ -742,6 +801,7 @@ onMounted(() => {
   justify-content: flex-end;
   margin-top: 30px;
   padding-top: 20px;
+  border-top: 1px solid var(--border-primary);
 }
 
 .questions-section, .students-section {
@@ -754,7 +814,7 @@ onMounted(() => {
     h4 {
       font-size: 16px;
       font-weight: 600;
-      color: #374151;
+      color: var(--text-primary);
       margin: 0;
     }
   }
@@ -782,13 +842,13 @@ onMounted(() => {
   th, td {
     padding: 12px;
     text-align: left;
-    border-bottom: 1px solid #e5e7eb;
+    border-bottom: 1px solid var(--border-secondary);
   }
   
   th {
-    background: #f9fafb;
+    background: var(--bg-secondary);
     font-weight: 600;
-    color: #374151;
+    color: var(--text-primary);
     font-size: 14px;
   }
   
@@ -802,11 +862,11 @@ onMounted(() => {
     transition: background-color 0.2s;
     
     &:hover {
-      background: #f9fafb;
+      background: var(--bg-secondary);
     }
     
     &.selected {
-      background: #eff6ff;
+      background: rgba(102, 126, 234, 0.1);
     }
   }
   
@@ -824,15 +884,11 @@ onMounted(() => {
   
   .question-text, .student-name {
     font-weight: 500;
-    color: #1f2937;
-  }
-  
-  .question-type, .question-difficulty {
-    text-align: center;
+    color: var(--text-primary);
   }
   
   .student-email {
-    color: #6b7280;
+    color: var(--text-secondary);
     font-size: 14px;
   }
 }
@@ -840,21 +896,22 @@ onMounted(() => {
 .page-header {
   margin-bottom: 30px;
   padding: 20px;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 8px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-primary);
 }
 
 .header-content h1 {
   font-size: 24px;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
 .header-content p {
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-secondary);
   margin: 0;
 }
 

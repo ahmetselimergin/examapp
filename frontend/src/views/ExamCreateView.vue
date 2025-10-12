@@ -1,19 +1,25 @@
 <template>
   <div class="exam-create-container">
-    <!-- Header -->
-    <div class="header">
-      <h2>Yeni Sınav Oluştur</h2>
+    <!-- Step Indicator -->
+    <div class="step-indicator-container">
       <div class="step-indicator">
         <div 
           v-for="(step, index) in steps" 
           :key="index"
-          :class="['step', { 
+          :class="['step-item', { 
             'active': currentStep === index + 1,
             'completed': currentStep > index + 1 
           }]"
         >
-          <div class="step-number">{{ index + 1 }}</div>
-          <div class="step-label">{{ step.label }}</div>
+          <div class="step-circle">
+            <span v-if="currentStep > index + 1" class="material-symbols-outlined check-icon">check</span>
+            <span v-else class="step-number">{{ index + 1 }}</span>
+          </div>
+          <div class="step-content">
+            <div class="step-title">{{ step.label }}</div>
+            <div class="step-description">{{ step.description }}</div>
+          </div>
+          <div v-if="index < steps.length - 1" class="step-connector" :class="{ 'completed': currentStep > index + 1 }"></div>
         </div>
       </div>
     </div>
@@ -21,24 +27,24 @@
     <!-- Step 1: Exam Basic Info -->
     <div v-if="currentStep === 1" class="step-content">
       <div class="form-card">
-        <h3>Sınav Bilgileri</h3>
+        <h3>{{ $t('examCreate.examInfo') }}</h3>
         <form @submit.prevent="handleStep1Submit" class="exam-form">
           <div class="form-group">
-            <label>Sınav Adı *</label>
+            <label>{{ $t('examCreate.examName') }} *</label>
             <input 
               v-model="examData.title" 
               type="text" 
-              placeholder="Sınav adını girin"
+              :placeholder="$t('examCreate.examNamePlaceholder')"
               required
               class="form-input"
             />
           </div>
           
           <div class="form-group">
-            <label>Açıklama</label>
+            <label>{{ $t('examCreate.description') }}</label>
             <textarea 
               v-model="examData.description" 
-              placeholder="Sınav açıklaması girin"
+              :placeholder="$t('examCreate.descriptionPlaceholder')"
               class="form-textarea"
               rows="3"
             ></textarea>
@@ -46,7 +52,7 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Başlangıç Zamanı *</label>
+              <label>{{ $t('examCreate.startTime') }} *</label>
               <input 
                 v-model="examData.startTime" 
                 type="datetime-local"
@@ -56,7 +62,7 @@
             </div>
             
             <div class="form-group">
-              <label>Bitiş Zamanı *</label>
+              <label>{{ $t('examCreate.endTime') }} *</label>
               <input 
                 v-model="examData.endTime" 
                 type="datetime-local"
@@ -68,24 +74,24 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>Sınav Süresi (Dakika) *</label>
+              <label>{{ $t('examCreate.duration') }} *</label>
               <input 
                 v-model="examData.duration" 
                 type="number"
                 min="1"
-                placeholder="60"
+                :placeholder="$t('examCreate.durationPlaceholder')"
                 required
                 class="form-input"
               />
             </div>
             
             <div class="form-group">
-              <label>Soru Sayısı *</label>
+              <label>{{ $t('examCreate.questionCount') }} *</label>
               <input 
                 v-model="examData.questionCount" 
                 type="number"
                 min="1"
-                placeholder="10"
+                :placeholder="$t('examCreate.questionCountPlaceholder')"
                 required
                 class="form-input"
               />
@@ -97,7 +103,7 @@
               type="submit" 
               styleType="primary" 
               size="medium" 
-              :text="'Devam Et'"
+              :text="$t('common.next')"
               :loading="loading"
             />
           </div>
@@ -108,15 +114,15 @@
     <!-- Step 2: Question Selection -->
     <div v-if="currentStep === 2" class="step-content">
       <div class="form-card">
-        <h3>Soru Seçimi</h3>
-        <div v-if="loadingQuestions" class="loading">Sorular yükleniyor...</div>
+        <h3>{{ $t('examCreate.questionSelection') }}</h3>
+        <div v-if="loadingQuestions" class="loading">{{ $t('examCreate.loadingQuestions') }}</div>
         <div v-else-if="errorQuestions" class="error">{{ errorQuestions }}</div>
         <div v-else>
           <div v-if="questions.length === 0" class="empty-state">
             <Empty 
               icon="quiz"
-              title="Soru bulunamadı"
-              description="Henüz soru eklenmemiş. Önce soru bankasına soru ekleyin."
+              :title="$t('examCreate.noQuestions')"
+              :description="$t('examCreate.noQuestionsDesc')"
               :show-action="false"
             />
           </div>
@@ -127,32 +133,32 @@
                 <input 
                   v-model="questionSearch" 
                   type="text" 
-                  placeholder="Soru ara..."
+                  :placeholder="$t('examCreate.searchQuestions')"
                   class="search-input"
                 />
                 <span class="material-symbols-outlined search-icon">search</span>
               </div>
               <div class="filter-group">
                 <select v-model="questionTypeFilter" class="filter-select">
-                  <option value="">Tüm Tipler</option>
-                  <option value="multiple-choice">Çoktan Seçmeli</option>
-                  <option value="true-false">Doğru/Yanlış</option>
-                  <option value="short-answer">Kısa Cevap</option>
+                  <option value="">{{ $t('examCreate.allTypes') }}</option>
+                  <option value="multiple-choice">{{ $t('questionBank.multipleChoice') }}</option>
+                  <option value="true-false">{{ $t('questionBank.trueFalse') }}</option>
+                  <option value="short-answer">{{ $t('questionBank.shortAnswer') }}</option>
                 </select>
                 <select v-model="difficultyFilter" class="filter-select">
-                  <option value="">Tüm Zorluklar</option>
-                  <option value="easy">Kolay</option>
-                  <option value="medium">Orta</option>
-                  <option value="hard">Zor</option>
+                  <option value="">{{ $t('examCreate.allDifficulties') }}</option>
+                  <option value="easy">{{ $t('questionBank.easy') }}</option>
+                  <option value="medium">{{ $t('questionBank.medium') }}</option>
+                  <option value="hard">{{ $t('questionBank.hard') }}</option>
                 </select>
               </div>
             </div>
             
             <!-- Question Count Info -->
             <div class="question-count-info">
-              <span class="selected-count">{{ selectedQuestions.length }} / {{ examData.questionCount }} soru seçildi</span>
+              <span class="selected-count">{{ selectedQuestions.length }} / {{ examData.questionCount }} {{ $t('examCreate.questionsSelected') }}</span>
               <span v-if="selectedQuestions.length > examData.questionCount" class="count-warning">
-                Maksimum {{ examData.questionCount }} soru seçebilirsiniz
+                {{ $t('examCreate.maxQuestionsWarning', { count: examData.questionCount }) }}
               </span>
             </div>
             
@@ -204,13 +210,13 @@
             @click="previousStep" 
             styleType="secondary" 
             size="medium" 
-            :text="'Geri'"
+            :text="$t('common.previous')"
           />
           <Button 
             @click="nextStep" 
             styleType="primary" 
             size="medium" 
-            :text="'Devam Et'"
+            :text="$t('common.next')"
             :disabled="selectedQuestions.length !== examData.questionCount"
           />
         </div>
@@ -220,15 +226,15 @@
     <!-- Step 3: Student Assignment -->
     <div v-if="currentStep === 3" class="step-content">
       <div class="form-card">
-        <h3>Öğrenci Ataması</h3>
-        <div v-if="loadingStudents" class="loading">Öğrenciler yükleniyor...</div>
+        <h3>{{ $t('examCreate.studentAssignment') }}</h3>
+        <div v-if="loadingStudents" class="loading">{{ $t('examCreate.loadingStudents') }}</div>
         <div v-else-if="errorStudents" class="error">{{ errorStudents }}</div>
         <div v-else>
           <div v-if="students.length === 0" class="empty-state">
             <Empty 
               icon="person_off"
-              title="Öğrenci bulunamadı"
-              description="Henüz öğrenci kaydı bulunmuyor."
+              :title="$t('examCreate.noStudents')"
+              :description="$t('examCreate.noStudentsDesc')"
               :show-action="false"
             />
           </div>
@@ -239,7 +245,7 @@
                 <input 
                   v-model="studentSearch" 
                   type="text" 
-                  placeholder="Öğrenci ara..."
+                  :placeholder="$t('examCreate.searchStudents')"
                   class="search-input"
                 />
                 <span class="material-symbols-outlined search-icon">search</span>
@@ -248,7 +254,7 @@
             
             <!-- Student Count Info -->
             <div class="student-count-info">
-              <span class="selected-count">{{ selectedStudents.length }} öğrenci seçildi</span>
+              <span class="selected-count">{{ selectedStudents.length }} {{ $t('examCreate.studentsSelected') }}</span>
             </div>
             
             <div class="students-table">
@@ -295,13 +301,13 @@
             @click="previousStep" 
             styleType="secondary" 
             size="medium" 
-            :text="'Geri'"
+            :text="$t('common.previous')"
           />
           <Button 
             @click="finishExamCreation" 
             styleType="primary" 
             size="medium" 
-            :text="'Sınavı Oluştur'"
+            :text="$t('examCreate.createExam')"
             :loading="creatingExam"
             :disabled="selectedStudents.length === 0"
           />
@@ -314,6 +320,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { useI18n } from 'vue-i18n';
 import api from '../services/api';
 import Button from '../components/ui/Button.vue';
 import Empty from '../components/ui/Empty.vue';
@@ -321,14 +328,24 @@ import DataTable from '../components/ui/DataTable.vue';
 import { useToast } from '../composables/useToast';
 import { useAuthStore } from '../stores/auth';
 
+const { t } = useI18n();
 const router = useRouter();
 const { showSuccess, showError } = useToast();
 const authStore = useAuthStore();
 
 const steps = [
-  { label: 'Sınav Bilgileri' },
-  { label: 'Soru Seçimi' },
-  { label: 'Öğrenci Ataması' }
+  { 
+    label: t('examCreate.stepExamInfo'),
+    description: t('examCreate.stepExamInfoDesc')
+  },
+  { 
+    label: t('examCreate.stepQuestionSelection'),
+    description: t('examCreate.stepQuestionSelectionDesc')
+  },
+  { 
+    label: t('examCreate.stepStudentAssignment'),
+    description: t('examCreate.stepStudentAssignmentDesc')
+  }
 ];
 
 const currentStep = ref(1);
@@ -366,15 +383,15 @@ const studentSearch = ref('');
 // Table columns
 const questionColumns = [
   { key: 'select', label: '', sortable: false, width: '50px' },
-  { key: 'text', label: 'Soru Metni', sortable: true },
-  { key: 'type', label: 'Tip', sortable: true, width: '120px' },
-  { key: 'difficulty', label: 'Zorluk', sortable: true, width: '100px' }
+  { key: 'text', label: t('questionBank.questionText'), sortable: true },
+  { key: 'type', label: t('questionBank.type'), sortable: true, width: '120px' },
+  { key: 'difficulty', label: t('questionBank.difficulty'), sortable: true, width: '100px' }
 ];
 
 const studentColumns = [
   { key: 'select', label: '', sortable: false, width: '50px' },
-  { key: 'name', label: 'Ad Soyad', sortable: true },
-  { key: 'email', label: 'E-posta', sortable: true }
+  { key: 'name', label: t('common.fullName'), sortable: true },
+  { key: 'email', label: t('common.email'), sortable: true }
 ];
 
 // Initialize form with default values
@@ -608,73 +625,177 @@ onMounted(() => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
+  min-height: 100vh;
 }
 
-.header {
-  margin-bottom: 30px;
+.page-header {
   text-align: center;
+  margin-bottom: 40px;
+  padding: 40px 20px;
+  background: var(--bg-primary);
+  border-radius: 16px;
+  border: 1px solid var(--border-primary);
+  box-shadow: var(--shadow-sm);
+  
+  .header-content {
+    h1 {
+      color: var(--text-primary);
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 0 12px 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      margin: 0;
+      opacity: 0.8;
+    }
+  }
+}
+
+.step-indicator-container {
+  margin-bottom: 40px;
+  padding: 0 20px;
 }
 
 .step-indicator {
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
+  align-items: flex-start;
+  gap: 0;
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
 }
 
-.step {
+.step-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  opacity: 0.5;
-  transition: opacity 0.3s ease;
-
+  flex: 1;
+  position: relative;
+  padding: 20px 10px;
+  transition: all 0.3s ease;
+  
   &.active {
-    opacity: 1;
+    .step-circle {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transform: scale(1.1);
+      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    }
+    
+    .step-title {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .step-description {
+      color: var(--text-secondary);
+    }
   }
-
+  
   &.completed {
-    opacity: 0.8;
+    .step-circle {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    
+    .step-title {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    
+    .step-description {
+      color: var(--text-secondary);
+    }
+    
+    .check-icon {
+      font-size: 18px;
+      font-weight: bold;
+    }
+  }
+  
+  &:not(.active):not(.completed) {
+    opacity: 0.6;
+    
+    .step-circle {
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      border: 2px solid var(--border-secondary);
+    }
+    
+    .step-title {
+      color: var(--text-tertiary);
+    }
+    
+    .step-description {
+      color: var(--text-tertiary);
+    }
   }
 }
 
-.step-number {
-  width: 40px;
-  height: 40px;
+.step-circle {
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background:transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: bold;
-  color: #fff;
-}
-
-.step.active .step-number {
-  background: transparent;
-  color: white;
-}
-
-.step.completed .step-number {
-  background: transparent;
-  color: white;
-}
-
-.step-label {
-  font-size: 14px;
-  color: #fff;
-  text-align: center;
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
 }
 
 .step-content {
-  animation: fadeIn 0.3s ease;
+  text-align: center;
+  
+  .step-title {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+  }
+  
+  .step-description {
+    font-size: 12px;
+    opacity: 0.8;
+    transition: all 0.3s ease;
+  }
 }
 
-@keyframes fadeIn {
+.step-connector {
+  position: absolute;
+  top: 45px;
+  left: 50%;
+  right: -50%;
+  height: 2px;
+  background: var(--border-secondary);
+  transition: all 0.3s ease;
+  z-index: 1;
+  
+  &.completed {
+    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+  }
+}
+
+.step-content {
+  animation: fadeInUp 0.5s ease;
+}
+
+@keyframes fadeInUp {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(20px);
   }
   to {
     opacity: 1;
@@ -683,18 +804,30 @@ onMounted(() => {
 }
 
 .form-card {
-  background: white;
+  background: var(--bg-primary);
   border-radius: 12px;
   padding: 30px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-primary);
+  
+  h3 {
+    color: var(--text-primary);
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
 }
 
-.exam-form {
-  max-width: 600px;
-}
 
 .form-group {
   margin-bottom: 20px;
+  
+  label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
 }
 
 .form-row {
@@ -707,21 +840,27 @@ onMounted(() => {
   display: block;
   margin-bottom: 8px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .form-input, .form-textarea {
   width: 100%;
   padding: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 14px;
   transition: border-color 0.2s ease;
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
   }
 }
 
@@ -740,12 +879,13 @@ onMounted(() => {
 .loading, .error {
   text-align: center;
   padding: 40px;
-  color: #666;
+  color: var(--text-secondary);
 }
 
 .error {
-  color: #ef4444;
-  background: #fef2f2;
+  color: #f44336;
+  background: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
   border-radius: 8px;
 }
 
@@ -768,9 +908,21 @@ onMounted(() => {
 .search-input {
   width: 100%;
   padding: 12px 40px 12px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-size: 14px;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
 }
 
 .search-icon {
@@ -778,7 +930,7 @@ onMounted(() => {
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #6b7280;
+  color: var(--text-tertiary);
   font-size: 20px;
 }
 
@@ -789,10 +941,22 @@ onMounted(() => {
 
 .filter-select {
   padding: 8px 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-secondary);
   border-radius: 6px;
   font-size: 14px;
-  background: white;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  option {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+  }
 }
 
 .question-count-info, .student-count-info {
@@ -801,26 +965,29 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 12px;
   padding: 8px 12px;
-  background: #f9fafb;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
   border-radius: 6px;
+  color: var(--text-primary);
 }
 
 .selected-count {
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
 }
 
 .count-warning {
   font-size: 12px;
-  color: #ef4444;
+  color: #f59e0b;
   font-weight: 500;
 }
 
 .questions-list, .students-list {
   max-height: 400px;
   overflow-y: auto;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-secondary);
   border-radius: 8px;
+  background: var(--bg-primary);
 }
 
 /* Selection Tables */
@@ -871,8 +1038,8 @@ onMounted(() => {
 }
 
 .question-row.selected, .student-row.selected {
-  background: #eff6ff;
-  border-left: 3px solid #3b82f6;
+  background: rgba(102, 126, 234, 0.1);
+  border-left: 3px solid #667eea;
 }
 
 .select-column {
@@ -903,14 +1070,14 @@ onMounted(() => {
   margin: 0;
   font-size: 14px;
   font-weight: 500;
-  color: #374151;
+  color: var(--text-primary);
   line-height: 1.4;
 }
 
 .student-email p {
   margin: 0;
   font-size: 13px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 .type-badge, .difficulty-badge {
@@ -922,10 +1089,11 @@ onMounted(() => {
 }
 
 .type-badge {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-secondary);
 }
+
 
 .difficulty-badge {
   &.easy {
@@ -946,17 +1114,17 @@ onMounted(() => {
   display: flex;
   align-items: center;
   padding: 16px;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid var(--border-secondary);
   cursor: pointer;
   transition: background-color 0.2s ease;
 
   &:hover {
-    background: #f9fafb;
+    background: var(--bg-secondary);
   }
 
   &.selected {
-    background: #eff6ff;
-    border-color: #3b82f6;
+    background: rgba(102, 126, 234, 0.1);
+    border-color: #667eea;
   }
 
   &:last-child {
@@ -975,7 +1143,7 @@ onMounted(() => {
 .question-content h4, .student-content h4 {
   margin: 0 0 4px 0;
   font-size: 16px;
-  color: #111827;
+  color: var(--text-primary);
 }
 
 .question-meta {
@@ -988,14 +1156,14 @@ onMounted(() => {
   font-size: 12px;
   padding: 2px 8px;
   border-radius: 4px;
-  background: #f3f4f6;
-  color: #6b7280;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
 }
 
 .student-content p {
   margin: 0;
   font-size: 14px;
-  color: #6b7280;
+  color: var(--text-secondary);
 }
 
 @media (max-width: 768px) {
@@ -1006,6 +1174,94 @@ onMounted(() => {
   .step-indicator {
     flex-direction: column;
     gap: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .exam-create-container {
+    padding: 16px;
+  }
+  
+  .page-header {
+    padding: 30px 20px;
+    margin-bottom: 30px;
+    
+    .header-content h1 {
+      font-size: 2rem;
+    }
+    
+    .header-content p {
+      font-size: 1rem;
+    }
+  }
+  
+  .step-indicator-container {
+    padding: 0 10px;
+    margin-bottom: 30px;
+  }
+  
+  .step-indicator {
+    flex-direction: column;
+    gap: 20px;
+    max-width: none;
+  }
+  
+  .step-item {
+    flex-direction: row;
+    text-align: left;
+    padding: 15px;
+    background: var(--bg-secondary);
+    border-radius: 12px;
+    border: 1px solid var(--border-primary);
+    
+    .step-circle {
+      margin-bottom: 0;
+      margin-right: 15px;
+      width: 40px;
+      height: 40px;
+      font-size: 14px;
+    }
+    
+    .step-content {
+      text-align: left;
+      flex: 1;
+      
+      .step-title {
+        font-size: 16px;
+        margin-bottom: 2px;
+      }
+      
+      .step-description {
+        font-size: 13px;
+      }
+    }
+  }
+  
+  .step-connector {
+    display: none;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  
+  .form-card {
+    padding: 20px;
+    border-radius: 10px;
+    
+    h3 {
+      font-size: 1.3rem;
+    }
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+    gap: 10px;
+    
+    .btn {
+      width: 100%;
+    }
   }
 }
 </style>

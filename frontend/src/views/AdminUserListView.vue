@@ -141,6 +141,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { useAuthStore } from '../stores/auth';
 import api from '../services/api';
 import Modal from '../components/ui/Modal.vue';
@@ -152,6 +153,7 @@ import Select from '../components/ui/Select.vue';
 import DataTable from '../components/ui/DataTable.vue';
 import { useToast } from '../composables/useToast';
 
+const { t } = useI18n();
 const authStore = useAuthStore();
 const { showSuccess, showError } = useToast();
 
@@ -202,23 +204,23 @@ const roleFormOptions = ref([
 const columns = ref([
   {
     key: 'name',
-    label: 'Ad Soyad',
+    label: t('common.fullName'),
     sortable: true
   },
   {
     key: 'email',
-    label: 'E-posta',
+    label: t('common.email'),
     sortable: true
   },
   {
     key: 'role',
-    label: 'Rol',
+    label: t('common.role'),
     sortable: true,
     formatter: (value) => {
       const roleMap = {
-        'student': 'Öğrenci',
-        'teacher': 'Öğretmen',
-        'admin': 'Admin'
+        'student': t('user.student'),
+        'teacher': t('user.teacher'),
+        'admin': t('user.admin')
       };
       return roleMap[value] || value;
     }

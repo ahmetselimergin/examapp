@@ -37,6 +37,7 @@
                 :data="exams"
                 :columns="examColumns"
                 :loading="loading"
+                :actions="true"
                 :empty-icon="'quiz'"
                 :empty-title="'Sınav bulunamadı'"
                 :empty-description="'Henüz oluşturulmuş sınav bulunmuyor.'"
@@ -101,28 +102,23 @@
                   </div>
                 </template>
                 
-                <template #cell-actions="{ item }">
-                  {{ console.log('Rendering actions for item:', item) }}
-                  {{ console.log('Can edit:', canEditExam(item)) }}
-                  {{ console.log('Can delete:', canDeleteExam(item)) }}
-                  <div class="exam-actions">
-                    <Button
-                      v-if="canEditExam(item)"
-                      @click="editExam(item)"
-                      styleType="secondary"
-                      size="small"
-                      icon="edit"
-                      text="Düzenle"
-                    />
-                    <Button
-                      v-if="canDeleteExam(item)"
-                      @click="deleteExam(item)"
-                      styleType="danger"
-                      size="small"
-                      icon="delete"
-                      text="Sil"
-                    />
-                  </div>
+                <template #actions="{ item, closeMenu }">
+                  <button 
+                    v-if="canEditExam(item)"
+                    @click="editExam(item); closeMenu()" 
+                    class="action-btn"
+                  >
+                    <span class="material-symbols-outlined">edit</span>
+                    {{ t('common.edit') }}
+                  </button>
+                  <button 
+                    v-if="canDeleteExam(item)"
+                    @click="deleteExam(item); closeMenu()" 
+                    class="action-btn"
+                  >
+                    <span class="material-symbols-outlined">delete</span>
+                    {{ t('common.delete') }}
+                  </button>
                 </template>
               </DataTable>
             </div>
@@ -133,10 +129,10 @@
      <ConfirmationModal
        v-if="showDeleteModal"
        :isOpen="showDeleteModal"
-       :title="'Sınavı Sil'"
-       :message="`${examToDelete?.title} sınavını silmek istediğinizden emin misiniz?`"
-       :confirm-text="'Sil'"
-       :cancel-text="'İptal'"
+       :title="t('examDetail.confirmDelete')"
+       :message="t('examDetail.confirmDeleteMessage', { examName: examToDelete?.title })"
+       :confirm-text="t('common.delete')"
+       :cancel-text="t('common.cancel')"
        confirm-style="danger"
        @confirm="confirmDelete"
        @cancel="showDeleteModal = false"
@@ -154,25 +150,26 @@ import Empty from '../components/ui/Empty.vue';
 import DataTable from '../components/ui/DataTable.vue';
 import ConfirmationModal from '../components/ui/ConfirmationModal.vue';
 import { useToast } from '../composables/useToast';
+import { useI18n } from 'vue-i18n';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const { showSuccess, showError } = useToast();
+const { t } = useI18n();
 const exams = ref([]);
 const loading = ref(true);
 const error = ref('');
 
 // Table columns
 const examColumns = [
-  { key: 'title', label: 'Sınav Adı', sortable: true },
-  { key: 'status', label: 'Durum', sortable: true, width: '140px' },
-  { key: 'startTime', label: 'Başlangıç', sortable: true, width: '160px' },
-  { key: 'endTime', label: 'Bitiş', sortable: true, width: '160px' },
-  { key: 'duration', label: 'Süre', sortable: true, width: '100px' },
-  { key: 'questions', label: 'Soru', sortable: true, width: '80px' },
-  { key: 'students', label: 'Öğrenci', sortable: true, width: '100px' },
-  { key: 'creator', label: 'Oluşturan', sortable: true, width: '120px' },
-  { key: 'actions', label: 'İşlemler', sortable: false, width: '150px' }
+  { key: 'title', label: t('exams.examName'), sortable: true },
+  { key: 'status', label: t('exams.status'), sortable: true, width: '140px' },
+  { key: 'startTime', label: t('exams.startTime'), sortable: true, width: '160px' },
+  { key: 'endTime', label: t('exams.endTime'), sortable: true, width: '160px' },
+  { key: 'duration', label: t('exams.duration'), sortable: true, width: '100px' },
+  { key: 'questions', label: t('exams.questions'), sortable: true, width: '80px' },
+  { key: 'students', label: t('exams.students'), sortable: true, width: '100px' },
+  { key: 'creator', label: t('exams.creator'), sortable: true, width: '120px' }
 ];
 
 // Modal states
@@ -613,6 +610,30 @@ onMounted(async () => {
      opacity: 0.6;
      cursor: not-allowed;
      pointer-events: auto;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  font-size: 14px;
+  width: 100%;
+  text-align: left;
+
+  &:hover {
+    background: var(--bg-tertiary);
+  }
+
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
 }
 
 @media (max-width: 768px) {

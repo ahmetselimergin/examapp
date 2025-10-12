@@ -2,8 +2,8 @@
   <div class="students-container">
     <div class="page-header">
       <div class="header-content">
-        <h2>Öğrenci Listesi</h2>
-        <p>Öğrencileri yönetin ve düzenleyin</p>
+        <h2>{{ $t('students.title') }}</h2>
+        <p>{{ $t('students.description') }}</p>
       </div>
       <div class="header-actions">
         <Button 
@@ -12,7 +12,7 @@
           size="medium" 
           @click="handleAddStudent" 
           icon="add" 
-          text="Yeni Öğrenci" 
+          :text="$t('students.addStudent')" 
         />
       </div>
     </div>
@@ -20,11 +20,11 @@
     <DataTable
       :data="students"
       :columns="[
-        { key: 'name', label: 'Name', sortable: true },
-        { key: 'email', label: 'Email', sortable: true },
-        { key: 'teachers', label: 'Instructors' }
+        { key: 'name', label: $t('common.name'), sortable: true },
+        { key: 'email', label: $t('common.email'), sortable: true },
+        { key: 'teachers', label: $t('students.instructors') }
       ]"
-      title="Students"
+      :title="$t('students.title')"
       :selectable="true"
       :actions="true"
       :show-export="true"
@@ -45,20 +45,20 @@
       <template #cell-teachers="{ item }">
         <div class="teacher-badges">
           <span v-if="studentTeachers[item._id] && studentTeachers[item._id].length" class="teacher-count">
-            {{ studentTeachers[item._id].length }} instructor(s)
+            {{ studentTeachers[item._id].length }} {{ $t('students.instructorCount') }}
           </span>
-          <span v-else class="no-teacher">No instructor</span>
+          <span v-else class="no-teacher">{{ $t('students.noInstructor') }}</span>
         </div>
       </template>
       
       <template #actions="{ item, closeMenu }">
         <button @click="editStudent(item); closeMenu()" class="action-btn">
           <span class="material-symbols-outlined">edit</span>
-          Edit
+          {{ $t('common.edit') }}
         </button>
         <button @click="deleteStudent(item); closeMenu()" class="action-btn">
           <span class="material-symbols-outlined">delete</span>
-          Delete
+          {{ $t('common.delete') }}
         </button>
       </template>
       

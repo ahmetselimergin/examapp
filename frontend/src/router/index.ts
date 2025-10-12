@@ -8,7 +8,7 @@ import ExamDetailView from "../views/ExamDetailView.vue";
 import { useAuthStore } from "../stores/auth";
 import LoginView from "../views/LoginView.vue";
 import Student from "../views/Student.vue";
-import DashboardView from "../views/DashboardView.vue";
+import HomeView from "../views/HomeView.vue";
 
 interface RouteMeta {
   requiresAuth?: boolean;
@@ -58,7 +58,7 @@ const routes: CustomRouteRecordRaw[] = [
   {
     path: "/",
     name: "home",
-    component: DashboardView,
+    component: HomeView,
     meta: { requiresAuth: true },
   },
   {

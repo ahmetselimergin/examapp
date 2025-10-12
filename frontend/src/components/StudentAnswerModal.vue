@@ -1,18 +1,18 @@
 <template>
   <Modal
     :modelValue="showModal"
-    :title="student.name + ' - Cevaplar ve Puanlama'"
+    :title="student.name + ' - ' + $t('studentAnswers.titleSuffix')"
     @update:modelValue="handleModalUpdate"
     :showCloseButton="true"
     :closeOnOverlayClick="true"
   >
-    <div v-if="loading">Yükleniyor...</div>
+    <div v-if="loading">{{ $t('common.loading') }}</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
       <div v-if="answers && answers.length">
         <div v-for="(answer, idx) in answers" :key="idx" class="question-card-modal">
           <div class="question-header-modal">
-            <h3>Soru {{ idx + 1 }}</h3>
+            <h3>{{ $t('studentAnswers.question') }} {{ idx + 1 }}</h3>
             <span class="type-badge-modal">{{ getQuestionType(answer.type) }}</span>
           </div>
           <div class="question-text-modal">{{ answer.questionText }}</div>
@@ -20,16 +20,16 @@
           <div v-if="answer.type === 'true_false'" class="options-modal">
             <div :class="['option-modal', isSelected(answer, 'true') ? 'selected-option-modal' : '']">
               <span class="option-letter-modal">A.</span>
-              <span class="option-text-modal">Doğru</span>
+              <span class="option-text-modal">{{ $t('common.true') }}</span>
             </div>
             <div :class="['option-modal', isSelected(answer, 'false') ? 'selected-option-modal' : '']">
               <span class="option-letter-modal">B.</span>
-              <span class="option-text-modal">Yanlış</span>
+              <span class="option-text-modal">{{ $t('common.false') }}</span>
             </div>
           </div>
           <!-- OPEN ENDED -->
           <div v-else-if="answer.type === 'open_ended'">
-            <div class="student-answer-modal">Cevap: <span>{{ answer.response }}</span></div>
+            <div class="student-answer-modal">{{ $t('studentAnswers.answer') }}: <span>{{ answer.response }}</span></div>
           </div>
           <!-- OTHER TYPES -->
           <div v-else-if="answer.options && answer.options.length > 0" class="options-modal">
@@ -40,21 +40,21 @@
             </div>
           </div>
           <div class="question-meta-modal">
-            <span class="difficulty-badge-modal">Zorluk: {{ getDifficultyLabel(answer.difficulty) }}</span>
+            <span class="difficulty-badge-modal">{{ $t('studentAnswers.difficulty') }}: {{ getDifficultyLabel(answer.difficulty) }}</span>
           </div>
           <div class="score-section-modal">
-            <label>Puan:</label>
+            <label>{{ $t('studentAnswers.score') }}:</label>
             <input type="number" v-model.number="answer.score" min="0" max="100" />
           </div>
         </div>
       </div>
-      <div v-else>Bu öğrenciye ait cevap bulunamadı.</div>
+      <div v-else>{{ $t('studentAnswers.noAnswersFound') }}</div>
     </div>
     <template #footer>
       <div class="total-score-modal">
-        <b>Toplam Puan:</b> {{ totalScore }}
+        <b>{{ $t('studentAnswers.totalScore') }}:</b> {{ totalScore }}
       </div>
-      <button class="save-btn" @click="saveScores">Puanları Kaydet</button>
+      <button class="save-btn" @click="saveScores">{{ $t('studentAnswers.saveScores') }}</button>
     </template>
   </Modal>
 </template>
