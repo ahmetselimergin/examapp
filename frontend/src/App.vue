@@ -7,7 +7,7 @@ import Breadcrumb from './components/ui/Breadcrumb.vue'
 const route = useRoute()
 const authStore = useAuthStore()
 const hideNavbarOn = ['/login', '/register']
-const shouldShowNavbar = computed(() => !hideNavbarOn.includes(route.path))
+const shouldShowNavbar = computed(() => !hideNavbarOn.includes(route.path) && !route.meta?.hideSidebar)
 
 
 import { useI18n } from 'vue-i18n';
@@ -71,7 +71,7 @@ const toggleSidebar = () => {
     <main :class="['main-content', { 
       'with-sidebar': shouldShowNavbar,
       'sidebar-collapsed': isSidebarCollapsed && shouldShowNavbar,
-      'p-0': !authStore.isAuthenticated
+      'p-0': !authStore.isAuthenticated || route.meta?.hideSidebar
     }]">
       <Breadcrumb 
         v-if="!route.meta?.hideBreadcrumb" 
@@ -79,7 +79,7 @@ const toggleSidebar = () => {
         :items="breadcrumbItems" 
       />
       <div :class="['container-fluid', {
-        'p-0': !authStore.isAuthenticated
+        'p-0': !authStore.isAuthenticated || route.meta?.hideSidebar
       }]">
         <router-view></router-view>
       </div>

@@ -13,10 +13,6 @@
      </div>
     </button>
     <div v-if="isOpen" class="user-dropdown-menu">
-      <router-link to="/settings" class="dropdown-item settings-button" @click="isOpen = false">
-        <span class="material-symbols-outlined">settings</span>
-        <span class="dropdown-item-text">{{ t('common.settings') }}</span>
-      </router-link>
       <button @click="handleLogout" class="dropdown-item logout-button">
         <span class="material-symbols-outlined"> logout </span>
         <span class="dropdown-item-text">{{ t('common.logout') }}</span>

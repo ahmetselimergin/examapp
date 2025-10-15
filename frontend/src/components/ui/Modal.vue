@@ -26,31 +26,32 @@
 </Teleport>
 </template>
 
-<script setup>
-const props = defineProps({
-     modelValue: {
-          type: Boolean,
-          required: true
-     },
-     title: {
-          type: String,
-          default: ''
-     },
-     showCloseButton: {
-          type: Boolean,
-          default: true
-     },
-     closeOnOverlayClick: {
-          type: Boolean,
-          default: true
-     },
-     fullscreen: {
-          type: Boolean,
-          default: false
-     }
+<script setup lang="ts">
+interface Props {
+     modelValue: boolean
+     title?: string
+     showCloseButton?: boolean
+     closeOnOverlayClick?: boolean
+     fullscreen?: boolean
+}
+
+interface Slots {
+     default?: any
+     header?: any
+     footer?: any
+}
+
+const slots = defineSlots<Slots>()
+const props = withDefaults(defineProps<Props>(), {
+     title: '',
+     showCloseButton: true,
+     closeOnOverlayClick: true,
+     fullscreen: false
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+     'update:modelValue': [value: boolean]
+}>()
 
 const close = () => {
      emit('update:modelValue', false)

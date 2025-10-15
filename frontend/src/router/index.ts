@@ -14,6 +14,7 @@ interface RouteMeta {
   requiresAuth?: boolean;
   allowedRoles?: string[];
   hideBreadcrumb?: boolean;
+  hideSidebar?: boolean;
 }
 
 type CustomRouteRecordRaw = RouteRecordRaw & {
@@ -48,7 +49,13 @@ const routes: CustomRouteRecordRaw[] = [
     path: "/exams/:id/student",
     name: "exam-student",
     component: () => import("../views/ExamStudentView.vue"),
-    meta: { requiresAuth: true, allowedRoles: ["student"] },
+    meta: { requiresAuth: true, allowedRoles: ["student"], hideBreadcrumb: true, hideSidebar: true },
+  },
+  {
+    path: "/exams/:id/take",
+    name: "examTaking",
+    component: () => import("../views/ExamTakingView.vue"),
+    meta: { requiresAuth: true, allowedRoles: ["student"], hideBreadcrumb: true, hideSidebar: true },
   },
   {
     path: "/admin/users",
