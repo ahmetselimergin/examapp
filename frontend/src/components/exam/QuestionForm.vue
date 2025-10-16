@@ -216,9 +216,37 @@ const defaultQuestion = {
      difficulty: 'easy',
 };
 
+// Initialize question with correct correctAnswers format
+const initializeCorrectAnswersFormat = (type) => {
+     if (type === 'multiple_select') {
+          return [];
+     } else {
+          return '';
+     }
+};
+
 const question = ref({
-     ...defaultQuestion
+     ...defaultQuestion,
+     correctAnswers: initializeCorrectAnswersFormat(defaultQuestion.type)
 });
+
+// Watch for question type changes to reset correctAnswers
+watch(
+     () => question.value.type,
+     (newType, oldType) => {
+          if (newType !== oldType) {
+               // Reset correctAnswers based on question type
+               question.value.correctAnswers = initializeCorrectAnswersFormat(newType);
+
+               // Adjust options array for choice questions
+               if (['single_choice', 'multiple_select'].includes(newType)) {
+                    if (question.value.options.length < 2) {
+                         question.value.options = ['', ''];
+                    }
+               }
+          }
+     }
+);
 
 // Eğer initialQuestion gelirse formu doldur
 watch(
@@ -287,15 +315,17 @@ const addOption = () => {
 };
 const removeOption = (idx) => {
      question.value.options.splice(idx, 1);
-     // correctAnswers'dan da çıkar
+     // correctAnswers'dan da çıkar (string olarak karşılaştır)
+     const idxStr = String(idx);
      if (Array.isArray(question.value.correctAnswers)) {
-          question.value.correctAnswers = question.value.correctAnswers.filter(i => i !== idx);
-     } else if (typeof question.value.correctAnswers === 'number' && question.value.correctAnswers === idx) {
-          question.value.correctAnswers = null;
-     }
-     // Kalan indexleri güncelle (ör: [0,2,3] -> [0,1,2] gibi)
-     if (Array.isArray(question.value.correctAnswers)) {
-          question.value.correctAnswers = question.value.correctAnswers.map(i => i > idx ? i - 1 : i);
+          question.value.correctAnswers = question.value.correctAnswers.filter(i => i !== idxStr);
+          // Kalan indexleri güncelle (ör: ["0","2","3"] -> ["0","1","2"] gibi)
+          question.value.correctAnswers = question.value.correctAnswers.map(i => {
+               const numI = parseInt(i);
+               return numI > idx ? String(numI - 1) : i;
+          });
+     } else if (question.value.correctAnswers === idxStr) {
+          question.value.correctAnswers = '';
      }
 };
 
@@ -364,7 +394,6 @@ const handleSubmit = () => {
           _id
      }));
      
-     console.log("Kayıt edilecek soru:", payload);
      emit('save', payload);
      
      if (!props.initialQuestion) {

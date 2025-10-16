@@ -113,12 +113,30 @@
                 </div>
 
                 <div class="form-group">
-                  <label for="subject">{{ $t('exam.subject') }} *</label>
+                  <label for="questionCount">{{ $t('examCreate.questionCount') }} *</label>
                   <Input
-                    id="subject"
-                    v-model="formData.subject"
-                    :placeholder="$t('exam.subjectPlaceholder')"
-                    :error="errors.subject"
+                    id="questionCount"
+                    v-model="formData.questionCount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    :placeholder="$t('examCreate.questionCountPlaceholder')"
+                    :error="errors.questionCount"
+                  />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="attemptLimit">{{ $t('examCreate.attemptLimit') }} *</label>
+                  <Input
+                    id="attemptLimit"
+                    v-model="formData.attemptLimit"
+                    type="number"
+                    min="1"
+                    max="10"
+                    :placeholder="$t('examCreate.attemptLimitPlaceholder')"
+                    :error="errors.attemptLimit"
                   />
                 </div>
               </div>
@@ -163,6 +181,28 @@
               </div>
             </div>
 
+            <!-- Question Count Info -->
+            <div v-if="!loadingQuestions && !errorQuestions && questions.length > 0" class="question-count-info">
+              <span class="selected-count">{{ selectedQuestions.length }} / {{ formData.questionCount }} {{ $t('examCreate.questionsSelected') }}</span>
+              <div v-if="selectedQuestions.length > 0" class="points-info">
+                <span class="total-points" :class="{
+                  'points-warning': totalPoints !== 100,
+                  'points-success': totalPoints === 100
+                }">
+                  {{ $t('examCreate.totalPoints') }}: {{ totalPoints }}/100
+                </span>
+                <button 
+                  v-if="totalPoints !== 100 && selectedQuestions.length > 0"
+                  @click="distributePointsEvenly"
+                  class="distribute-btn"
+                  :title="$t('examCreate.distributeEvenly')"
+                >
+                  <span class="material-symbols-outlined">balance</span>
+                  {{ $t('examCreate.equalizePoints') }}
+                </button>
+              </div>
+            </div>
+
             <div v-if="loadingQuestions" class="loading-state">
               <div class="spinner"></div>
               <p>{{ $t('common.loading') }}</p>
@@ -183,6 +223,7 @@
                       <th>{{ $t('exam.questionText') }}</th>
                       <th>{{ $t('exam.type') }}</th>
                       <th>{{ $t('exam.difficulty') }}</th>
+                      <th>{{ $t('common.score') }}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -208,6 +249,19 @@
                       <td class="question-difficulty">
                         <StatusBadge :status="question.difficulty" type="question" />
                       </td>
+                      <td class="question-points">
+                        <input 
+                          v-if="selectedQuestions.includes(question._id)"
+                          type="number"
+                          :value="getQuestionPoints(question._id)"
+                          @input="updateQuestionPoints(question._id, $event)"
+                          min="1"
+                          max="100"
+                          class="points-input"
+                          placeholder="Puan"
+                        />
+                        <span v-else class="points-placeholder">-</span>
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -226,6 +280,7 @@
                 @click="nextStep"
                 :text="$t('common.next')"
                 styleType="primary"
+                :disabled="selectedQuestions.length !== formData.questionCount || totalPoints !== 100"
               />
             </div>
           </div>
@@ -305,6 +360,7 @@
                 :text="$t('common.save')"
                 styleType="primary"
                 :loading="saving"
+                :disabled="totalPoints !== 100"
               />
             </div>
           </div>
@@ -315,7 +371,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import api from '../services/api';
@@ -394,11 +450,11 @@ const tabs = computed(() => [
 const formData = ref({
   title: '',
   description: '',
-  subject: '',
   startTime: '',
   endTime: '',
   duration: 60,
-  questionCount: 0
+  questionCount: 0,
+  attemptLimit: 1
 });
 
 const errors = ref({});
@@ -406,6 +462,7 @@ const errors = ref({});
 // Questions
 const questions = ref([]);
 const selectedQuestions = ref([]);
+const questionPoints = ref({});
 const loadingQuestions = ref(false);
 const errorQuestions = ref('');
 const questionSearch = ref('');
@@ -492,16 +549,27 @@ const loadExam = async () => {
     formData.value = {
       title: exam.value.title || '',
       description: exam.value.description || '',
-      subject: exam.value.subject || '',
       startTime: formatDateTimeLocal(exam.value.startTime),
       endTime: formatDateTimeLocal(exam.value.endTime),
       duration: exam.value.duration || 60,
-      questionCount: exam.value.questionCount || 0
+      questionCount: exam.value.questionCount || 0,
+      attemptLimit: exam.value.attemptLimit || 1
     };
 
     // Mevcut soruları ve öğrencileri yükle
-    selectedQuestions.value = exam.value.questions?.map(q => q._id) || [];
+    selectedQuestions.value = exam.value.questions?.map(q => q.questionId || q._id) || [];
     selectedStudents.value = exam.value.assignedStudents?.map(s => s._id) || [];
+    
+    // Mevcut puanları yükle (yeni format)
+    if (exam.value.questions && exam.value.questions.length > 0) {
+      exam.value.questions.forEach(q => {
+        const questionId = q.questionId ? q.questionId._id || q.questionId : q._id;
+        questionPoints.value[questionId] = q.points || 10;
+      });
+    }
+    
+    // Load questions and students when exam data is ready
+    await Promise.all([loadQuestions(), loadStudents()]);
   } catch (err) {
     console.error('Load exam error:', err);
     error.value = err.response?.data?.message || t('exam.loadError');
@@ -519,6 +587,45 @@ const formatDateTimeLocal = (dateString) => {
   const hours = String(date.getHours()).padStart(2, '0');
   const minutes = String(date.getMinutes()).padStart(2, '0');
   return `${year}-${month}-${day}T${hours}:${minutes}`;
+};
+
+// Load questions from server
+const loadQuestions = async () => {
+  loadingQuestions.value = true;
+  errorQuestions.value = '';
+  try {
+    const response = await api.get('/questions');
+    questions.value = response.data;
+  } catch (error) {
+    console.error('Load questions error:', error);
+    errorQuestions.value = error?.response?.data?.message || 'Questions could not be loaded';
+  } finally {
+    loadingQuestions.value = false;
+  }
+};
+
+// Load students from server
+const loadStudents = async () => {
+  loadingStudents.value = true;
+  errorStudents.value = '';
+  try {
+    if (authStore.user?.role === 'admin') {
+      // Admin can see all students
+      const response = await api.get('/auth/admin/users');
+      students.value = response.data.filter((user) => user.role === 'student');
+    } else if (authStore.user?.role === 'teacher') {
+      // Teacher can only see assigned students
+      const response = await api.get(`/teachers/${authStore.user._id}/students`);
+      students.value = response.data;
+    } else {
+      students.value = [];
+    }
+  } catch (error) {
+    console.error('Load students error:', error);
+    errorStudents.value = error?.response?.data?.message || 'Students could not be loaded';
+  } finally {
+    loadingStudents.value = false;
+  }
 };
 
 const validateForm = () => {
@@ -553,24 +660,41 @@ const validateForm = () => {
     errors.value.questionCount = t('validation.required', { field: t('exam.questionCount') });
   }
   
+  if (!formData.value.attemptLimit || formData.value.attemptLimit < 1) {
+    errors.value.attemptLimit = t('validation.required', { field: t('examCreate.attemptLimit') });
+  }
+  
   return Object.keys(errors.value).length === 0;
 };
 
-// Step navigation
+// Tab navigation
 const nextStep = () => {
-  if (currentStep.value < 3) {
-    currentStep.value++;
-    if (currentStep.value === 2) {
-      loadQuestions();
-    } else if (currentStep.value === 3) {
-      loadStudents();
+  // Validate questions step
+  if (activeTab.value === 'questions') {
+    if (selectedQuestions.value.length !== formData.value.questionCount) {
+      showError(t('examCreate.validation.exactQuestionCount', { count: formData.value.questionCount }));
+      return;
     }
+    if (totalPoints.value !== 100) {
+      showError(t('examCreate.validation.totalPointsMust100', { current: totalPoints.value }));
+      return;
+    }
+  }
+  
+  // Navigate to next tab
+  if (activeTab.value === 'info') {
+    activeTab.value = 'questions';
+  } else if (activeTab.value === 'questions') {
+    activeTab.value = 'students';
   }
 };
 
 const previousStep = () => {
-  if (currentStep.value > 1) {
-    currentStep.value--;
+  // Navigate to previous tab
+  if (activeTab.value === 'students') {
+    activeTab.value = 'questions';
+  } else if (activeTab.value === 'questions') {
+    activeTab.value = 'info';
   }
 };
 
@@ -582,49 +706,21 @@ const handleStep1Submit = () => {
   nextStep();
 };
 
-// Load questions
-const loadQuestions = async () => {
-  loadingQuestions.value = true;
-  errorQuestions.value = '';
-  try {
-    const response = await api.get('/questions');
-    questions.value = response.data;
-  } catch (error) {
-    errorQuestions.value = t('exam.questionsLoadError');
-  } finally {
-    loadingQuestions.value = false;
-  }
-};
-
-// Load students
-const loadStudents = async () => {
-  loadingStudents.value = true;
-  errorStudents.value = '';
-  try {
-    if (authStore.user?.role === 'admin') {
-      const response = await api.get('/auth/admin/users');
-      students.value = response.data.filter((user) => user.role === 'student');
-    } else if (authStore.user?.role === 'teacher') {
-      const response = await api.get(`/teachers/${authStore.user._id}/students`);
-      students.value = response.data;
-    } else {
-      students.value = [];
-    }
-  } catch (error) {
-    errorStudents.value = t('exam.studentsLoadError');
-  } finally {
-    loadingStudents.value = false;
-  }
-};
-
 // Question selection
 const toggleQuestion = (questionId) => {
   const index = selectedQuestions.value.indexOf(questionId);
   if (index > -1) {
     selectedQuestions.value.splice(index, 1);
+    // Remove points when deselecting question
+    delete questionPoints.value[questionId];
   } else {
     if (selectedQuestions.value.length < formData.value.questionCount) {
       selectedQuestions.value.push(questionId);
+      // Set smart default points when selecting question
+      const remainingQuestions = formData.value.questionCount - selectedQuestions.value.length + 1;
+      const remainingPoints = 100 - Object.values(questionPoints.value).reduce((sum, points) => sum + points, 0);
+      const smartDefaultPoints = Math.max(1, Math.floor(remainingPoints / remainingQuestions));
+      questionPoints.value[questionId] = smartDefaultPoints;
     } else {
       showError(t('exam.maxQuestionsError', { count: formData.value.questionCount }));
     }
@@ -647,6 +743,36 @@ const toggleAllQuestions = () => {
       showError(t('exam.maxQuestionsError', { count: formData.value.questionCount }));
     }
   }
+};
+
+const getQuestionPoints = (questionId) => {
+  return questionPoints.value[questionId] || 10;
+};
+
+const updateQuestionPoints = (questionId, event) => {
+  const target = event.target;
+  const value = target?.value || '1';
+  const points = parseInt(value) || 1;
+  questionPoints.value[questionId] = Math.max(1, Math.min(100, points));
+};
+
+// Computed property to show total points
+const totalPoints = computed(() => {
+  return Object.values(questionPoints.value).reduce((sum, points) => sum + points, 0);
+});
+
+// Distribute 100 points evenly among selected questions
+const distributePointsEvenly = () => {
+  const numQuestions = selectedQuestions.value.length;
+  if (numQuestions === 0) return;
+  
+  const basePoints = Math.floor(100 / numQuestions);
+  const remainder = 100 % numQuestions;
+  
+  selectedQuestions.value.forEach((questionId, index) => {
+    // Give base points to all, plus 1 extra to first 'remainder' questions
+    questionPoints.value[questionId] = basePoints + (index < remainder ? 1 : 0);
+  });
 };
 
 // Student selection
@@ -674,6 +800,12 @@ const toggleAllStudents = () => {
 
 // Finish exam update
 const finishExamUpdate = async () => {
+  // Final validation
+  if (totalPoints.value !== 100) {
+    showError(t('examCreate.validation.totalPointsMust100', { current: totalPoints.value }));
+    return;
+  }
+  
   saving.value = true;
   try {
     // Update basic info
@@ -683,15 +815,19 @@ const finishExamUpdate = async () => {
       startTime: formData.value.startTime,
       endTime: formData.value.endTime,
       duration: parseInt(formData.value.duration),
-      questionCount: parseInt(formData.value.questionCount)
+      questionCount: parseInt(formData.value.questionCount),
+      attemptLimit: parseInt(formData.value.attemptLimit)
     };
     
     await api.put(`/exams/${route.params.id}`, updateData);
 
-    // Update questions
+    // Update questions with points
     if (selectedQuestions.value.length > 0) {
       await api.post(`/exams/${route.params.id}/add-questions`, {
-        questionIds: selectedQuestions.value
+        questionsWithPoints: selectedQuestions.value.map(questionId => ({
+          questionId: questionId,
+          points: questionPoints.value[questionId] || 10
+        }))
       });
     }
 
@@ -711,6 +847,15 @@ const finishExamUpdate = async () => {
     saving.value = false;
   }
 };
+
+// Watch activeTab changes to load data when needed
+watch(activeTab, (newTab) => {
+  if (newTab === 'questions' && questions.value.length === 0) {
+    loadQuestions();
+  } else if (newTab === 'students' && students.value.length === 0) {
+    loadStudents();
+  }
+});
 
 onMounted(() => {
   loadExam();
@@ -1317,5 +1462,100 @@ label {
   margin-top: 30px;
   padding-top: 20px;
   border-top: 1px solid #e5e7eb;
+}
+
+// Points UI Styles
+.question-count-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-secondary);
+  border-radius: 6px;
+  color: var(--text-primary);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.selected-count {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.points-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.total-points {
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  
+  &.points-success {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+  }
+  
+  &.points-warning {
+    color: #f59e0b;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+}
+
+.distribute-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--primary-500);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: var(--primary-600);
+    transform: translateY(-1px);
+  }
+  
+  .material-symbols-outlined {
+    font-size: 14px;
+  }
+}
+
+.selection-table {
+  .points-input {
+    width: 60px;
+    padding: 6px 8px;
+    border: 2px solid var(--border-primary);
+    border-radius: 4px;
+    font-size: 14px;
+    text-align: center;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    
+    &:focus {
+      outline: none;
+      border-color: var(--primary-500);
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
+    }
+  }
+  
+  .points-placeholder {
+    color: var(--text-tertiary);
+    font-size: 14px;
+  }
 }
 </style>

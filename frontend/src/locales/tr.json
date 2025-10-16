@@ -30,10 +30,13 @@
     "previous": "Geri",
     "create": "Oluştur",
     "update": "Güncelle",
-    "fullName": "Ad Soyad",
-    "email": "E-posta",
-    "role": "Rol",
-    "confirmRequired": "Onay Gerekli"
+    "confirmRequired": "Onay Gerekli",
+    "date": "Tarih",
+    "time": "Zaman",
+    "status": "Durum",
+    "student": "Öğrenci",
+    "saving": "Kaydediliyor...",
+    "score": "Puan"
   },
   "home": {
     "welcome": "Hoş Geldiniz",
@@ -308,7 +311,16 @@
     "examAppTeam": "Exam App Ekibi",
     "clearExistingDescription": "Mevcut tüm veriler silinecek",
     "skipExistingDescription": "Aynı kayıtlar atlanacak",
-    "importWarningExtended": "Bu işlem geri alınamaz. Devam etmeden önce yedek aldığınızdan emin olun."
+    "importWarningExtended": "Bu işlem geri alınamaz. Devam etmeden önce yedek aldığınızdan emin olun.",
+    "currentPassword": "Mevcut Şifre",
+    "newPassword": "Yeni Şifre",
+    "confirmNewPassword": "Yeni Şifreyi Onayla", 
+    "enterCurrentPassword": "Mevcut şifrenizi girin",
+    "enterNewPassword": "Yeni şifrenizi girin",
+    "updatePassword": "Şifreyi Güncelle",
+    "passwordMismatch": "Yeni şifreler eşleşmiyor",
+    "passwordChangeSuccess": "Şifre başarıyla değiştirildi",
+    "passwordChangeError": "Şifre değiştirilemedi"
   },
   "students": {
     "title": "Öğrenci Listesi",
@@ -362,7 +374,23 @@
     "finishError": "Sınav bitirilemedi",
     "upcoming": "Yaklaşan",
     "active": "Aktif",
-    "draft": "Taslak"
+    "draft": "Taslak",
+    "attempt": "Deneme",
+    "answered": "Cevaplanan",
+    "scoreStudent": "Öğrenciyi Puanla",
+    "viewDetails": "Detayları Gör",
+    "resultsSubtitle": "Bir öğrenciye çift tıklayın veya işlem menüsünden cevaplarını manuel olarak puanlamak için 'Puanla' seçeneğini kullanın",
+    "noResultsDesc": "Henüz bu sınava giren öğrenci bulunmuyor.",
+    "studentAnswer": "Öğrenci Cevabı",
+    "correctAnswer": "Doğru Cevap",
+    "noAnswer": "Cevap verilmemiş",
+    "totalScore": "Toplam Puan",
+    "scoresSaved": "Puanlar başarıyla kaydedildi!",
+    "autoScore": "Otomatik Puan"
+  },
+  "examTaking": {
+    "loadError": "Sınav yüklenirken hata oluştu",
+    "attemptNotFound": "Sınav denemesi bulunamadı. Lütfen sınavı yeniden başlatın."
   },
   "examEdit": {
     "title": "Sınavı Düzenle",
@@ -380,11 +408,6 @@
     "stepStudentAssignment": "Öğrenci Ataması",
     "stepStudentAssignmentDesc": "Öğrencileri sınava atayın",
     "saveAndContinue": "Kaydet ve Devam Et",
-    "loadingStudents": "Öğrenciler yükleniyor...",
-    "noStudents": "Öğrenci bulunamadı",
-    "noStudentsDesc": "Atanacak öğrenci bulunmuyor.",
-    "searchStudents": "Öğrenci ara",
-    "studentsSelected": "öğrenci seçildi",
     "studentName": "Öğrenci Adı",
     "studentEmail": "E-posta",
     "questionText": "Soru Metni",
@@ -399,8 +422,13 @@
     "endTime": "Bitiş Zamanı",
     "duration": "Sınav Süresi (Dakika)",
     "durationPlaceholder": "60",
-    "questionCount": "Soru Sayısı",
+    "questionCount": "Soru Sayısı", 
     "questionCountPlaceholder": "10",
+    "attemptLimit": "Girme Hakkı",
+    "attemptLimitPlaceholder": "1",
+    "totalPoints": "Toplam Puan",
+    "equalizePoints": "Eşitle",
+    "distributeEvenly": "Puanları eşit olarak dağıt",
     "questionSelection": "Soru Seçimi",
     "loadingQuestions": "Sorular yükleniyor...",
     "noQuestions": "Soru bulunamadı",
@@ -421,7 +449,8 @@
       "allFieldsRequired": "Lütfen tüm zorunlu alanları doldurun",
       "endTimeAfterStart": "Bitiş zamanı başlangıç zamanından sonra olmalıdır",
       "selectQuestions": "Lütfen en az bir soru seçin",
-      "exactQuestionCount": "Tam olarak {count} soru seçmelisiniz"
+      "exactQuestionCount": "Tam olarak {count} soru seçmelisiniz",
+      "totalPointsMust100": "Toplam puan 100 olmalıdır (Şu an: {current})"
     }
   },
   "studentAnswers": {
@@ -468,5 +497,13 @@
     "currentQuestion": "Mevcut Soru",
     "remaining": "Kalan",
     "questionOverview": "Soru Özeti"
+  },
+  "examStudent": {
+    "startDate": "Sınav Başlangıç Tarihi",
+    "endDate": "Sınav Bitiş Tarihi", 
+    "questionLength": "Soru Sayısı",
+    "times": "kez",
+    "examRules": "Sınav Kuralları",
+    "defaultRules": "Sınava başlamadan önce lütfen tüm talimatları dikkatlice okuyun. Sınav süresi dolduğunda otomatik olarak gönderilecektir. Soruları istediğiniz sırada cevaplayabilir ve önceki sorulara dönebilirsiniz. Sınav sırasında sayfayı yenilemeyin veya tarayıcıyı kapatmayın."
   }
 } 

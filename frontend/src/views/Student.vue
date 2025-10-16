@@ -230,7 +230,6 @@ const selectedStudents = ref<string[]>([]);
 
 const loadStudentsData = async () => {
   try {
-    console.log('Loading students...');
     const response = await api.get('/auth/admin/users');
     const studentUsers = response.data.filter((user: any) => user.role === 'student');
     students.value = studentUsers;
@@ -275,7 +274,6 @@ const loadStudentTeachersData = async () => {
 
 const editStudent = (student: any) => {
   // TODO: Implement edit student functionality
-  console.log('Edit student:', student);
   showInfo('Öğrenci düzenleme özelliği yakında eklenecek!');
 };
 
@@ -336,7 +334,6 @@ const handleAssignStudents = async (studentIds: string[], teacherIds: string[]) 
 };
 
 const handleExport = () => {
-  console.log('Export students');
   // Export functionality
 };
 

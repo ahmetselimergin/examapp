@@ -37,7 +37,7 @@
                 :data="exams"
                 :columns="examColumns"
                 :loading="loading"
-                :actions="true"
+                :actions="authStore.user?.role !== 'student'"
                 :empty-icon="'quiz'"
                 :empty-title="'Sınav bulunamadı'"
                 :empty-description="'Henüz oluşturulmuş sınav bulunmuyor.'"
@@ -47,12 +47,10 @@
                 <template #cell-title="{ item }">
                   <div class="exam-title">
                     <h4>{{ item.title }}</h4>
-                    <p class="exam-description">{{ item.description }}</p>
                   </div>
                 </template>
                 
                 <template #cell-status="{ item }">
-                  {{ console.log('Rendering status for item:', item) }}
                   <div class="exam-status-cell">
                     <span class="status-badge" :class="getExamStatus(item)">
                       {{ getExamStatusText(item) }}
@@ -92,6 +90,13 @@
                   <div class="exam-students">
                     <span class="material-symbols-outlined">group</span>
                     <span>{{ item.assignedStudents?.length || 0 }}</span>
+                  </div>
+                </template>
+                
+                <template #cell-attemptLimit="{ item }">
+                  <div class="exam-attempt-limit">
+                    <span class="material-symbols-outlined">counter_1</span>
+                    <span>{{ item.attemptLimit || 1 }} {{ $t('examStudent.times') }}</span>
                   </div>
                 </template>
                 
@@ -160,17 +165,32 @@ const exams = ref([]);
 const loading = ref(true);
 const error = ref('');
 
-// Table columns
-const examColumns = [
-  { key: 'title', label: t('exams.examName'), sortable: true },
-  { key: 'status', label: t('exams.status'), sortable: true, width: '140px' },
-  { key: 'startTime', label: t('exams.startTime'), sortable: true, width: '160px' },
-  { key: 'endTime', label: t('exams.endTime'), sortable: true, width: '160px' },
-  { key: 'duration', label: t('exams.duration'), sortable: true, width: '100px' },
-  { key: 'questions', label: t('exams.questions'), sortable: true, width: '80px' },
-  { key: 'students', label: t('exams.students'), sortable: true, width: '100px' },
-  { key: 'creator', label: t('exams.creator'), sortable: true, width: '120px' }
-];
+// Table columns - different for students and teachers/admins
+const examColumns = ref([]);
+
+// Set columns based on user role
+if (authStore.user?.role === 'student') {
+  examColumns.value = [
+    { key: 'title', label: t('exams.examName'), sortable: true },
+    { key: 'status', label: t('exams.status'), sortable: true, width: '140px' },
+    { key: 'startTime', label: t('exams.startTime'), sortable: true, width: '160px' },
+    { key: 'endTime', label: t('exams.endTime'), sortable: true, width: '160px' },
+    { key: 'duration', label: t('exams.duration'), sortable: true, width: '100px' },
+    { key: 'questions', label: t('exams.questions'), sortable: true, width: '80px' },
+    { key: 'attemptLimit', label: t('examCreate.attemptLimit'), sortable: true, width: '100px' }
+  ];
+} else {
+  examColumns.value = [
+    { key: 'title', label: t('exams.examName'), sortable: true },
+    { key: 'status', label: t('exams.status'), sortable: true, width: '140px' },
+    { key: 'startTime', label: t('exams.startTime'), sortable: true, width: '160px' },
+    { key: 'endTime', label: t('exams.endTime'), sortable: true, width: '160px' },
+    { key: 'duration', label: t('exams.duration'), sortable: true, width: '100px' },
+    { key: 'questions', label: t('exams.questions'), sortable: true, width: '80px' },
+    { key: 'students', label: t('exams.students'), sortable: true, width: '100px' },
+    { key: 'creator', label: t('exams.creator'), sortable: true, width: '120px' }
+  ];
+}
 
 // Modal states
 const showDeleteModal = ref(false);
@@ -199,12 +219,7 @@ const formatDateTime = (date) => {
 };
 
 const getExamStatus = (exam) => {
-     console.log('Getting exam status for:', exam);
-     console.log('Exam startTime:', exam?.startTime);
-     console.log('Exam endTime:', exam?.endTime);
-     
      if (!exam || !exam.startTime || !exam.endTime) {
-          console.log('Missing time data, returning unknown');
           return 'unknown';
      }
      
@@ -212,19 +227,12 @@ const getExamStatus = (exam) => {
      const startTime = new Date(exam.startTime);
      const endTime = new Date(exam.endTime);
      
-     console.log('Now:', now);
-     console.log('Start time:', startTime);
-     console.log('End time:', endTime);
-     
      if (now < startTime) {
-          console.log('Status: upcoming');
           return 'upcoming';
      }
      if (now >= startTime && now <= endTime) {
-          console.log('Status: active');
           return 'active';
      }
-     console.log('Status: completed');
      return 'completed';
 };
 
@@ -259,85 +267,46 @@ const handleExamClick = (exam) => {
 
 // Permission checks
 const canEditExam = (exam) => {
-     console.log('Checking edit permission for exam:', exam);
-     console.log('Current user:', authStore.user);
-     console.log('Exam createdBy:', exam.createdBy);
-     console.log('User role:', authStore.user?.role);
-     console.log('User _id:', authStore.user?._id);
-     console.log('Exam createdBy _id:', exam.createdBy?._id);
-     
      const isAdmin = authStore.user?.role === 'admin';
      const isCreator = authStore.user?.role === 'teacher' && exam.createdBy?._id === authStore.user?._id;
-     
-     console.log('Is admin:', isAdmin);
-     console.log('Is creator:', isCreator);
-     console.log('Can edit:', isAdmin || isCreator);
      
      return isAdmin || isCreator;
 };
 
 const canDeleteExam = (exam) => {
-     console.log('Checking delete permission for exam:', exam);
-     console.log('Current user:', authStore.user);
-     console.log('Exam createdBy:', exam.createdBy);
-     console.log('User role:', authStore.user?.role);
-     console.log('User _id:', authStore.user?._id);
-     console.log('Exam createdBy _id:', exam.createdBy?._id);
-     
      if (!authStore.user) {
-          console.log('No user logged in');
           return false;
      }
      
      const isAdmin = authStore.user?.role === 'admin';
      const isCreator = authStore.user?.role === 'teacher' && exam.createdBy?._id === authStore.user?._id;
      
-     console.log('Is admin:', isAdmin);
-     console.log('Is creator:', isCreator);
-     console.log('Can delete:', isAdmin || isCreator);
-     
      return isAdmin || isCreator;
 };
 
 // Edit exam
 const editExam = (exam) => {
-     console.log('Edit exam clicked:', exam);
-     console.log('Navigating to:', `/exams/${exam._id}/edit`);
      router.push(`/exams/${exam._id}/edit`);
 };
 
 // Delete exam
 const deleteExam = (exam) => {
-     console.log('Delete exam clicked:', exam);
-     console.log('Current user:', authStore.user);
-     console.log('Can delete check:', canDeleteExam(exam));
-     
      if (!canDeleteExam(exam)) {
-          console.log('Delete permission denied');
           showError('Bu sınavı silme yetkiniz yok');
           return;
      }
      
      examToDelete.value = exam;
      showDeleteModal.value = true;
-     console.log('Delete modal should be shown, showDeleteModal:', showDeleteModal.value);
-     console.log('examToDelete:', examToDelete.value);
 };
 
 const confirmDelete = async () => {
-     console.log('Confirm delete called');
-     console.log('examToDelete:', examToDelete.value);
-     
      if (!examToDelete.value) {
-          console.log('No exam to delete');
           return;
      }
      
-     console.log('Attempting to delete exam with ID:', examToDelete.value._id);
-     
      try {
           const response = await api.delete(`/exams/${examToDelete.value._id}`);
-          console.log('Delete response:', response);
           showSuccess('Sınav başarıyla silindi');
           await loadExams();
      } catch (error) {
@@ -347,7 +316,6 @@ const confirmDelete = async () => {
      } finally {
           showDeleteModal.value = false;
           examToDelete.value = null;
-          console.log('Delete process completed');
      }
 };
 
@@ -362,7 +330,6 @@ const loadExams = async () => {
                }
           });
           exams.value = res.data;
-          console.log('Loaded exams:', res.data);
      } catch (e) {
           console.error('Load exams error:', e);
           error.value = e.response?.data?.message || 'Sınavlar alınamadı';
@@ -434,12 +401,6 @@ onMounted(async () => {
   color: var(--text-primary);
 }
 
-.exam-description {
-  margin: 0;
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.4;
-}
 
 .exam-status-cell {
   display: flex;
@@ -483,7 +444,7 @@ onMounted(async () => {
   }
 }
 
-.exam-time, .exam-duration, .exam-questions, .exam-students, .exam-creator {
+.exam-time, .exam-duration, .exam-questions, .exam-students, .exam-creator, .exam-attempt-limit {
   display: flex;
   align-items: center;
   gap: 6px;

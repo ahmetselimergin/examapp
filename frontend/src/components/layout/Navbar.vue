@@ -30,7 +30,6 @@ const toggleMenu = () => {
 
 function onToggleSidebar() {
   toggleSidebar();
-  console.log('toggle!');
 }
 const handleLogout = () => {
      authStore.logout();

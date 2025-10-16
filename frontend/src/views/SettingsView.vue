@@ -147,7 +147,81 @@
         </div>
         
         <div class="card-content">
-          <div class="action-buttons">
+          <!-- Password Change Form -->
+          <div v-if="showPasswordForm" class="password-change-form">
+            <div class="form-header">
+              <h4>{{ $t('settings.changePassword') }}</h4>
+              <button class="close-form-btn" @click="closePasswordForm">
+                <span class="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <form @submit.prevent="submitPasswordChange">
+              <div class="form-group">
+                <label for="currentPassword">{{ $t('settings.currentPassword') }}</label>
+                <input 
+                  type="password" 
+                  id="currentPassword"
+                  v-model="passwordForm.currentPassword"
+                  :placeholder="$t('settings.enterCurrentPassword')"
+                  required
+                  class="form-input"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label for="newPassword">{{ $t('settings.newPassword') }}</label>
+                <input 
+                  type="password" 
+                  id="newPassword"
+                  v-model="passwordForm.newPassword"
+                  :placeholder="$t('settings.enterNewPassword')"
+                  required
+                  minlength="6"
+                  class="form-input"
+                />
+              </div>
+              
+              <div class="form-group">
+                <label for="confirmPassword">{{ $t('settings.confirmNewPassword') }}</label>
+                <input 
+                  type="password" 
+                  id="confirmPassword"
+                  v-model="passwordForm.confirmPassword"
+                  :placeholder="$t('settings.confirmNewPassword')"
+                  required
+                  minlength="6"
+                  class="form-input"
+                />
+              </div>
+              
+              <div v-if="passwordError" class="form-error">
+                <span class="material-symbols-outlined">error</span>
+                {{ passwordError }}
+              </div>
+              
+              <div class="form-actions">
+                <Button 
+                  type="submit"
+                  styleType="primary"
+                  size="medium"
+                  :text="$t('settings.updatePassword')"
+                  :loading="passwordLoading"
+                  :disabled="passwordLoading || !isPasswordFormValid"
+                />
+                <Button 
+                  @click="closePasswordForm"
+                  styleType="secondary"
+                  size="medium"
+                  :text="$t('common.cancel')"
+                  :disabled="passwordLoading"
+                />
+              </div>
+            </form>
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="action-buttons" :class="{ hidden: showPasswordForm }">
             <Button 
               @click="handlePasswordChange"
               styleType="secondary"
@@ -384,11 +458,30 @@ const exportOptions = ref({
   includePasswords: false
 });
 
+// Password change form refs
+const showPasswordForm = ref(false);
+const passwordLoading = ref(false);
+const passwordError = ref('');
+const passwordForm = ref({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+});
+
 const themeOptions = [
   { value: 'light', label: computed(() => t('settings.lightTheme')), icon: 'light_mode' },
   { value: 'dark', label: computed(() => t('settings.darkTheme')), icon: 'dark_mode' },
   { value: 'auto', label: computed(() => t('settings.autoTheme')), icon: 'brightness_auto' }
 ];
+
+// Password form validation
+const isPasswordFormValid = computed(() => {
+  return passwordForm.value.currentPassword && 
+         passwordForm.value.newPassword && 
+         passwordForm.value.confirmPassword &&
+         passwordForm.value.newPassword === passwordForm.value.confirmPassword &&
+         passwordForm.value.newPassword.length >= 6;
+});
 
 const getRoleText = (role) => {
   const roleMap = {
@@ -411,8 +504,57 @@ const formatDate = (date) => {
 };
 
 const handlePasswordChange = () => {
-  showError(t('settings.passwordChangeNotAvailable'));
-  // TODO: Implement password change functionality
+  showPasswordForm.value = true;
+  passwordError.value = '';
+  // Reset form
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  };
+};
+
+const closePasswordForm = () => {
+  showPasswordForm.value = false;
+  passwordError.value = '';
+  passwordForm.value = {
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  };
+};
+
+const submitPasswordChange = async () => {
+  passwordError.value = '';
+  
+  // Validate passwords match
+  if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
+    passwordError.value = t('settings.passwordMismatch');
+    return;
+  }
+  
+  // Validate password length
+  if (passwordForm.value.newPassword.length < 6) {
+    passwordError.value = t('validation.passwordLength');
+    return;
+  }
+  
+  passwordLoading.value = true;
+  
+  try {
+    await api.post('/auth/change-password', {
+      currentPassword: passwordForm.value.currentPassword,
+      newPassword: passwordForm.value.newPassword
+    });
+    
+    showSuccess(t('settings.passwordChangeSuccess'));
+    closePasswordForm();
+  } catch (error) {
+    console.error('Password change error:', error);
+    passwordError.value = error.response?.data?.message || t('settings.passwordChangeError');
+  } finally {
+    passwordLoading.value = false;
+  }
 };
 
 const handleLogout = () => {
@@ -851,6 +993,124 @@ onMounted(() => {
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 16px;
+  
+  &.hidden {
+    display: none;
+  }
+}
+
+// Password Change Form Styles
+.password-change-form {
+  background: var(--bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--border-primary);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  
+  h4 {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    margin: 0;
+  }
+}
+
+.close-form-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  
+  .material-symbols-outlined {
+    color: white;
+    font-size: 18px;
+  }
+}
+
+.password-change-form form {
+  padding: 24px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+  
+  label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-primary);
+  border-radius: 8px;
+  font-size: 14px;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+  
+  &:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  &::placeholder {
+    color: var(--text-tertiary);
+  }
+}
+
+.form-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #dc2626;
+  font-size: 14px;
+  margin-bottom: 20px;
+  
+  .material-symbols-outlined {
+    font-size: 18px;
+  }
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    
+    > * {
+      width: 100%;
+    }
+  }
 }
 
 .system-info {

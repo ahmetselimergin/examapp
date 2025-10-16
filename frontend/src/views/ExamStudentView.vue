@@ -3,245 +3,129 @@
     <div v-if="loading" class="loading">Yükleniyor...</div>
     <div v-else-if="error" class="error">{{ error }}</div>
     <div v-else>
-      <!-- Sınav başlamadan önce -->
-      <div v-if="!examStarted">
-        <div class="exam-info-card">
-          <h2>{{ exam.title }}</h2>
-          <p class="description">{{ exam.description }}</p>
-          <div class="exam-info-grid">
-            <div class="info-item">
-              <span class="material-symbols-outlined">schedule</span>
-              <div>
-                <div class="info-label">Başlangıç</div>
-                <div class="info-value">{{ formatDateTime(exam.startTime) }}</div>
+      <!-- Sınav Giriş Ekranı -->
+      <div class="exam-intro-new">
+        <!-- Back Button and Title -->
+        <div class="exam-header-section">
+          <button class="back-button" @click="goBack">
+            <span class="material-symbols-outlined">arrow_back</span>
+            {{ t('common.previous') }}
+          </button>
               </div>
+        
+        <!-- Exam Title -->
+        <div class="exam-title-section">
+          <h1 class="exam-name">{{ exam.title || "Exam name" }}</h1>
             </div>
-            <div class="info-item">
-              <span class="material-symbols-outlined">schedule</span>
-              <div>
-                <div class="info-label">Bitiş</div>
-                <div class="info-value">{{ formatDateTime(exam.endTime) }}</div>
-              </div>
-            </div>
-            <div class="info-item">
-              <span class="material-symbols-outlined">timer</span>
-              <div>
-                <div class="info-label">Süre</div>
-                <div class="info-value">{{ exam.duration }} dakika</div>
-              </div>
-            </div>
-            <div class="info-item">
-              <span class="material-symbols-outlined">quiz</span>
-              <div>
-                <div class="info-label">Soru Sayısı</div>
-                <div class="info-value">{{ exam.questions?.length || 0 }}</div>
-              </div>
-            </div>
+
+        <!-- Exam Details Grid -->
+        <div class="exam-details-grid">
+          <div class="detail-item">
+            <div class="detail-label">{{ t('examStudent.startDate') }}</div>
+            <div class="detail-value">{{ formatDateTime(exam.startTime) }}</div>
           </div>
-          <div class="rules-section">
-            <h3>Sınav Kuralları</h3>
-            <ul>
-              <li>Sınav süresince sayfayı yenilemeyin veya sekmeyi kapatmayın.</li>
-              <li>Kopya çekmek yasaktır.</li>
-              <li>Süre bitince sınav otomatik olarak kapanır ve cevaplarınız kaydedilir.</li>
-              <li>Her seferde sadece bir soruyu görebilirsiniz.</li>
-            </ul>
+
+          <div class="detail-item">
+            <div class="detail-label">{{ t('examStudent.endDate') }}</div>
+            <div class="detail-value">{{ formatDateTime(exam.endTime) }}</div>
           </div>
-          <div class="countdown-section">
-            <span v-if="countdown > 0">
-              Sınavın başlamasına kalan süre: <b>{{ formatCountdown(countdown) }}</b>
-            </span>
-            <span v-else>
-              Sınav başlamak için hazır!
-            </span>
+
+           <div class="detail-item">
+             <div class="detail-label">{{ t('examStudent.questionLength') }}</div>
+             <div class="detail-value">{{ exam.questions?.length || 0 }}</div>
           </div>
-          <div class="start-btn-section">
-            <Button 
-              type="button"
-              styleType="primary"
-              size="large"
-              :disabled="countdown > 0" 
-              @click="startExam"
-              text="Sınava Başla"
-            />
+
+           <div class="detail-item">
+             <div class="detail-label">{{ t('examCreate.attemptLimit') }}</div>
+             <div class="detail-value">{{ exam.attemptLimit || 1 }} {{ t('examStudent.times') }}</div>
           </div>
         </div>
-      </div>
-      <!-- Sınav başladıysa -->
-      <div v-else class="exam-questions-fullscreen">
-        <div class="exam-header">
-          <h2>{{ exam.title }}</h2>
-          <div class="timer">Kalan Süre: <b>{{ formatCountdown(remainingTime) }}</b></div>
-        </div>
-        <div class="question-section">
-          <div class="question-index">Soru {{ currentQuestionIndex + 1 }} / {{ exam.questions.length }}</div>
-          <div class="question-card">
-            <div class="question-text">{{ currentQuestion.text }}</div>
-            <div v-if="currentQuestion.type === 'single_choice'">
-              <div v-for="(option, idx) in currentQuestion.options" :key="idx" class="option-row">
-                <input type="radio" :id="'opt'+idx" :name="'q'+currentQuestionIndex" :value="option" v-model="answers[currentQuestionIndex]" />
-                <label :for="'opt'+idx">{{ option }}</label>
-              </div>
-            </div>
-            <div v-else-if="currentQuestion.type === 'multiple_select'">
-              <div v-for="(option, idx) in currentQuestion.options" :key="idx" class="option-row">
-                <input type="checkbox" :id="'opt'+idx" :value="option" v-model="answers[currentQuestionIndex]" />
-                <label :for="'opt'+idx">{{ option }}</label>
-              </div>
-            </div>
-            <div v-else-if="currentQuestion.type === 'true_false'">
-              <div class="option-row">
-                <input type="radio" :id="'true'" value="true" v-model="answers[currentQuestionIndex]" />
-                <label for="true">Doğru</label>
-              </div>
-              <div class="option-row">
-                <input type="radio" :id="'false'" value="false" v-model="answers[currentQuestionIndex]" />
-                <label for="false">Yanlış</label>
-              </div>
-            </div>
-            <div v-else-if="currentQuestion.type === 'open_ended'">
-              <textarea v-model="answers[currentQuestionIndex]" placeholder="Cevabınızı yazınız..." rows="4"></textarea>
-            </div>
+
+        <!-- Exam Rules -->
+        <div class="exam-rules-section">
+          <div class="rules-title">{{ t('examStudent.examRules') }}:</div>
+          <div class="rules-content">
+            <p>
+              {{ exam.description || t('examStudent.defaultRules') }}
+            </p>
           </div>
         </div>
-        <div class="question-nav">
-          <Button 
-            type="button"
-            styleType="primary"
-            size="medium"
-            @click="prevQuestion" 
-            :disabled="currentQuestionIndex === 0"
-            text="Önceki"
-          />
-          <Button 
-            type="button"
-            styleType="primary"
-            size="medium"
-            @click="nextQuestion" 
-            :disabled="currentQuestionIndex === exam.questions.length - 1"
-            text="Sonraki"
-          />
-        </div>
-        <div class="finish-section">
-          <Button 
-            type="button"
-            styleType="primary"
-            size="medium"
-            @click="finishExam"
-            text="Sınavı Bitir"
-          />
+        <!-- Start Button -->           
+        <div class="start-button-section">
+          <button
+            class="start-exam-btn"
+            @click="startExam"
+            :disabled="countdown > 0"
+          >
+            <span v-if="countdown > 0">{{ formatCountdown(countdown) }}</span>
+            <span v-else>{{ t('examTaking.startExam') }}</span>
+          </button>
         </div>
       </div>
     </div>
   </div>
 </template>
-<script setup>import {
-  ref,
-  onMounted,
-  computed,
-  watch,
-  onBeforeUnmount
-}
+<script setup>
+import { ref, onMounted, computed, watch, onBeforeUnmount } from "vue";
 
-from 'vue';
+import { useRoute, useRouter } from "vue-router";
+import api from "../services/api";
+import Button from "../components/ui/Button.vue";
+import { useToast } from "../composables/useToast";
+import { useI18n } from "vue-i18n";
 
-import {
-  useRoute,
-  useRouter
-}
+const route = useRoute();
+const router = useRouter();
+const { showError, showWarning } = useToast();
+const { t } = useI18n();
 
-from 'vue-router';
-import api from '../services/api';
-import Button from '../components/ui/Button.vue';
+const exam = ref({});
+const loading = ref(true);
+const error = ref("");
+const countdown = ref(0);
+const timerInterval = ref(null);
 
-const route=useRoute();
-const router=useRouter();
-
-const exam=ref( {}
-
-);
-const loading=ref(true);
-const error=ref('');
-const examStarted=ref(false);
-const examFinished=ref(false);
-const countdown=ref(0);
-const remainingTime=ref(0);
-const timerInterval=ref(null);
-const answers=ref([]);
-const currentQuestionIndex=ref(0);
-
-const currentQuestion=computed(()=> {
-    if ( !exam.value.questions) return {}
-
-    ;
-
-    return exam.value.questions[currentQuestionIndex.value] || {}
-
-    ;
-  }
-
-);
-
-const formatDateTime=(date)=> {
-  return new Date(date).toLocaleString('tr-TR', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    }
-
-  );
-}
-
-;
+const formatDateTime = (date) => {
+  return new Date(date).toLocaleString("tr-TR", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
 
 const formatCountdown = (seconds) => {
-  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-  const s = (seconds % 60).toString().padStart(2, '0');
-  const h = Math.floor(seconds / 3600).toString().padStart(2, '0');
+  const m = Math.floor(seconds / 60)
+    .toString()
+    .padStart(2, "0");
+  const s = (seconds % 60).toString().padStart(2, "0");
+  const h = Math.floor(seconds / 3600)
+    .toString()
+    .padStart(2, "0");
   return h > 0 ? `${h}:${m}:${s}` : `${m}:${s}`;
 };
 
-const updateRemainingTime = () => {
-  const now = new Date();
-  const start = new Date(exam.value.startTime);
-  const duration = exam.value.duration || 60;
-  const examEnd = new Date(start.getTime() + duration * 60000);
-  const remaining = Math.floor((examEnd - now) / 1000);
-  remainingTime.value = remaining > 0 ? remaining : 0;
-};
-
-const fetchExam=async ()=> {
-  loading.value=true;
+const fetchExam = async () => {
+  loading.value = true;
 
   try {
-    console.log('Fetching exam...');
-
     const res = await api.get(`/exams/${route.params.id}`);
-    exam.value=res.data;
-    answers.value=Array(res.data.questions.length).fill(null);
+    exam.value = res.data;
     setupCountdown();
-    loading.value=false;
-    console.log('Exam loaded:', res.data);
-  }
+    loading.value = false;
+  } catch (e) {
+    console.error("Error loading exam:", e);
 
-  catch (e) {
-    console.error('Error loading exam:', e);
-
-    if (e.response && e.response.status===403) {
-      error.value=e.response.data.message || "Sınav henüz başlamadı.";
+    if (e.response && e.response.status === 403) {
+      error.value = e.response.data.message || "Sınav henüz başlamadı.";
+    } else {
+      error.value = e.response?.data?.message || "Sınav yüklenemedi";
     }
 
-    else {
-      error.value=e.response?.data?.message || 'Sınav yüklenemedi';
-    }
-
-    loading.value=false;
+    loading.value = false;
   }
-}
-
-;
+};
 
 const setupCountdown = () => {
   const now = new Date();
@@ -257,9 +141,10 @@ const setupCountdown = () => {
         countdown.value = 0;
       }
     }, 1000);
-  } else if (now >= start && now < end) { // dikkat: < end
+  } else if (now >= start && now < end) {
+    // dikkat: < end
     countdown.value = 0;
-    startExam();
+    // Otomatik başlatmıyoruz, kullanıcı butonla başlatacak
   } else if (now >= end) {
     error.value = "Sınav süresi doldu. Artık sınava katılamazsınız.";
     loading.value = false;
@@ -271,153 +156,53 @@ const startExam = async () => {
     error.value = "Sınav süresi doldu. Artık sınava katılamazsınız.";
     return;
   }
-  examStarted.value=true;
-  updateRemainingTime();
-  // Cevap tiplerini başlat
-  answers.value=exam.value.questions.map(q=> {
-      if (q.type==='multiple_select') return [];
-      else return null;
-    }
-
-  );
-
-  // Fullscreen
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen();
-  }
-
-  // Sayfa/sekme kapatılırsa uyarı
-  window.onbeforeunload=(e)=> {
-    if ( !examFinished.value) {
-      e.preventDefault();
-      e.returnValue='';
-      return '';
-    }
-  }
-
-  ;
-
-  // Route değişikliğini engelle
-  router.beforeEach((to, from, next)=> {
-      if (examStarted.value && !examFinished.value) {
-        alert('Sınavı bitirmeden ayrılamazsınız!');
-        next(false);
-      }
-
-      else {
-        next();
-      }
-    }
-
-  );
-
-  timerInterval.value=setInterval(()=> {
-      updateRemainingTime();
-
-      if (remainingTime.value <=0) {
-        clearInterval(timerInterval.value);
-        finishExam();
-      }
-    }
-
-    , 1000);
-}
-
-;
-
-const nextQuestion=()=> {
-  if (currentQuestionIndex.value < exam.value.questions.length - 1) {
-    currentQuestionIndex.value++;
-  }
-}
-
-;
-
-const prevQuestion=()=> {
-  if (currentQuestionIndex.value > 0) {
-    currentQuestionIndex.value--;
-  }
-}
-
-;
-
-const finishExam = async () => {
+  
   try {
-    // Cevapları backend'e kaydet
-    const answersToSubmit = answers.value.map((answer, index) => ({
-      questionId: exam.value.questions[index]._id,
-      response: answer
-    }));
-
-    await api.post(`/exams/${route.params.id}/submit-answers`, {
-      answers: answersToSubmit
-    });
-
-    examFinished.value = true;
-
-    // Fullscreen'den çık
-    if (document.fullscreenElement && document.exitFullscreen) {
-      document.exitFullscreen();
+    loading.value = true;
+    
+    // Sınav başlatma API'sini çağır
+    const response = await api.post(`/exams/${route.params.id}/start`);
+    
+    // Attempt bilgilerini localStorage'a kaydet
+    const attemptData = {
+      attemptId: response.data.attemptId,
+      attemptNumber: response.data.attemptNumber,
+      remainingAttempts: response.data.remainingAttempts
+    };
+    
+    localStorage.setItem(`exam-${route.params.id}-attempt`, JSON.stringify(attemptData));
+    
+    // ExamTakingView.vue sayfasına yönlendir
+    router.push(`/exams/${route.params.id}/take`);
+  } catch (err) {
+    const errorMessage = err.response?.data?.message || 'Sınav başlatılırken bir hata oluştu';
+    
+    // Attempt limit hatası için warning toast, diğerleri için error toast
+    if (err.response?.status === 403 && errorMessage.includes('maximum') && errorMessage.includes('attempt limit has been exceeded')) {
+      showWarning(errorMessage);
+    } else {
+      showError(errorMessage);
     }
-
-    window.onbeforeunload = null;
-    alert('Sınavı bitirdiniz! Cevaplarınız kaydedildi.');
-    router.push('/exams');
-  } catch (error) {
-    console.error('Error submitting answers:', error);
-    alert('Cevaplar kaydedilemedi! Lütfen tekrar deneyin.');
+  } finally {
+    loading.value = false;
   }
 };
 
-;
+const goBack = () => {
+  router.push('/exams');
+};
 
-const setFullscreenClass=()=> {
-  document.body.classList.add('exam-fullscreen');
-}
-
-;
-
-const removeFullscreenClass=()=> {
-  document.body.classList.remove('exam-fullscreen');
-}
-
-;
-
-watch(examStarted, (val)=> {
-    if (val) setFullscreenClass();
-    else removeFullscreenClass();
-  }
-
-);
-
-onBeforeUnmount(()=> {
-    removeFullscreenClass();
-    window.onbeforeunload=null;
+onBeforeUnmount(() => {
     if (timerInterval.value) clearInterval(timerInterval.value);
-  }
+});
 
-);
-
-watch(countdown, (val)=> {
-    if (val===0 && !examStarted.value) {
-      // Sınav başlatılabilir
-    }
-  }
-
-);
-
-onMounted(()=> {
+onMounted(() => {
     fetchExam();
-  }
+});
+</script>
 
-);
-
-</script><style lang="scss"scoped>.exam-student-container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 30px 0;
-}
-
+<style lang="scss" scoped>
+/* Loading & Error States */
 .loading,
 .error {
   text-align: center;
@@ -429,183 +214,173 @@ onMounted(()=> {
   color: #f44336;
 }
 
-.exam-info-card {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  margin-bottom: 30px;
+/* New Exam Introduction Design */
+.exam-student-container {
+  min-height: 100vh !important;
+  background: var(--bg-secondary) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 20px !important;
 }
 
-.exam-info-card h2 {
-  margin-bottom: 10px;
+.exam-intro-new {
+  max-width: 600px !important;
+  width: 100% !important;
+  background: var(--bg-primary) !important;
+  border-radius: 12px !important;
+  padding: 40px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+  position: relative !important;
 }
 
-.exam-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 20px 0;
+/* Exam Title */
+.exam-title-section {
+  text-align: center !important;
+  margin-bottom: 40px !important;
+
+  .exam-name {
+    font-size: 1.8rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin: 0 !important;
+  }
 }
 
-.info-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 12px 16px;
+/* Exam Details Grid */
+.exam-details-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 30px 40px !important;
+  margin-bottom: 40px !important;
+
+  .detail-item {
+    .detail-label {
+      font-size: 0.95rem !important;
+      color: var(--text-secondary) !important;
+      margin-bottom: 8px !important;
+      font-weight: 500 !important;
+    }
+
+    .detail-value {
+      font-size: 1.1rem !important;
+      color: var(--text-primary) !important;
+      font-weight: 600 !important;
+    }
+  }
+
+  .detail-item:last-child {
+    grid-column: span 2 !important;
+    text-align: center !important;
+
+    .detail-label {
+      text-align: center !important;
+    }
+
+    .detail-value {
+      font-size: 1.3rem !important;
+      color: #667eea !important;
+    }
+  }
 }
 
-.info-label {
-  font-size: 12px;
-  color: #888;
+/* Exam Rules */
+.exam-rules-section {
+  margin-bottom: 40px !important;
+
+  .rules-title {
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    color: var(--text-primary) !important;
+    margin-bottom: 15px !important;
+  }
+
+  .rules-content {
+    background: var(--bg-secondary) !important;
+    padding: 20px !important;
+    border-radius: 8px !important;
+    border-left: 4px solid #667eea !important;
+
+    p {
+      color: var(--text-secondary) !important;
+      line-height: 1.6 !important;
+      margin: 0 !important;
+      font-size: 0.95rem !important;
+    }
+  }
 }
 
-.info-value {
-  font-weight: 500;
-  color: #333;
+/* Start Button */
+.start-button-section {
+  text-align: center !important;
+
+  .start-exam-btn {
+    background: #16a34a !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 25px !important;
+    padding: 12px 40px !important;
+    font-size: 1.1rem !important;
+    font-weight: 600 !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    min-width: 200px !important;
+
+    &:hover:not(:disabled) {
+      background: #15803d !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
+    }
+
+    &:disabled {
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+      background: #9ca3af !important;
+    }
+  }
 }
 
-.rules-section {
-  margin: 20px 0;
-  background: #f7f7fa;
-  border-radius: 8px;
-  padding: 16px;
+/* Back Button */
+.exam-header-section {
+  margin-bottom: 20px !important;
+  
+  .back-button {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    background: transparent !important;
+    border: 2px solid var(--border-secondary) !important;
+    color: var(--text-secondary) !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+
+    &:hover {
+      background: var(--bg-tertiary) !important;
+      color: var(--text-primary) !important;
+      border-color: var(--text-primary) !important;
+    }
+
+    .material-symbols-outlined {
+      font-size: 20px !important;
+    }
+  }
 }
 
-.rules-section h3 {
-  margin-bottom: 10px;
-}
+@media (max-width: 768px) {
+  .exam-intro-new {
+    padding: 30px 20px !important;
+  }
 
-.countdown-section {
-  margin: 20px 0;
-  font-size: 1.1em;
-  color: #1976d2;
-}
+  .exam-details-grid {
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
 
-.start-btn-section {
-  text-align: center;
+    .detail-item:last-child {
+      grid-column: span 1 !important;
+    }
+  }
 }
-
-.start-btn {
-  background: #1976d2;
-  color: white;
-  padding: 12px 32px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.start-btn:disabled {
-  background: #b0b0b0;
-  cursor: not-allowed;
-}
-
-.exam-questions-fullscreen {
-  background: white;
-  border-radius: 12px;
-  padding: 30px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  min-height: 500px;
-}
-
-.exam-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.timer {
-  font-size: 1.1em;
-  color: #1976d2;
-  font-weight: 600;
-}
-
-.question-section {
-  margin-bottom: 30px;
-}
-
-.question-index {
-  font-size: 1.1em;
-  color: #888;
-  margin-bottom: 10px;
-}
-
-.question-card {
-  background: #f8f9fa;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 10px;
-}
-
-.question-text {
-  font-weight: 500;
-  margin-bottom: 16px;
-  font-size: 1.1em;
-}
-
-.option-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-textarea {
-  width: 100%;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  padding: 8px;
-  font-size: 1em;
-}
-
-.question-nav {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px 0;
-}
-
-.question-nav button {
-  background: #1976d2;
-  color: white;
-  padding: 10px 24px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1em;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.question-nav button:disabled {
-  background: #b0b0b0;
-  cursor: not-allowed;
-}
-
-.finish-section {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.finish-btn {
-  background: #43a047;
-  color: white;
-  padding: 12px 32px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.finish-btn:hover {
-  background: #388e3c;
-}
-
 </style>

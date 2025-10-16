@@ -30,7 +30,13 @@
     "previous": "Previous",
     "create": "Create",
     "update": "Update",
-    "confirmRequired": "Confirmation Required"
+    "confirmRequired": "Confirmation Required",
+    "date": "Date",
+    "time": "Time",
+    "status": "Status",
+    "student": "Student",
+    "saving": "Saving...",
+    "score": "Score"
   },
   "home": {
     "welcome": "Welcome",
@@ -264,7 +270,16 @@
     "examAppTeam": "Exam App Team",
     "clearExistingDescription": "All existing data will be deleted",
     "skipExistingDescription": "Duplicate records will be skipped",
-    "importWarningExtended": "This operation cannot be undone. Make sure you have a backup before proceeding."
+    "importWarningExtended": "This operation cannot be undone. Make sure you have a backup before proceeding.",
+    "currentPassword": "Current Password",
+    "newPassword": "New Password", 
+    "confirmNewPassword": "Confirm New Password",
+    "enterCurrentPassword": "Enter your current password",
+    "enterNewPassword": "Enter your new password",
+    "updatePassword": "Update Password",
+    "passwordMismatch": "New passwords do not match",
+    "passwordChangeSuccess": "Password changed successfully",
+    "passwordChangeError": "Failed to change password"
   },
   "exams": {
     "title": "Exams",
@@ -310,7 +325,23 @@
     "finishError": "Exam could not be finished",
     "upcoming": "Upcoming",
     "active": "Active",
-    "draft": "Draft"
+    "draft": "Draft",
+    "attempt": "Attempt",
+    "answered": "Answered",
+    "scoreStudent": "Score Student",
+    "viewDetails": "View Details",
+    "resultsSubtitle": "Double-click on a student or use the action menu to score their answers manually",
+    "noResultsDesc": "No students have taken this exam yet.",
+    "studentAnswer": "Student Answer",
+    "correctAnswer": "Correct Answer",
+    "noAnswer": "No answer provided",
+    "totalScore": "Total Score",
+    "scoresSaved": "Scores saved successfully!",
+    "autoScore": "Auto Score"
+  },
+  "examTaking": {
+    "loadError": "Error loading exam",
+    "attemptNotFound": "Exam attempt not found. Please restart the exam."
   },
   "examEdit": {
     "title": "Edit Exam",
@@ -349,6 +380,11 @@
     "durationPlaceholder": "60",
     "questionCount": "Question Count",
     "questionCountPlaceholder": "10",
+    "attemptLimit": "Attempt Limit",
+    "attemptLimitPlaceholder": "1",
+    "totalPoints": "Total Points",
+    "equalizePoints": "Equalize",
+    "distributeEvenly": "Distribute points evenly",
     "questionSelection": "Question Selection",
     "loadingQuestions": "Loading questions...",
     "noQuestions": "No questions found",
@@ -364,7 +400,8 @@
       "allFieldsRequired": "Please fill in all required fields",
       "endTimeAfterStart": "End time must be after start time",
       "selectQuestions": "Please select at least one question",
-      "exactQuestionCount": "You must select exactly {count} questions"
+      "exactQuestionCount": "You must select exactly {count} questions",
+      "totalPointsMust100": "Total points must be 100 (Current: {current})"
     }
   },
   "questionBank": {
@@ -460,5 +497,13 @@
     "currentQuestion": "Current Question",
     "remaining": "Remaining",
     "questionOverview": "Question Overview"
+  },
+  "examStudent": {
+    "startDate": "Exam Start Date",
+    "endDate": "Exam Finish Date", 
+    "questionLength": "Question Length",
+    "times": "times",
+    "examRules": "Exam Rules",
+    "defaultRules": "Please read all instructions carefully before starting the exam. The exam will be automatically submitted when time runs out. You can answer questions in any order and return to previous questions. Do not refresh the page or close the browser during the exam."
   }
 } 

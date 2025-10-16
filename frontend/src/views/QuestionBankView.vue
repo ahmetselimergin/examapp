@@ -232,7 +232,6 @@ const fetchQuestions = async () => {
   loadingQuestions.value = true;
   try {
     const res = await api.get('/questions');
-    console.log('Questions response:', res.data); // Debug log
     questions.value = res.data || []; // Ensure it's an array
   } catch (e: any) {
     console.error('Error fetching questions:', e); // Debug log
@@ -313,7 +312,6 @@ const getQuestionTypeLabel = (type: string) => {
 };
 
 const getDifficultyLabel = (difficulty: string) => {
-  console.log('Getting difficulty label for:', difficulty); // Debug log
   if (!difficulty) return t('questionBank.unspecified');
   
   const difficultyMap = {

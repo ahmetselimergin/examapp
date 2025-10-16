@@ -19,7 +19,7 @@
       <!-- Left Column -->
       <div class="dashboard-left">
         <!-- Weekly Reports -->
-        <div class="reports-section">
+        <div v-if="authStore.user?.role === 'admin'" class="reports-section">
           <div class="section-header">
             <h2>{{ $t('home.weeklyReports') }}</h2>
             <select class="time-filter">
@@ -55,9 +55,6 @@
               >
                 <div class="col-name">
                   <div class="exam-info">
-                    <div class="exam-avatar">
-                      <span class="material-symbols-outlined">quiz</span>
-                    </div>
                     <span class="exam-title">{{ exam.title }}</span>
                   </div>
                 </div>
@@ -351,17 +348,14 @@ const handleActionClick = (action) => {
 
 const showReportsModal = () => {
   // TODO: Implement reports modal
-  console.log('Show reports modal');
 };
 
 const showQuickActionsModal = () => {
   // TODO: Implement quick actions modal
-  console.log('Show quick actions modal');
 };
 
 const showExamActions = (exam) => {
   // TODO: Implement exam actions menu
-  console.log('Show exam actions', exam);
 };
 
 const formatDate = (dateString) => {

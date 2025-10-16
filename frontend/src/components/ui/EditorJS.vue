@@ -132,7 +132,6 @@ const initEditor = async () => {
           changeTimeout = setTimeout(async () => {
             try {
               const outputData = await editor.value.save();
-              console.log("Editor.js onChange - saving data:", outputData);
               emit('update:modelValue', outputData);
             } catch (error) {
               console.error('Saving failed: ', error);

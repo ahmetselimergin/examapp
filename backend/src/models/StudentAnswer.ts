@@ -4,6 +4,7 @@ export interface IStudentAnswer extends Document {
   examId: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
   questionId: mongoose.Types.ObjectId;
+  attemptNumber: number; // Kaçıncı deneme
   response: string | string[]; // Öğrencinin cevabı
   score?: number; // Öğretmenin verdiği puan (0-100)
   isCorrect?: boolean; // Otomatik kontrol için
@@ -27,6 +28,11 @@ const studentAnswerSchema = new Schema<IStudentAnswer>(
       ref: "Question",
       required: true,
     },
+    attemptNumber: {
+      type: Number,
+      required: true,
+      min: 1,
+    },
     response: {
       type: Schema.Types.Mixed, // string veya array olabilir
       required: true,
@@ -49,9 +55,9 @@ const studentAnswerSchema = new Schema<IStudentAnswer>(
   }
 );
 
-// Aynı öğrencinin aynı sınavdaki aynı soruya birden fazla cevap vermesini engelle
+// Aynı öğrencinin aynı sınavdaki aynı soruya aynı attempt'ta birden fazla cevap vermesini engelle
 studentAnswerSchema.index(
-  { examId: 1, studentId: 1, questionId: 1 },
+  { examId: 1, studentId: 1, questionId: 1, attemptNumber: 1 },
   { unique: true }
 );
 
