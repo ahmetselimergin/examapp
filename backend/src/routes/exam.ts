@@ -280,6 +280,56 @@ router.post(
   }
 );
 
+// Check if student can attempt exam
+router.get("/:id/check-attempts", auth, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const examId = req.params.id;
+    const studentId = req.user?._id;
+
+    if (req.user?.role !== 'student') {
+      res.status(403).json({ message: "Only students can check attempts" });
+      return;
+    }
+
+    // Get exam details
+    const exam = await Exam.findById(examId);
+    if (!exam) {
+      res.status(404).json({ message: "Exam not found" });
+      return;
+    }
+
+    // Check if student is assigned to this exam
+    const isAssigned = exam.assignedStudents.some((student: any) => 
+      student._id ? student._id.toString() === studentId?.toString() : student.toString() === studentId?.toString()
+    );
+
+    if (!isAssigned) {
+      res.status(403).json({ message: "You are not assigned to this exam" });
+      return;
+    }
+
+    // Count existing attempts
+    const existingAttempts = await ExamAttempt.countDocuments({
+      examId: examId,
+      studentId: studentId
+    });
+
+    const canAttempt = existingAttempts < exam.attemptLimit;
+
+    res.json({
+      canAttempt,
+      attemptsUsed: existingAttempts,
+      attemptsLimit: exam.attemptLimit,
+      examTitle: exam.title
+    });
+
+  } catch (error) {
+    res.status(400).json({
+      message: error instanceof Error ? error.message : "An error occurred",
+    });
+  }
+});
+
 // Start exam attempt (students only) 
 router.post(
   "/:id/start",
@@ -790,7 +840,8 @@ router.get(
       // Format response with questions and answers
       const questionsWithAnswers = exam.questions.map((examQuestion: any) => {
         const question = examQuestion.questionId;
-        const studentAnswer = answersMap.get(question._id.toString());
+        const questionId = question._id.toString();
+        const studentAnswer = answersMap.get(questionId);
         return {
           _id: question._id,
           text: question.text,

@@ -223,6 +223,11 @@ const getExamStatus = (exam) => {
           return 'unknown';
      }
      
+     // Check if exam is manually finished
+     if (exam.isFinished) {
+          return 'completed';
+     }
+     
      const now = new Date();
      const startTime = new Date(exam.startTime);
      const endTime = new Date(exam.endTime);
@@ -252,14 +257,33 @@ const isExamActive = (exam) => {
      return now >= new Date(exam.startTime);
 };
 
-const handleExamClick = (exam) => {
+const handleExamClick = async (exam) => {
      if (!isExamActive(exam)) {
           showError("Henüz başlama zamanı gelmedi.");
           return;
      }
-     // Eğer öğrenci ise student route'a yönlendir
+     
+     // Eğer öğrenci ise önce attempt kontrolü yap
      if (authStore.user?.role === 'student') {
-          router.push(`/exams/${exam._id}/student`);
+          try {
+               const response = await api.get(`/exams/${exam._id}/check-attempts`);
+               const { canAttempt, attemptsUsed, attemptsLimit, examTitle } = response.data;
+               
+               if (!canAttempt) {
+                    showError(t('exam.attemptLimitExceeded', { 
+                         examTitle, 
+                         attemptsUsed, 
+                         attemptsLimit 
+                    }));
+                    return;
+               }
+               
+               // Attempt hakkı varsa normal şekilde devam et
+               router.push(`/exams/${exam._id}/student`);
+          } catch (error) {
+               // Hata durumunda normal şekilde devam et (fallback)
+               router.push(`/exams/${exam._id}/student`);
+          }
      } else {
           router.push(`/exams/${exam._id}`);
      }

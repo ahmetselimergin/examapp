@@ -170,7 +170,7 @@ const startExam = async () => {
       remainingAttempts: response.data.remainingAttempts
     };
     
-    localStorage.setItem(`exam-${route.params.id}-attempt`, JSON.stringify(attemptData));
+    localStorage.setItem(`examAttempt_${route.params.id}`, JSON.stringify(attemptData));
     
     // ExamTakingView.vue sayfasına yönlendir
     router.push(`/exams/${route.params.id}/take`);

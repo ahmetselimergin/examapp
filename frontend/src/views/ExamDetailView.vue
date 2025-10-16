@@ -15,6 +15,17 @@
               <span class="material-symbols-outlined">{{ getStatusIcon(exam) }}</span>
               {{ getExamStatusText(exam) }}
             </div>
+            <!-- Finish Exam Button for Admin/Teacher -->
+            <button 
+              v-if="canFinishExam" 
+              @click="finishExam"
+              class="finish-exam-btn"
+              :disabled="finishingExam"
+            >
+              <span v-if="finishingExam" class="btn-spinner"></span>
+              <span v-else class="material-symbols-outlined">flag</span>
+              {{ finishingExam ? $t('common.processing') : $t('examDetail.finishExam') }}
+            </button>
           </div>
         </div>
       </div>
@@ -138,7 +149,7 @@
         <div v-if="activeTab === 'results'" class="tab-panel">
           <div class="results-section">
             <div class="results-header">
-              <h2>{{ $t('examDetail.examResults') }}</h2>
+            <h2>{{ $t('examDetail.examResults') }}</h2>
               <p class="results-subtitle">{{ $t('examDetail.resultsSubtitle') }}</p>
             </div>
             
@@ -160,22 +171,22 @@
                   @dblclick="openScoringModal(result)"
                 >
                   <div class="col-student">
-                    <div class="student-info">
-                      <div class="student-avatar">{{ result.student.name.charAt(0).toUpperCase() }}</div>
-                      <div class="student-details">
-                        <div class="student-name">{{ result.student.name }}</div>
-                        <div class="student-email">{{ result.student.email }}</div>
-                      </div>
-                    </div>
+                <div class="student-info">
+                  <div class="student-avatar">{{ result.student.name.charAt(0).toUpperCase() }}</div>
+                  <div class="student-details">
+                    <div class="student-name">{{ result.student.name }}</div>
+                    <div class="student-email">{{ result.student.email }}</div>
                   </div>
+                </div>
+                </div>
                   
                   <div class="col-attempt">
                     <span class="attempt-badge">#{{ result.attemptNumber }}</span>
-                  </div>
+              </div>
                   
                   <div class="col-answered">
                     <span class="answer-count">{{ result.answeredQuestions }} / {{ result.totalQuestions }}</span>
-                  </div>
+            </div>
                   
                   <div class="col-score">
                     <div class="score-display">
@@ -232,10 +243,6 @@
           <span class="material-symbols-outlined">delete</span>
           {{ $t('common.delete') }}
         </button>
-        <button class="btn btn-warning" @click="finishExam" v-if="!exam.isFinished">
-          <span class="material-symbols-outlined">check</span>
-          {{ $t('exam.finish') }}
-        </button>
       </div>
     </div>
 
@@ -250,8 +257,8 @@
           </div>
           <button class="modal-close" @click="closeScoringModal">
             <span class="material-symbols-outlined">close</span>
-          </button>
-        </div>
+        </button>
+      </div>
         
         <div class="modal-body">
           <div v-if="scoringLoading" class="scoring-loader">
@@ -406,10 +413,25 @@ const examResults = ref<any[]>([])
 const loading = ref(true)
 const error = ref('')
 const canEdit = ref(false)
+const finishingExam = ref(false)
 
 const isResultsTabEnabled = computed(() =>
   exam.value?.isFinished || ['admin', 'teacher'].includes(authStore.user?.role || '')
 )
+
+const canFinishExam = computed(() => {
+  // Only admin/teacher can finish exam
+  const hasPermission = ['admin', 'teacher'].includes(authStore.user?.role || '')
+  
+  // Exam must not already be finished
+  const isNotFinished = !exam.value?.isFinished
+  
+  // Exam must be active (between start and end time)
+  const status = getExamStatus(exam.value)
+  const isActive = status === 'active'
+  
+  return hasPermission && isNotFinished && isActive
+})
 
 const tabs = computed(() => [
   { key: 'info', label: t('examDetail.examInfo'), icon: 'info', disabled: false },
@@ -502,6 +524,27 @@ const fetchExam = async () => {
   }
 }
 
+const finishExam = async () => {
+  try {
+    finishingExam.value = true
+    
+    await api.patch(`/exams/${route.params.id}/finish`)
+    
+    // Update local exam state
+    exam.value.isFinished = true
+    exam.value.finishedAt = new Date()
+    
+    // Show success message
+    alert(t('examDetail.examFinishedSuccessfully'))
+    
+  } catch (err: any) {
+    console.error('Finish exam error:', err)
+    alert(err.response?.data?.message || t('examDetail.finishExamError'))
+  } finally {
+    finishingExam.value = false
+  }
+}
+
 const fetchResults = async () => {
   if (!isResultsTabEnabled.value) return
   try {
@@ -527,16 +570,6 @@ const deleteExam = async () => {
   }
 }
 
-const finishExam = async () => {
-  if (confirm(t('examDetail.confirmFinish'))) {
-    try {
-      await api.patch(`/exams/${exam.value._id}/finish`)
-      exam.value.isFinished = true
-    } catch (err: any) {
-      alert(err.response?.data?.message || t('common.error'))
-    }
-  }
-}
 
 // Scoring Modal Variables
 const showScoringModal = ref(false)
@@ -584,15 +617,15 @@ const loadStudentAnswers = async (studentId: string, attemptNumber: number) => {
     scoringLoading.value = true
     const response = await api.get(`/exams/${route.params.id}/student/${studentId}/answers?attemptNumber=${attemptNumber}`)
     studentAnswers.value = response.data
-  } catch (err: any) {
+    } catch (err: any) {
     console.error('Error loading student answers:', err)
-    alert(err.response?.data?.message || t('common.error'))
+      alert(err.response?.data?.message || t('common.error'))
   } finally {
     scoringLoading.value = false
   }
 }
 
-const viewStudentDetails = (result: any) => {
+const viewStudentDetails = (_: any) => {
   // TODO: Implement student details view
   activeDropdown.value = null
 }
@@ -609,9 +642,16 @@ const isCorrectOption = (question: any, optionIndex: number) => {
 
 const isSelectedOption = (question: any, optionIndex: number) => {
   if (question.type === 'multiple_select') {
-    return Array.isArray(question.studentAnswer) && 
-           question.studentAnswer.includes(optionIndex.toString())
+    // For multiple select, student answer should be an array of indices
+    if (Array.isArray(question.studentAnswer)) {
+      return question.studentAnswer.includes(optionIndex.toString())
+    } else if (typeof question.studentAnswer === 'string') {
+      // Handle case where it's stored as comma-separated string
+      return question.studentAnswer.split(',').includes(optionIndex.toString())
+    }
+    return false
   } else {
+    // For single choice, true/false - direct comparison with option index
     return question.studentAnswer === optionIndex.toString()
   }
 }
@@ -740,6 +780,10 @@ onMounted(async () => {
     }
 
     .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      
       .exam-status-badge {
         display: flex;
         align-items: center;
@@ -769,6 +813,46 @@ onMounted(async () => {
           border: 1px solid rgba(107, 114, 128, 0.2);
         }
 
+        .material-symbols-outlined {
+          font-size: 18px;
+        }
+      }
+      
+      .finish-exam-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        
+        &:hover:not(:disabled) {
+          background: #b91c1c;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+        
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        .btn-spinner {
+          width: 16px;
+          height: 16px;
+          border: 2px solid transparent;
+          border-top: 2px solid currentColor;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        
         .material-symbols-outlined {
           font-size: 18px;
         }
@@ -2196,6 +2280,12 @@ onMounted(async () => {
       }
     }
   }
+}
+
+// Animation
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 </style>

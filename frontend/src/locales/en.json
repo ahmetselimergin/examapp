@@ -36,7 +36,8 @@
     "status": "Status",
     "student": "Student",
     "saving": "Saving...",
-    "score": "Score"
+    "score": "Score",
+    "processing": "Processing..."
   },
   "home": {
     "welcome": "Welcome",
@@ -147,7 +148,8 @@
     "questionsLoadError": "Error loading questions",
     "studentsLoadError": "Error loading students",
     "maxQuestionsError": "You can select maximum {count} questions",
-    "students": "Students"
+    "students": "Students",
+    "attemptLimitExceeded": "Your attempt limit for \"{examTitle}\" exam has been exceeded. ({attemptsUsed}/{attemptsLimit} attempts used)"
   },
   "navbar": {
     "home": "Home",
@@ -337,11 +339,9 @@
     "noAnswer": "No answer provided",
     "totalScore": "Total Score",
     "scoresSaved": "Scores saved successfully!",
-    "autoScore": "Auto Score"
-  },
-  "examTaking": {
-    "loadError": "Error loading exam",
-    "attemptNotFound": "Exam attempt not found. Please restart the exam."
+    "autoScore": "Auto Score",
+    "examFinishedSuccessfully": "Exam finished successfully!",
+    "finishExamError": "An error occurred while finishing the exam"
   },
   "examEdit": {
     "title": "Edit Exam",
@@ -474,6 +474,8 @@
     "instruction2": "The exam will be automatically submitted when time runs out.",
     "instruction3": "You can answer questions in any order and return to previous questions.",
     "instruction4": "Do not refresh the page or close the browser during the exam.",
+    "loadError": "Error loading exam",
+    "attemptNotFound": "Exam attempt not found. Please restart the exam.",
     "startExam": "Start Exam",
     "question": "Question",
     "of": "of",

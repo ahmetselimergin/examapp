@@ -36,7 +36,8 @@
     "status": "Durum",
     "student": "Öğrenci",
     "saving": "Kaydediliyor...",
-    "score": "Puan"
+    "score": "Puan",
+    "processing": "İşleniyor..."
   },
   "home": {
     "welcome": "Hoş Geldiniz",
@@ -147,7 +148,8 @@
     "questionsLoadError": "Sorular yüklenirken bir hata oluştu",
     "studentsLoadError": "Öğrenciler yüklenirken bir hata oluştu",
     "maxQuestionsError": "Maksimum {count} soru seçebilirsiniz",
-    "students": "Öğrenciler"
+    "students": "Öğrenciler",
+    "attemptLimitExceeded": "\"{examTitle}\" sınavı için katılım hakkınız bitmiştir. ({attemptsUsed}/{attemptsLimit} deneme kullanılmış)"
   },
   "navbar": {
     "home": "Anasayfa",
@@ -386,11 +388,9 @@
     "noAnswer": "Cevap verilmemiş",
     "totalScore": "Toplam Puan",
     "scoresSaved": "Puanlar başarıyla kaydedildi!",
-    "autoScore": "Otomatik Puan"
-  },
-  "examTaking": {
-    "loadError": "Sınav yüklenirken hata oluştu",
-    "attemptNotFound": "Sınav denemesi bulunamadı. Lütfen sınavı yeniden başlatın."
+    "autoScore": "Otomatik Puan",
+    "examFinishedSuccessfully": "Sınav başarıyla bitirildi!",
+    "finishExamError": "Sınav bitirilirken bir hata oluştu"
   },
   "examEdit": {
     "title": "Sınavı Düzenle",
@@ -474,6 +474,8 @@
     "instruction2": "Süre bittiğinde sınav otomatik olarak teslim edilecektir.",
     "instruction3": "Soruları istediğiniz sırada cevaplayabilir, önceki sorulara dönebilirsiniz.",
     "instruction4": "Sınav sırasında sayfayı yenilemeyiniz veya tarayıcıyı kapatmayınız.",
+    "loadError": "Sınav yüklenirken hata oluştu",
+    "attemptNotFound": "Sınav denemesi bulunamadı. Lütfen sınavı yeniden başlatın.",
     "startExam": "Sınavı Başlat",
     "question": "Soru",
     "of": "/",

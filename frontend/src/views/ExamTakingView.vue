@@ -30,8 +30,8 @@
               <!-- Multiple Choice / Single Choice -->
               <div v-if="currentQuestion.type === 'multiple_choice' || currentQuestion.type === 'single_choice'" class="options-container">
                 <label v-for="(option, index) in currentQuestion.options" :key="index" 
-                       class="option-card" :class="{ selected: answers[currentQuestionIndex] === option }">
-                  <input type="radio" :name="`question-${currentQuestionIndex}`" :value="option" 
+                       class="option-card" :class="{ selected: answers[currentQuestionIndex] === index.toString() }">
+                  <input type="radio" :name="`question-${currentQuestionIndex}`" :value="index.toString()" 
                          v-model="answers[currentQuestionIndex]" />
                   <span class="option-text">{{ option }}</span>
                 </label>
@@ -40,10 +40,10 @@
               <!-- Multiple Select -->
               <div v-else-if="currentQuestion.type === 'multiple_select'" class="options-container">
                 <label v-for="(option, index) in currentQuestion.options" :key="index" 
-                       class="option-card" :class="{ selected: (answers[currentQuestionIndex] || []).includes(option) }">
-                  <input type="checkbox" :value="option" 
-                         @change="toggleMultipleAnswer(option)" 
-                         :checked="(answers[currentQuestionIndex] || []).includes(option)" />
+                       class="option-card" :class="{ selected: (answers[currentQuestionIndex] || []).includes(index.toString()) }">
+                  <input type="checkbox" :value="index.toString()" 
+                         @change="toggleMultipleAnswer(index.toString())" 
+                         :checked="(answers[currentQuestionIndex] || []).includes(index.toString())" />
                   <span class="option-text">{{ option }}</span>
                 </label>
               </div>
@@ -143,7 +143,8 @@
           </div>
         </div>
 
-        <template v-slot:footer>
+        <!-- @ts-ignore -->
+        <template #footer>
           <div class="modal-actions">
             <Button @click="showFinishModal = false" styleType="secondary" text="Cancel" />
             <Button @click="finishExam" styleType="primary" text="Submit Exam" :loading="submitting" />
@@ -317,7 +318,7 @@ const finishExam = async () => {
 
     // Prepare answers for submission
     const submissionAnswers = answers.value.map((answer, index) => ({
-      questionId: exam.value.questions[index]._id,
+      questionId: exam.value.questions[index].questionId._id,
       response: answer
     }));
 
@@ -331,7 +332,7 @@ const finishExam = async () => {
     showFinishModal.value = false;
     
     // Clear attempt data from localStorage
-    localStorage.removeItem(`exam-${exam.value._id}-attempt`);
+    localStorage.removeItem(`examAttempt_${exam.value._id}`);
     
     router.push('/exams');
   } catch (error: any) {
