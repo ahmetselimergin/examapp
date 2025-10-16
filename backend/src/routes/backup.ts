@@ -11,7 +11,6 @@ const router = express.Router();
 // Export all data
 router.get('/export', auth, adminAuth, async (req, res) => {
   try {
-    console.log('📤 Starting data export...');
     
     // Check if passwords should be included (dangerous!)
     const includePasswords = req.query.includePasswords === 'true';
@@ -47,8 +46,6 @@ router.get('/export', auth, adminAuth, async (req, res) => {
       }
     };
 
-    console.log(`✅ Export completed: ${JSON.stringify(exportData.metadata.totalRecords)}`);
-
     // Set headers for file download
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename=examapp-backup-${new Date().toISOString().split('T')[0]}.json`);
@@ -66,7 +63,6 @@ router.get('/export', auth, adminAuth, async (req, res) => {
 // Import data
 router.post('/import', auth, adminAuth, async (req, res) => {
   try {
-    console.log('📥 Starting data import...');
     
     const { data, options = {} } = req.body;
     const { clearExisting = false, skipExisting = true } = options;
@@ -84,19 +80,16 @@ router.post('/import', auth, adminAuth, async (req, res) => {
 
     // Clear existing data if requested
     if (clearExisting) {
-      console.log('🗑️ Clearing existing data...');
       await Promise.all([
         StudentAnswer.deleteMany({}),
         Exam.deleteMany({}),
         Question.deleteMany({}),
         User.deleteMany({ role: { $ne: 'admin' } }) // Keep admin users
       ]);
-      console.log('✅ Existing data cleared');
     }
 
     // Import Users (excluding passwords)
     if (data.users && Array.isArray(data.users)) {
-      console.log(`👥 Importing ${data.users.length} users...`);
       for (const userData of data.users) {
         try {
           if (skipExisting) {
@@ -124,7 +117,6 @@ router.post('/import', auth, adminAuth, async (req, res) => {
 
     // Import Questions
     if (data.questions && Array.isArray(data.questions)) {
-      console.log(`❓ Importing ${data.questions.length} questions...`);
       for (const questionData of data.questions) {
         try {
           if (skipExisting) {
@@ -146,7 +138,6 @@ router.post('/import', auth, adminAuth, async (req, res) => {
 
     // Import Exams
     if (data.exams && Array.isArray(data.exams)) {
-      console.log(`📝 Importing ${data.exams.length} exams...`);
       for (const examData of data.exams) {
         try {
           if (skipExisting) {
@@ -175,7 +166,6 @@ router.post('/import', auth, adminAuth, async (req, res) => {
 
     // Import Student Answers
     if (data.studentAnswers && Array.isArray(data.studentAnswers)) {
-      console.log(`📋 Importing ${data.studentAnswers.length} student answers...`);
       for (const answerData of data.studentAnswers) {
         try {
           if (skipExisting) {
@@ -199,7 +189,6 @@ router.post('/import', auth, adminAuth, async (req, res) => {
       }
     }
 
-    console.log('✅ Import completed:', results);
 
     res.json({
       message: 'Veri içe aktarma tamamlandı',
