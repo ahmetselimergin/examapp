@@ -12,15 +12,20 @@ A comprehensive online exam management system built with modern web technologies
 - **Dark/Light Mode**: Theme customization for better user experience
 
 ### 👨‍🏫 Teacher Features
-- **Question Bank**: Create and manage different types of questions
-- **Exam Creation**: Build custom exams using the question bank
+- **Question Bank**: Create and manage different types of questions (single choice, multiple choice, true/false, open-ended)
+- **Exam Creation**: Build custom exams with custom point distribution and attempt limits
 - **Student Assignment**: Assign exams to specific students
-- **Results Management**: View and analyze exam results
+- **Exam Management**: Start, monitor, and finish active exams
+- **Results Management**: View, analyze, and manually score exam results
+- **Manual Scoring**: Score open-ended questions and provide detailed feedback
 
 ### 👨‍🎓 Student Features
-- **Exam Taking**: Interactive exam interface
-- **Results Viewing**: Access to exam results and performance
-- **User Profile**: Manage personal information
+- **Exam Taking**: Interactive split-screen exam interface with timer and progress tracking
+- **Multiple Attempt Support**: Take exams multiple times based on configured attempt limits
+- **Exam Navigation**: Navigate between questions, review answers before submission
+- **Answer Management**: Support for single choice, multiple choice, true/false, and open-ended questions
+- **Results Viewing**: Access to exam results and detailed feedback
+- **User Profile**: Manage personal information and password changes
 - **Theme Preferences**: Choose between light, dark, or system theme
 
 ### 🎨 UI/UX Features
@@ -288,7 +293,17 @@ For additional help, please create an issue in the repository.
 
 ## 🔄 Recent Updates
 
-### Version 1.1.0 (Latest)
+### Version 1.2.0 (Latest)
+- ✅ **Enhanced Exam Management**: Admin/Teacher can manually finish active exams
+- ✅ **Improved Exam Taking**: Split-screen interface with timer and progress tracking
+- ✅ **Multiple Attempt System**: Configurable attempt limits for each exam
+- ✅ **Advanced Scoring System**: Custom point distribution and manual scoring for open-ended questions
+- ✅ **Better Answer Handling**: Fixed answer saving and display for all question types
+- ✅ **Complete i18n Coverage**: All static texts now support multi-language
+- ✅ **Password Management**: Users can change passwords through settings
+- ✅ **Enhanced Results Display**: Latest attempt-only results with detailed scoring interface
+
+### Version 1.1.0
 - ✅ **Data Export/Import System**: Complete backup and restore functionality
 - ✅ **Dark/Light Mode**: Comprehensive theme system with auto-detection
 - ✅ **Modal Improvements**: All modals now support dark mode

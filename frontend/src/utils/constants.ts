@@ -1,16 +1,18 @@
+// Question types - use i18n keys instead of static labels
 export const QUESTION_TYPES = [
-  { label: "Tümü", value: "" },
-  { label: "Çoktan Tek Seçmeli", value: "single_choice" },
-  { label: "Çoktan Çok Seçmeli", value: "multiple_select" },
-  { label: "Doğru/Yanlış", value: "true_false" },
-  { label: "Kısa Cevap", value: "open_ended" },
+  { labelKey: "questionBank.allQuestions", value: "" },
+  { labelKey: "questionBank.singleChoice", value: "single_choice" },
+  { labelKey: "questionBank.multipleChoice", value: "multiple_select" },
+  { labelKey: "questionBank.trueFalse", value: "true_false" },
+  { labelKey: "questionBank.openEnded", value: "open_ended" },
 ] as const;
 
+// Difficulty levels - use i18n keys instead of static labels
 export const DIFFICULTY_LEVELS = [
-  { label: "Tümü", value: "" },
-  { label: "Kolay", value: "easy" },
-  { label: "Orta", value: "medium" },
-  { label: "Zor", value: "hard" },
+  { labelKey: "questionBank.allQuestions", value: "" },
+  { labelKey: "questionBank.easy", value: "easy" },
+  { labelKey: "questionBank.medium", value: "medium" },
+  { labelKey: "questionBank.hard", value: "hard" },
 ] as const;
 
 export const USER_ROLES = {
@@ -25,11 +27,10 @@ export const EXAM_STATUS = {
   COMPLETED: "completed",
 } as const;
 
-export const STATUS_LABELS = {
-  [EXAM_STATUS.UPCOMING]: "Yakında",
-  [EXAM_STATUS.ACTIVE]: "Aktif",
-  [EXAM_STATUS.COMPLETED]: "Tamamlandı",
-} as const;
+// Status labels should use i18n keys in components:
+// upcoming -> t('exams.upcoming')
+// active -> t('exams.active')
+// completed -> t('exams.completed')
 
 export const STATUS_COLORS = {
   [EXAM_STATUS.UPCOMING]: "upcoming",

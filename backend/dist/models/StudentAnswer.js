@@ -50,6 +50,11 @@ const studentAnswerSchema = new mongoose_1.Schema({
         ref: "Question",
         required: true,
     },
+    attemptNumber: {
+        type: Number,
+        required: true,
+        min: 1,
+    },
     response: {
         type: mongoose_1.Schema.Types.Mixed, // string veya array olabilir
         required: true,
@@ -69,6 +74,6 @@ const studentAnswerSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
 });
-// Aynı öğrencinin aynı sınavdaki aynı soruya birden fazla cevap vermesini engelle
-studentAnswerSchema.index({ examId: 1, studentId: 1, questionId: 1 }, { unique: true });
+// Aynı öğrencinin aynı sınavdaki aynı soruya aynı attempt'ta birden fazla cevap vermesini engelle
+studentAnswerSchema.index({ examId: 1, studentId: 1, questionId: 1, attemptNumber: 1 }, { unique: true });
 exports.default = mongoose_1.default.model("StudentAnswer", studentAnswerSchema);

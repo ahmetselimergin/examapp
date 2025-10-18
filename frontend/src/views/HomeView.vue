@@ -37,14 +37,14 @@
             <h2>{{ $t('home.recentExams') }}</h2>
           </div>
           
-          <div class="activity-table">
+          <div class="activity-table" :class="{ 'no-actions': isStudent }">
             <div class="table-header">
               <div class="col-name">{{ $t('common.name') }}</div>
               <div class="col-subject">{{ $t('home.subject') }}</div>
               <div class="col-date">{{ $t('common.date') }}</div>
               <div class="col-time">{{ $t('common.time') }}</div>
               <div class="col-status">{{ $t('common.status') }}</div>
-              <div class="col-actions"></div>
+              <div class="col-actions" v-if="!isStudent"></div>
             </div>
             
             <div class="table-body">
@@ -62,13 +62,16 @@
                 <div class="col-date">{{ formatDate(exam.startTime) }}</div>
                 <div class="col-time">{{ formatTime(exam.startTime) }}</div>
                 <div class="col-status">
-                  <span class="status-badge" :class="exam.status">
-                    <span class="material-symbols-outlined">{{ getStatusIcon(exam.status) }}</span>
+                  <span class="status-badge" :class="getExamStatus(exam)">
+                    <span class="material-symbols-outlined">{{ getStatusIcon(getExamStatus(exam)) }}</span>
                   </span>
                 </div>
-                <div class="col-actions">
-                  <button class="action-menu" @click="showExamActions(exam)">
+                <div class="col-actions" v-if="!isStudent">
+                  <button v-if="isAdmin" class="action-menu" @click="showExamActions(exam)">
                     <span class="material-symbols-outlined">more_vert</span>
+                  </button>
+                  <button v-else-if="isTeacher" class="action-menu view-only" @click="viewExam(exam)">
+                    <span class="material-symbols-outlined">visibility</span>
                   </button>
                 </div>
               </div>
@@ -220,6 +223,10 @@ const userDisplayName = computed(() => {
   return user?.name || user?.email || t('common.user');
 });
 
+const isAdmin = computed(() => authStore.user?.role === 'admin');
+const isTeacher = computed(() => authStore.user?.role === 'teacher');
+const isStudent = computed(() => authStore.user?.role === 'student');
+
 const filteredQuickActions = computed(() => [
   {
     id: 'create-exam',
@@ -355,7 +362,12 @@ const showQuickActionsModal = () => {
 };
 
 const showExamActions = (exam) => {
-  // TODO: Implement exam actions menu
+  // TODO: Implement exam actions menu (edit, delete for admin)
+  router.push(`/exams/${exam.id || exam._id}`);
+};
+
+const viewExam = (exam) => {
+  router.push(`/exams/${exam.id || exam._id}`);
 };
 
 const formatDate = (dateString) => {
@@ -399,8 +411,8 @@ const loadRecentExams = async () => {
     const response = await api.get('/exams?limit=5');
     recentExams.value = response.data.map(exam => ({
       ...exam,
-      id: exam._id, // MongoDB _id'yi id olarak map et
-      status: getExamStatus(exam)
+      id: exam._id // MongoDB _id'yi id olarak map et
+      // status'u statik olarak kaydetmiyoruz, dinamik olarak hesaplanacak
     }));
   } catch (error) {
     console.error('Error loading recent exams:', error);
@@ -408,6 +420,9 @@ const loadRecentExams = async () => {
 };
 
 const getExamStatus = (exam) => {
+  // If exam is manually finished, always show as completed
+  if (exam.isFinished) return 'completed';
+  
   const now = new Date();
   const startTime = new Date(exam.startTime);
   const endTime = new Date(exam.endTime);
@@ -588,6 +603,14 @@ onMounted(async () => {
     }
   }
   
+  // For students (no actions column)
+  &.no-actions {
+    .table-header,
+    .table-body .table-row {
+      grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    }
+  }
+  
   .exam-info {
     display: flex;
     align-items: center;
@@ -664,6 +687,15 @@ onMounted(async () => {
     &:hover {
       background: var(--bg-tertiary);
       color: var(--text-primary);
+    }
+    
+    &.view-only {
+      color: #3b82f6;
+      
+      &:hover {
+        background: rgba(59, 130, 246, 0.1);
+        color: #3b82f6;
+      }
     }
     
     .material-symbols-outlined {

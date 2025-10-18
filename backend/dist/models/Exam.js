@@ -62,6 +62,13 @@ const examSchema = new mongoose_1.Schema({
         min: 1,
         default: 0,
     },
+    attemptLimit: {
+        type: Number,
+        required: true,
+        min: 1,
+        max: 10,
+        default: 1,
+    },
     createdBy: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: "User",
@@ -69,8 +76,17 @@ const examSchema = new mongoose_1.Schema({
     },
     questions: [
         {
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: "Question",
+            questionId: {
+                type: mongoose_1.Schema.Types.ObjectId,
+                ref: "Question",
+                required: true,
+            },
+            points: {
+                type: Number,
+                required: true,
+                min: 0,
+                max: 100,
+            },
         },
     ],
     assignedStudents: [
@@ -80,6 +96,7 @@ const examSchema = new mongoose_1.Schema({
         },
     ],
     isFinished: { type: Boolean, default: false },
+    finishedAt: { type: Date },
 }, {
     timestamps: true,
 });

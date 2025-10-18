@@ -107,20 +107,21 @@
           <div class="questions-section">
             <h2>{{ $t('examDetail.questionsTitle') }} ({{ exam.questions?.length || 0 }})</h2>
             <div v-if="exam.questions && exam.questions.length > 0">
-              <div v-for="(question, index) in exam.questions" :key="question._id" class="question-card">
+              <div v-for="(questionItem, index) in exam.questions" :key="questionItem.questionId?._id || index" class="question-card">
                 <div class="question-header">
                   <h3>{{ $t('examDetail.questionNumber') }} {{ index + 1 }}</h3>
-                  <div class="question-type">{{ getQuestionType(question.type) }}</div>
+                  <div class="question-type">{{ getQuestionType(questionItem.questionId?.type) }}</div>
+                  <div class="question-points">{{ questionItem.points }} {{ $t('common.points') }}</div>
                 </div>
-                <p class="question-text">{{ question.text }}</p>
-                <div v-if="question.options && question.options.length > 0" class="options">
-                  <div v-for="(option, optIndex) in question.options" :key="optIndex" class="option">
+                <p class="question-text">{{ questionItem.questionId?.text }}</p>
+                <div v-if="questionItem.questionId?.options && questionItem.questionId.options.length > 0" class="options">
+                  <div v-for="(option, optIndex) in questionItem.questionId.options" :key="optIndex" class="option">
                     <span class="option-letter">{{ String.fromCharCode(65 + optIndex) }}.</span>
                     <span class="option-text">{{ option }}</span>
                   </div>
                 </div>
                 <div class="question-meta">
-                  <span class="difficulty">{{ $t('questionBank.difficulty') }}: {{ getDifficultyLabel(question.difficulty) }}</span>
+                  <span class="difficulty">{{ $t('questionBank.difficulty') }}: {{ getDifficultyLabel(questionItem.questionId?.difficulty) }}</span>
                 </div>
               </div>
             </div>
@@ -420,9 +421,6 @@ const isResultsTabEnabled = computed(() =>
 )
 
 const canFinishExam = computed(() => {
-  // Only admin/teacher can finish exam
-  const hasPermission = ['admin', 'teacher'].includes(authStore.user?.role || '')
-  
   // Exam must not already be finished
   const isNotFinished = !exam.value?.isFinished
   
@@ -430,7 +428,16 @@ const canFinishExam = computed(() => {
   const status = getExamStatus(exam.value)
   const isActive = status === 'active'
   
-  return hasPermission && isNotFinished && isActive
+  // Admin can finish any exam, teacher can only finish their own exams
+  const userRole = authStore.user?.role
+  if (userRole === 'admin') {
+    return isNotFinished && isActive
+  } else if (userRole === 'teacher') {
+    const isCreator = exam.value?.createdBy?._id === authStore.user?._id
+    return isCreator && isNotFinished && isActive
+  }
+  
+  return false
 })
 
 const tabs = computed(() => [
@@ -467,6 +474,9 @@ const formatDateTime = (date: string) => {
 }
 
 const getExamStatus = (exam: any) => {
+  // If exam is manually finished, always show as completed
+  if (exam.isFinished) return 'completed'
+  
   const now = new Date()
   const startTime = new Date(exam.startTime)
   const endTime = new Date(exam.endTime)
@@ -530,9 +540,8 @@ const finishExam = async () => {
     
     await api.patch(`/exams/${route.params.id}/finish`)
     
-    // Update local exam state
-    exam.value.isFinished = true
-    exam.value.finishedAt = new Date()
+    // Reload exam data to get updated state
+    await fetchExam()
     
     // Show success message
     alert(t('examDetail.examFinishedSuccessfully'))
@@ -1035,6 +1044,8 @@ onMounted(async () => {
       justify-content: space-between;
       align-items: center;
       margin-bottom: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
 
       h3 {
         color: var(--text-primary);
@@ -1050,6 +1061,15 @@ onMounted(async () => {
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 500;
+      }
+      
+      .question-points {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
       }
     }
 

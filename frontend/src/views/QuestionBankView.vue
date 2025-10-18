@@ -25,7 +25,7 @@
         <template #cell-text="{ item }">
           <div class="question-text-cell">
             <div class="question-text">{{ item.text }}</div>
-            <div v-if="item.options && item.options.length > 0" class="question-preview">
+            <div v-if="['single_choice', 'multiple_select', 'true_false'].includes(item.type) && item.options && item.options.length > 0" class="question-preview">
               <span class="options-count">{{ item.options.length }} {{ t('questionBank.options') }}</span>
             </div>
           </div>

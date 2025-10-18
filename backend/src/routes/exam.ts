@@ -7,6 +7,7 @@ import Question from "../models/Question";
 import StudentAnswer from "../models/StudentAnswer";
 import ExamAttempt from "../models/ExamAttempt";
 import { User } from "../models/User";
+import { StudentTeacher } from "../models/StudentTeacher";
 import mongoose from "mongoose";
 
 interface AuthRequest extends Request {

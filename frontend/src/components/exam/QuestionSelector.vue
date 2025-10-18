@@ -1,25 +1,25 @@
 <template>
   <div class="form-card">
     <div class="step-header">
-      <h3>Soru Seçimi</h3>
+      <h3>{{ t('exam.questionSelection') }}</h3>
       <div class="selected-count">
-        Seçilen: {{ selectedQuestions.length }} soru
+        {{ t('exam.selected') }}: {{ selectedQuestions.length }} {{ t('exam.questions') }}
       </div>
     </div>
 
     <FilterBar
-      :search-placeholder="'Soru metninde ara...'"
+      :search-placeholder="t('exam.searchInQuestionText')"
       @search-change="handleSearchChange"
     >
       <template #filters>
         <Select 
-          :label="'Soru Tipi'" 
+          :label="t('questionBank.type')" 
           v-model="questionTypeFilter" 
           :options="questionTypeOptions"
         />
         
         <Select 
-          :label="'Zorluk'" 
+          :label="t('questionBank.difficulty')" 
           v-model="difficultyFilter" 
           :options="difficultyOptions"
         />
@@ -27,7 +27,7 @@
     </FilterBar>
 
     <div v-if="loading" class="loading">
-      Sorular yükleniyor...
+      {{ t('exam.loadingQuestions') }}
     </div>
     
     <div v-else-if="error" class="error">
@@ -53,7 +53,7 @@
             {{ option }}
           </div>
           <div v-if="question.options.length > 3" class="more-options">
-            +{{ question.options.length - 3 }} şık daha
+            +{{ question.options.length - 3 }} {{ t('exam.moreOptions') }}
           </div>
         </div>
       </div>
@@ -64,13 +64,13 @@
         @click="$emit('previous')" 
         styleType="lightgrey" 
         size="medium" 
-        :text="'Geri'"
+        :text="t('common.previous')"
       />
       <Button 
         @click="$emit('next')" 
         styleType="primary" 
         size="medium" 
-        :text="'Devam Et'"
+        :text="t('common.next')"
         :disabled="selectedQuestions.length === 0"
       />
     </div>
@@ -81,10 +81,13 @@
 import { ref, computed, watch } from 'vue'
 import { useApi } from '../../composables/useApi'
 import { QUESTION_TYPES, DIFFICULTY_LEVELS } from '../../utils/constants'
+import { useI18n } from 'vue-i18n'
 import FilterBar from '../ui/FilterBar.vue'
 import Select from '../ui/Select.vue'
 import Button from '../ui/Button.vue'
 import StatusBadge from '../ui/StatusBadge.vue'
+
+const { t } = useI18n()
 
 interface Props {
   selectedQuestions: string[]
@@ -111,8 +114,19 @@ const questionTypeFilter = ref('')
 const difficultyFilter = ref('')
 const searchQuery = ref('')
 
-const questionTypeOptions = QUESTION_TYPES
-const difficultyOptions = DIFFICULTY_LEVELS
+const questionTypeOptions = computed(() => 
+  QUESTION_TYPES.map(type => ({
+    label: t(type.labelKey),
+    value: type.value
+  }))
+)
+
+const difficultyOptions = computed(() =>
+  DIFFICULTY_LEVELS.map(level => ({
+    label: t(level.labelKey),
+    value: level.value
+  }))
+)
 
 const filteredQuestions = computed(() => {
   let filtered = questions.value

@@ -111,6 +111,13 @@ exports.getTeachersForStudent = getTeachersForStudent;
 const getStudentsForTeacher = async (req, res) => {
     try {
         const { teacherId } = req.params;
+        const currentUser = req.user;
+        // Only allow admins or the teacher themselves to view their students
+        if (currentUser.role !== 'admin' && currentUser._id.toString() !== teacherId) {
+            return res.status(403).json({
+                message: "Bu eğitmenin öğrencilerini görme yetkiniz yok"
+            });
+        }
         const assignments = await StudentTeacher_1.StudentTeacher.find({ teacherId })
             .populate("studentId", "name email")
             .select("studentId assignedAt");

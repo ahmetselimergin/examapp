@@ -11,6 +11,8 @@ const auth_1 = __importDefault(require("./routes/auth"));
 const question_1 = __importDefault(require("./routes/question"));
 const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const teacherRoutes_1 = __importDefault(require("./routes/teacherRoutes"));
+const backup_1 = __importDefault(require("./routes/backup"));
+const dashboard_1 = __importDefault(require("./routes/dashboard"));
 const db_1 = __importDefault(require("./config/db"));
 const app = (0, express_1.default)();
 // Middleware
@@ -31,8 +33,10 @@ app.use("/api/exams", exam_1.default);
 app.use("/api/questions", question_1.default);
 app.use("/api/users", userRoutes_1.default);
 app.use("/api/teachers", teacherRoutes_1.default);
+app.use("/api/backup", backup_1.default);
+app.use("/api/dashboard", dashboard_1.default);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    // Server started on port ${PORT}
 });
 exports.default = app;

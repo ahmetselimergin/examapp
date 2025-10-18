@@ -79,7 +79,7 @@
         <div class="control-section">
           <!-- Timer Card -->
           <div class="timer-card">
-            <h3>Time Remaining</h3>
+            <h3>{{ t('examTaking.timeRemaining') }}</h3>
             <div class="timer-circle" :class="{ warning: timeWarning, danger: timeDanger }">
               <span class="timer-text">{{ formatTime(remainingTime) }}</span>
             </div>
@@ -87,14 +87,14 @@
 
           <!-- Progress Card -->
           <div class="progress-card">
-            <h3>Progress</h3>
+            <h3>{{ t('examTaking.progress') }}</h3>
             <div class="progress-stats">
               <div class="stat-item">
-                <span class="stat-label">Answered</span>
+                <span class="stat-label">{{ t('examTaking.answered') }}</span>
                 <span class="stat-value">{{ answeredCount }} / {{ exam.questions?.length || 0 }}</span>
               </div>
               <div class="stat-item">
-                <span class="stat-label">Remaining</span>
+                <span class="stat-label">{{ t('examTaking.remaining') }}</span>
                 <span class="stat-value">{{ (exam.questions?.length || 0) - answeredCount }}</span>
               </div>
             </div>
@@ -102,7 +102,7 @@
 
           <!-- Questions Overview -->
           <div class="questions-card">
-            <h3>Questions</h3>
+            <h3>{{ t('examTaking.questions') }}</h3>
             <div class="questions-grid">
               <button v-for="(_, index) in exam.questions" :key="index" 
                       class="question-dot"
@@ -119,7 +119,7 @@
           <!-- Submit Button -->
           <div class="submit-card">
             <button class="submit-btn" @click="showFinishModal = true">
-              Complete Exam
+              {{ t('examTaking.completeExam') }}
             </button>
           </div>
         </div>
@@ -129,25 +129,25 @@
     <!-- Loading State -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner"></div>
-      <p>Loading exam...</p>
+      <p>{{ t('common.loading') }}</p>
     </div>
 
     <!-- Finish Confirmation Modal -->
     <Modal v-if="showFinishModal" :modelValue="showFinishModal" @update:modelValue="showFinishModal = $event"
-      :title="'Confirm Submission'">
+      :title="t('examTaking.confirmSubmission')">
         <div class="finish-modal-content">
-          <p>Are you sure you want to submit your exam? This action cannot be undone.</p>
+          <p>{{ t('examTaking.confirmSubmissionMessage') }}</p>
           <div class="answer-summary">
-            <p><strong>Answered:</strong> {{ answeredCount }} / {{ exam.questions?.length || 0 }}</p>
-            <p><strong>Unanswered:</strong> {{ (exam.questions?.length || 0) - answeredCount }}</p>
+            <p><strong>{{ t('examTaking.answered') }}:</strong> {{ answeredCount }} / {{ exam.questions?.length || 0 }}</p>
+            <p><strong>{{ t('examTaking.unanswered') }}:</strong> {{ (exam.questions?.length || 0) - answeredCount }}</p>
           </div>
         </div>
 
         <!-- @ts-ignore -->
         <template #footer>
           <div class="modal-actions">
-            <Button @click="showFinishModal = false" styleType="secondary" text="Cancel" />
-            <Button @click="finishExam" styleType="primary" text="Submit Exam" :loading="submitting" />
+            <Button @click="showFinishModal = false" styleType="secondary" :text="t('common.cancel')" />
+            <Button @click="finishExam" styleType="primary" :text="t('examTaking.submitExam')" :loading="submitting" />
           </div>
         </template>
       </Modal>

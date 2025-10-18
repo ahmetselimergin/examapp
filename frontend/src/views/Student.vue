@@ -5,7 +5,7 @@
         <h2>{{ $t('students.title') }}</h2>
         <p>{{ $t('students.description') }}</p>
       </div>
-      <div class="header-actions">
+      <div class="header-actions" v-if="isAdmin">
         <Button 
           type="button" 
           styleType="primary" 
@@ -25,8 +25,8 @@
         { key: 'teachers', label: $t('students.instructors') }
       ]"
       :title="$t('students.title')"
-      :selectable="true"
-      :actions="true"
+      :selectable="isAdmin"
+      :actions="isAdmin"
       :show-export="true"
       @selection-change="handleSelectionChange"
       @export="handleExport"
@@ -73,7 +73,7 @@
     </DataTable>
     
     <Button 
-      v-if="selectedStudents.length" 
+      v-if="isAdmin && selectedStudents.length" 
       styleType="primary" 
       class="assign-btn" 
       @click="showAssignModal = true"
@@ -191,7 +191,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import api from '../services/api';
 import DataTable from '../components/ui/DataTable.vue';
 import Empty from '../components/ui/Empty.vue';
@@ -201,8 +201,10 @@ import Modal from '../components/ui/Modal.vue';
 import Input from '../components/ui/Input.vue';
 import Button from '../components/ui/Button.vue';
 import { useToast } from '../composables/useToast';
+import { useAuthStore } from '../stores/auth';
 
 const { showSuccess, showError, showInfo } = useToast();
+const authStore = useAuthStore();
 
 // Data refs
 const students = ref<any[]>([]);
@@ -228,13 +230,28 @@ const newStudent = ref({
 // Selected students for assignment
 const selectedStudents = ref<string[]>([]);
 
+// Computed properties for user info
+const isAdmin = computed(() => authStore.user?.role === 'admin');
+const isTeacher = computed(() => authStore.user?.role === 'teacher');
+const currentUserId = computed(() => authStore.user?._id);
+
 const loadStudentsData = async () => {
   try {
-    const response = await api.get('/auth/admin/users');
-    const studentUsers = response.data.filter((user: any) => user.role === 'student');
-    students.value = studentUsers;
+    if (isAdmin.value) {
+      // Admin can see all students
+      const response = await api.get('/auth/admin/users');
+      const studentUsers = response.data.filter((user: any) => user.role === 'student');
+      students.value = studentUsers;
+    } else if (isTeacher.value && currentUserId.value) {
+      // Teacher can only see their assigned students
+      const response = await api.get(`/teachers/${currentUserId.value}/students`);
+      students.value = response.data;
+    } else {
+      students.value = [];
+    }
   } catch (error) {
     console.error('Öğrenci yükleme hatası:', error);
+    showError('Öğrenciler yüklenirken bir hata oluştu');
   }
 };
 

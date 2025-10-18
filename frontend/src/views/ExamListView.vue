@@ -3,7 +3,7 @@
           <div class="page-header">
             <div class="header-content">
               <h2>{{ $t('exam.title') }}</h2>
-              <p>Sınavları yönetin ve düzenleyin</p>
+              <p>{{ $t('exam.description') }}</p>
             </div>
             <div class="header-actions">
               <Button
@@ -18,14 +18,14 @@
             </div>
           </div>
           
-          <div v-if="loading" class="loading">Yükleniyor...</div>
+          <div v-if="loading" class="loading">{{ $t('common.loading') }}</div>
           <div v-else-if="error" class="error">{{ error }}</div>
           <div v-else>
             <div v-if="exams.length === 0" class="empty-exams">
               <Empty 
                 icon="quiz"
-                title="Sınav bulunamadı"
-                description="Henüz oluşturulmuş sınav bulunmuyor."
+                :title="$t('exam.noExams')"
+                :description="$t('exam.noExamsDescription')"
                 :action-text="$t('exam.createExam')"
                 action-variant="primary"
                 :show-action="authStore.user?.role === 'teacher' || authStore.user?.role === 'admin'"
@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onActivated } from 'vue';
 import { useRouter } from 'vue-router';
 import api from '../services/api';
 import { useAuthStore } from '../stores/auth';
@@ -244,12 +244,12 @@ const getExamStatus = (exam) => {
 const getExamStatusText = (exam) => {
      const status = getExamStatus(exam);
      const statusMap = {
-          upcoming: 'Yakında',
-          active: 'Aktif',
-          completed: 'Tamamlandı',
-          unknown: 'Bilinmiyor'
+          upcoming: t('exams.upcoming'),
+          active: t('exams.active'),
+          completed: t('exams.completed'),
+          unknown: t('common.unspecified')
      };
-     return statusMap[status] || 'Bilinmiyor';
+     return statusMap[status] || t('common.unspecified');
 };
 
 const isExamActive = (exam) => {
@@ -363,6 +363,11 @@ const loadExams = async () => {
 };
 
 onMounted(async () => {
+     await loadExams();
+});
+
+// Reload exams when component is reactivated (e.g., navigating back)
+onActivated(async () => {
      await loadExams();
 });
 </script>
